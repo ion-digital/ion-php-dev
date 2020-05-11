@@ -1,0 +1,48 @@
+{
+    "name": "ion/dev",
+    "type": "composer-plugin",
+    "description": "Development and package deployment support tools, built as a Composer plugin.",
+    "keywords": [
+        "ION",
+        "composer"
+    ],
+    "homepage": "https://bitbucket.org/ion-digital-projects/ion-dev",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Justus Meyer",
+            "role": "developer",
+            "homepage": "https://justusmeyer.com",
+            "email": "justus@justusmeyer.com"
+        }
+    ],
+    "support": {
+        "issues": "https://bitbucket.org/ion-digital-projects/ion-dev/issues"
+    },
+    "require": {
+        "php": ">=7.2",
+        "composer-plugin-api": "^1.1",
+        "phpunit/phpunit": "^6.2",
+        "phing/phing": "2.*",
+        "ion/php-trans-porter": "^0.0.19",
+        "symfony/framework-bundle": "^4.1.4",
+        "symfony/console": "^4.1.5",
+        "theseer/phpdox": "^0.11.2",
+        "kint-php/kint": "^3.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "ion\\": ["source/ion/"]
+        }    
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "ion\\": ["tests/unit/ion/"]
+        }    
+    },    
+    "extra": {
+        "class": "ion\\Dev\\Composer\\DevPlugin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

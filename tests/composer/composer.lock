@@ -1,0 +1,192 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "3da4544b9f3de45d634f2f3065e33d40",
+    "packages": [],
+    "packages-dev": [
+        {
+            "name": "ion/auto-loader",
+            "version": "v0.4.3",
+            "source": {
+                "type": "hg",
+                "url": "https://bitbucket.org/justusmeyer/auto-loader",
+                "reference": "2eb11044ab7917253e9568b8223f8207be4deb33"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/justusmeyer/auto-loader/get/2eb11044ab7917253e9568b8223f8207be4deb33.zip",
+                "reference": "2eb11044ab7917253e9568b8223f8207be4deb33",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "ion/auto-loader-dev": ">=0.0.10",
+                "ion/php-trans-porter": "^0.0.19",
+                "phing/phing": "2.*",
+                "php": "^7.1.3",
+                "phpunit/phpunit": "^6.2"
+            },
+            "suggest": {
+                "ion/auto-loader-dev": "Additional build tools that be used along with this library to stream-line your work-flow.",
+                "ion/php-trans-porter": "A PHP command-line utility and class library to convert source code between PHP 5.6+ and the latest version of PHP."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Justus Meyer",
+                    "email": "justus@justusmeyer.com",
+                    "homepage": "https://bitbucket.org/justusmeyer/",
+                    "role": "developer"
+                }
+            ],
+            "description": "A small auto-loading library, compatible with Composer, that allows you to customise your auto-loading functionality.",
+            "homepage": "https://bitbucket.org/justusmeyer/auto-loader",
+            "keywords": [
+                "autoload",
+                "autoload helper",
+                "boot strap",
+                "bootstrap",
+                "php"
+            ],
+            "time": "2018-04-12T21:19:05+00:00"
+        },
+        {
+            "name": "ion/core-dev",
+            "version": "dev-default",
+            "source": {
+                "type": "hg",
+                "url": "https://bitbucket.org/ion-digital-projects/ion-core-dev",
+                "reference": "b75d917f4c8eea801bc6a40e5857afa39c20fd55"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/ion-digital-projects/ion-core-dev/get/b75d917f4c8eea801bc6a40e5857afa39c20fd55.zip",
+                "reference": "b75d917f4c8eea801bc6a40e5857afa39c20fd55",
+                "shasum": ""
+            },
+            "require": {
+                "composer-plugin-api": "^1.1",
+                "ion/php-helper": "^0.6.19",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phing/phing": "2.*",
+                "phpunit/phpunit": "^6.2",
+                "symfony/console": "^4.1.5",
+                "symfony/framework-bundle": "^4.1.4"
+            },
+            "bin": [
+                "bin/ion"
+            ],
+            "type": "composer-plugin",
+            "extra": {
+                "class": "ion\\Tools\\Composer\\ToolPlugin"
+            },
+            "autoload": {
+                "psr-4": {
+                    "ion\\": "source/ion/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Justus Meyer",
+                    "email": "justus@justusmeyer.com",
+                    "homepage": "https://ion.digital",
+                    "role": "developer"
+                }
+            ],
+            "description": "The development support tools for the ION Core library.",
+            "homepage": "https://bitbucket.org/ion-digital-projects/ion-core-dev",
+            "keywords": [
+                "base",
+                "dynamic",
+                "immutable",
+                "ion",
+                "serialization"
+            ],
+            "time": "2018-10-19T13:30:58+00:00"
+        },
+        {
+            "name": "ion/php-helper",
+            "version": "v0.6.20",
+            "source": {
+                "type": "hg",
+                "url": "https://bitbucket.org/justusmeyer/php-helper",
+                "reference": "c70bd9ee60a497e66533ee4376144cc641489cd2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://bitbucket.org/justusmeyer/php-helper/get/c70bd9ee60a497e66533ee4376144cc641489cd2.zip",
+                "reference": "c70bd9ee60a497e66533ee4376144cc641489cd2",
+                "shasum": ""
+            },
+            "require": {
+                "ion/auto-loader": "^0.4.2",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "ion/auto-loader-dev": ">=0.0.11",
+                "ion/php-trans-porter": "^0.0.19",
+                "phing/phing": "2.*",
+                "php": ">=7.1",
+                "phpunit/phpunit": "^6.2"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Justus Meyer",
+                    "email": "justus@justusmeyer.com",
+                    "homepage": "https://bitbucket.org/justusmeyer/",
+                    "role": "developer"
+                }
+            ],
+            "description": "A library of common functions and classes useful when developing in PHP.",
+            "homepage": "https://bitbucket.org/justusmeyer/php-helper",
+            "keywords": [
+                "PHPHelper",
+                "php",
+                "php helper",
+                "php-helper"
+            ],
+            "time": "2018-10-18T10:40:20+00:00"
+        }
+    ],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "ion/core-dev": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": {
+        "php": ">=7.2"
+    }
+}

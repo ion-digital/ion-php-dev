@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fixtures base="../output">    
+    <imports>
+        <import path="subdir/child.xml" />
+    </imports>
+</fixtures>

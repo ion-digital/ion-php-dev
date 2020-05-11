@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ion/auto-loader" default="build">
+
+    <!-- ============================================  -->
+    <!-- Target: clean-build-5.6                       -->
+    <!-- ============================================  -->
+    <target name="clean-build-5.6">
+        <delete dir="./build/5.6" includeemptydirs="true" verbose="false" failonerror="false" />   
+    </target>  
+    
+    <!-- ============================================  -->
+    <!-- Target: clean-build-7.0                       -->
+    <!-- ============================================  -->
+    <target name="clean-build-7.0">
+        <delete dir="./build/7.0" includeemptydirs="true" verbose="false" failonerror="false" />   
+    </target>  
+    
+    <!-- ============================================  -->
+    <!-- Target: clean-build-7.1                       -->
+    <!-- ============================================  -->
+    <target name="clean-build-7.1">
+        <delete dir="./build/7.1" includeemptydirs="true" verbose="false" failonerror="false" />   
+    </target>    
+    
+    <!-- ============================================  -->
+    <!-- Target: clean-build-7.2                       -->
+    <!-- ============================================  -->
+    <target name="clean-build-7.2">
+        <delete dir="./build/7.2" includeemptydirs="true" verbose="false" failonerror="false" />   
+    </target>                                                             
+    
+    <!-- ============================================  -->
+    <!-- Target: clean-build                           -->
+    <!-- ============================================  -->
+    <target name="clean-build" depends="clean-build-5.6, clean-build-7.0, clean-build-7.1, clean-build-7.2">
+        <delete dir="./build" includeemptydirs="true" verbose="false" failonerror="false" /> 
+        <delete verbose="false" failonerror="false"> 
+            <fileset dir="./source">
+              <include name="ion-autoload-*.php" />
+            </fileset>    
+        </delete>        
+    </target>    
+    
+    <!-- ============================================  -->
+    <!-- Target: clean-dist                           -->
+    <!-- ============================================  -->
+    <target name="clean-dist">
+        <delete dir="./dist" includeemptydirs="true" verbose="false" failonerror="false" />               
+    </target>            
+    
+    <!-- ============================================  -->
+    <!-- Target: clean                                 -->
+    <!-- ============================================  -->
+    <target name="clean" depends="clean-build, clean-dist" />
+
+    <!-- ============================================  -->
+    <!-- Target: spring-clean                          -->
+    <!-- ============================================  -->
+    <target name="spring-clean" depends="clean">
+        <delete dir="./vendor" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete file="./composer.lock" verbose="false" failonerror="false" />     
+    </target>                                 
+
+    <!-- ============================================  -->
+    <!-- Target: build                                 -->
+    <!-- ============================================  -->
+    <target name="build" depends="clean-build">
+        <mkdir dir="./build" /> 
+               
+        <echo msg="Compiling version-specific builds..." />
+        <phingcall target="build-5.6" />
+        <phingcall target="build-7.0" />
+        <phingcall target="build-7.1" />
+        <phingcall target="build-7.2" />
+    </target>
+
+    <!-- ============================================  -->
+    <!-- Target: build-5.6                             -->
+    <!-- ============================================  -->
+    <target name="build-5.6">
+        
+        <echo msg="Compiling build for PHP version 5.6" />
+        <mkdir dir="./build/5.6" />
+        
+        <exec command="php-trans-porter --source-version 7.2 --target-version 5.6 --input ../../source/ --output ../../build/5.6/" dir="./vendor/bin" />
+
+    </target>
+    
+    <!-- ============================================  -->
+    <!-- Target: build-7.0                             -->
+    <!-- ============================================  -->
+    <target name="build-7.0">
+        
+        <echo msg="Compiling build for PHP version 7.0" />
+        <mkdir dir="./build/7.0" />
+        
+        <exec command="php-trans-porter --source-version 7.2 --target-version 7.0 --input ../../source/ --output ../../build/7.0/" dir="./vendor/bin" />
+        
+    </target>    
+    
+    <!-- ============================================  -->
+    <!-- Target: build-7.1                             -->
+    <!-- ============================================  -->
+    <target name="build-7.1">
+        
+        <echo msg="Compiling build for PHP version 7.1" />
+        <mkdir dir="./build/7.1" />
+        
+        <exec command="php-trans-porter --source-version 7.2 --target-version 7.1 --input ../../source/ --output ../../build/7.1/" dir="./vendor/bin" />        
+    </target>        
+    
+    <!-- ============================================  -->
+    <!-- Target: build-7.2                           -->
+    <!-- ============================================  -->
+    <target name="build-7.2">
+        
+        <echo msg="Compiling build for PHP version 7.2" />
+        <mkdir dir="./build/7.2" />
+        
+        <exec command="php-trans-porter --source-version 7.2 --target-version 7.2 --input ../../source/ --output ../../build/7.2/" dir="./vendor/bin" />        
+    </target>  
+    
+    <!-- ============================================  -->
+    <!-- Target: dist                             -->
+    <!-- ============================================  -->
+    <target name="dist" depends="build">
+        
+        <echo msg="Compiling distribution build..." />
+        <phingcall target="build" />
+        
+        <echo msg="Making distribution directories" />
+        
+        <mkdir dir="./dist/assets" />        
+        <mkdir dir="./dist/build" />               
+       
+        <echo msg="Copying files to ./dist" />
+        <copy todir="./dist">
+            <fileset dir=".">
+                <include name="LICENSE.md" />
+                <include name="README.md" />
+                <include name="bootstrap.php" />
+                <include name="composer.json" />
+                <include name="composer.lock" />
+                <include name="include.php" />
+            </fileset>
+        </copy>      
+        
+        <echo msg="Copying assets to ./dist/assets" />
+        <copy todir="./dist/assets">
+            <fileset dir="./assets">
+                <include name="**/*" />
+            </fileset>
+        </copy>  
+        
+        <echo msg="Copying builds to ./dist/build" />
+        <copy todir="./dist/build">
+            <fileset dir="./build">
+                <include name="**/*.php" />
+            </fileset>
+        </copy>                                  
+        
+        <echo msg="Executing Composer on ./dist" />
+        <exec command="composer install --no-dev" dir="./dist" />
+        
+    </target>    
+        
+    <!-- ============================================  -->
+    <!-- Target: composer-dev                          -->
+    <!-- ============================================  -->
+    <target name="composer-dev">             
+        <exec command="composer update" dir="./" passthru="true" />        
+        <phingcall target="build" />            
+    </target>  
+    
+    <!-- ============================================  -->
+    <!-- Target: composer                              -->
+    <!-- ============================================  -->
+    <target name="composer">           
+        <exec command="composer update --no-dev" dir="./" passthru="true" />
+    </target>         
+    
+    <!-- ============================================  -->
+    <!-- Target: package                               -->
+    <!-- ============================================  -->
+    <target name="package" depends="build">
+        
+        <echo msg="Checking if VCS version needs updating..." />
+        <exec command="package-tool --working-dir ../.. --vcs-version check auto" dir="./vendor/bin" checkreturn="true" />
+        
+        <echo msg="Committing source to VCS..." />
+        <exec command="package-tool --working-dir ../.. --vcs-commit &quot;Package update commit via build tools.&quot;" dir="./vendor/bin" checkreturn="true" />           
+        
+        <echo msg="Updating VCS tag..." />
+        <exec command="package-tool --working-dir ../.. --vcs-version update auto" dir="./vendor/bin" checkreturn="true" /> 
+
+    </target>       
+    
+</project>

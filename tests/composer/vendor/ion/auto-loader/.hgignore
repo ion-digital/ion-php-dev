@@ -1,0 +1,9 @@
+\.orig$
+\.orig\..*$
+\.chg\..*$
+\.rej$
+\.conflict\~$
+^vendor$
+^tests/auto-load\.json$
+syntax: glob
+tests\ion-auto-load-a64d29ec6dd73c9d9705050ad6ff31b1.php

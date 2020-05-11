@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fixtures>    
+    <fixture name="base">
+        <template filters="trim">BASE</template>        
+        <tags>
+            <tag name="a" method="child">A1</tag>
+            <tag name="b" method="child">B1</tag>
+            <tag name="c" method="child">C1</tag>
+        </tags>
+    </fixture>   
+</fixtures>

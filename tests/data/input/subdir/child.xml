@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fixtures>
+    
+    <fixture name="child" inherits="parent" method="append" output="child.txt">
+        
+        <template path="template.t" filters="trim" method="append">
+            
+            
+CHILD (INTERNAL)/*{a}*//*{b}*//*{c}*//*{d}*/
+            
+            
+        </template>
+        <tags>
+            <tag name="a">A2</tag>
+            <tag name="b">B2</tag>
+            <tag name="d">D2</tag>
+        </tags>
+    </fixture>   
+     
+    <imports>
+        <import path="parent.xml" />
+    </imports>
+</fixtures>

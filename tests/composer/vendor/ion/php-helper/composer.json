@@ -1,0 +1,46 @@
+{
+    "name": "ion/php-helper",
+    "type": "library",
+    "description": "A library of common functions and classes useful when developing in PHP.",
+    "keywords": [
+        "PHP",
+        "PHPHelper",
+        "PHP Helper",
+        "php-helper"
+    ],
+    "homepage": "https://bitbucket.org/justusmeyer/php-helper",
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Justus Meyer",
+            "role": "developer",
+            "homepage": "https://bitbucket.org/justusmeyer/",
+            "email": "justus@justusmeyer.com"
+        }
+    ],
+    "support": {
+        "issues": "https://bitbucket.org/justusmeyer/php-helper/issues"
+    },
+    "require": {
+        "php": ">=5.6",
+        "ion/auto-loader": "^0.4.2"
+    },
+    "require-dev": {
+        "php": ">=7.1", 
+        "phpunit/phpunit": "^6.2",
+        "phing/phing": "2.*",
+        "ion/php-trans-porter": "^0.0.19",
+        "ion/auto-loader-dev": ">=0.0.11"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+      "files": [
+        "bootstrap.php"
+      ]
+    },    
+    "autoload-dev": {
+        "psr-4": {
+            "ion\\": "tests/ion/"
+        }
+    }
+}

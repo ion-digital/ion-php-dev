@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="ion/core-dev" default="build">
+
+    <!-- ============================================  -->
+    <!-- Target: clean                                 -->
+    <!-- ============================================  -->
+    <target name="clean" />
+
+    <!-- ============================================  -->
+    <!-- Target: spring-clean                          -->
+    <!-- ============================================  -->
+    <target name="spring-clean" depends="clean">
+        <delete dir="./vendor" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete file="./composer.lock" verbose="false" failonerror="false" />     
+    </target>                                    
+        
+    <!-- ============================================  -->
+    <!-- Target: composer-dev                          -->
+    <!-- ============================================  -->
+    <target name="composer-dev">             
+        <exec command="composer update" dir="./" passthru="true" />        
+        <phingcall target="build" />            
+    </target>  
+    
+    <!-- ============================================  -->
+    <!-- Target: composer                              -->
+    <!-- ============================================  -->
+    <target name="composer">           
+        <exec command="composer update --no-dev" dir="./" passthru="true" />
+    </target>         
+
+    
+    <!-- ============================================  -->
+    <!-- Target: package                               -->
+    <!-- ============================================  -->
+    <target name="package">
+        
+        <echo msg="Checking if VCS version needs updating..." />
+        <exec command="package-tool --working-dir ../.. --vcs-version check auto --indent-output 10" dir="./vendor/bin" checkreturn="true" passthru="true" />
+        
+        <echo msg="Committing source to VCS..." />
+        <exec command="package-tool --working-dir ../.. --vcs-commit &quot;Package update commit via build tools.&quot; --indent-output 10" dir="./vendor/bin" checkreturn="true" passthru="true" />           
+        
+        <echo msg="Updating VCS tag..." />
+        <exec command="package-tool --working-dir ../.. --vcs-version update auto --indent-output 10" dir="./vendor/bin" checkreturn="true" passthru="true" /> 
+
+    </target>           
+    
+</project>

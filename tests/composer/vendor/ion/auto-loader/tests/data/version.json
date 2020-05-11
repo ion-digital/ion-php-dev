@@ -1,0 +1,11 @@
+{
+    "major": 9,
+    "minor": 9,
+    "patch": 9,
+    "pre-release": "tests",
+    "meta-data": [
+        "AAA",
+        "BBB",
+        "CCC"
+    ]
+}

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fixtures>   
+    <fixture name="parent" inherits="base" method="append">
+        <template filters="trim">   PARENT   </template>        
+    </fixture>        
+    <imports>
+        <import path="base.xml" />
+    </imports>
+</fixtures>
