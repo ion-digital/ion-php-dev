@@ -37,7 +37,7 @@ class FixtureTest extends TestCase {
         
         $fixtures = [];
         
-        $fixtures = Fixture::load($pkgRoot . static::INPUT_FILE, $fixtures, function($path) {
+        $fixtures = Fixture::load($pkgRoot . static::INPUT_FILE, function($path) {
 
             /* empty! */
         });
