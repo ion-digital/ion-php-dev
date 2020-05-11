@@ -4,9 +4,10 @@
     "description": "Development and package deployment support tools, built as a Composer plugin.",
     "keywords": [
         "ION",
-        "composer"
+        "composer",
+        "development tools"
     ],
-    "homepage": "https://bitbucket.org/ion-digital-projects/ion-dev",
+    "homepage": "https://bitbucket.org/ion-digital-projects/dev/",
     "license": "LGPL-3.0-or-later",
     "authors": [
         {
@@ -14,10 +15,15 @@
             "role": "developer",
             "homepage": "https://justusmeyer.com",
             "email": "justus@justusmeyer.com"
-        }
+        },
+        {
+            "name": "ION Digital",
+            "role": "owner",
+            "homepage": "https://ion.digital"
+        }        
     ],
     "support": {
-        "issues": "https://bitbucket.org/ion-digital-projects/ion-dev/issues"
+        "issues": "https://bitbucket.org/ion-digital-projects/dev/issues"
     },
     "require": {
         "php": ">=7.2",
