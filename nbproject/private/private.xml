@@ -7,5 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
+        <group name="ION"/>
     </open-files>
 </project-private>
