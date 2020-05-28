@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package-build" default="none" phingVersion="2.16.3">    
+    
+    <!-- Calculated properties (don't touch them, if you can help it!) -->
+    
+    <property name="build-script-version" value="0.0.2" />
+    
+    <property name="phing-include-directory" value="" />
+    
+    <if>
+        <equals arg1="${phing.project.name}" arg2="ion/dev" />
+        <then>
+            <property name="phing-include-directory" value="${phing.dir}/source/ant/" override="true" />
+        </then>
+        <else>
+            <property name="phing-include-directory" value="${phing.dir}/vendor/ion/dev/source/ant/" override="true" />
+        </else>
+    </if>
+
+    <property file="${phing-include-directory}/package-build.properties"/>
+
+    <property name="package-directory" value="./" />
+    <property name="build-source-version" value="${config.build-source-version}" />
+    <property name="build-target-versions" value="${config.build-target-versions}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\s+," replace="" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>          
+    </property>
+    <property name="build-tool" value="${dependencies-directory}bin/php-trans-porter" />
+    
+    <if>
+        <os family="windows" />
+        <then>
+            <property name="test-tool" value="${dependencies-directory}bin/phpunit.bat" />
+        </then>
+        <elseif>
+            <or>
+                <os family="unix" />
+                <os family="max" />
+            </or>
+            <then>
+                <property name="test-tool" value="${dependencies-directory}bin/phpunit" />
+            </then>
+        </elseif>
+    </if>    
+    
+    <property name="package" value="${phing.project.name}" />
+    <property name="vendor" value="${package}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\/(.+)" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>
+    <property name="project" value="${package}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)\/" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>    
+    <property name="version" value="@dev" />
+    <exec executable="composer" dir="." outputProperty="version" checkreturn="false" passthru="false">
+        <arg value="vcs" />
+        <arg value="version" />
+        <arg value="--check=auto" />
+        <arg value="--output" />
+    </exec>    
+    <property name="archive-version" value="v${version}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[.]" replace="_" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>       
+    <property name="build-source-major-version" value="${build-source-version}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\..+" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>      
+
+    <property name="source-directory" value="${config.source-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>        
+    </property>    
+    
+    <property name="builds-directory" value="${config.builds-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="archives-directory" value="${config.archives-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="tests-directory" value="${config.tests-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>    
+    <property name="dependencies-directory" value="${config.dependencies-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>    
+    <property name="additional-directories" value="${config.additional-directories}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern=",\s+" replace="," ignoreCase="true" />
+                <regexp pattern="\s+," replace="," ignoreCase="true" />
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="," replace="/,${package-directory}" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>   
+    </property>       
+    <property name="source-classes-directory" value="${source-directory}/classes/">
+        <filterchain>
+            <replaceregexp>                
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>     
+    <property name="source-templates-directory" value="${source-directory}/templates/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    
+    <property name="archive-version-directory" value="${archives-directory}${archive-version}/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="archive-path" value="${archives-directory}${archive-filename}" />    
+            
+    <property name="archive-filename" value="${vendor}-${project}--${branch}--${archive-version}.zip" />    
+    
+    <property name="branch" value="?" />
+    <exec executable="git" dir="." outputProperty="branch" checkreturn="false" passthru="false">
+        <arg value="rev-parse" />
+        <arg value="--abbrev-ref" />
+        <arg value="HEAD" />
+    </exec>    
+            
+    <!-- ===========================================
+        Target: none
+    ============================================ -->            
+            
+    <target name="none">        
+        <echo msg="Nothing to do!" />
+    </target>
+    
+    <!-- ===========================================
+        Target: info
+    ============================================ -->     
+    
+    <target name="info">
+        <echo msg="Build script version: ${build-script-version}" />
+        <echo msg="Package: ${package}" />
+        <echo msg="Vendor: ${vendor}" />
+        <echo msg="Project: ${project}" />
+        <echo msg="Branch: ${branch}" />
+        <echo msg="Package directory: ${package-directory}" />
+        <echo msg="Source directory: ${source-directory}" />
+        <echo msg="Source classes directory: ${source-classes-directory}" />
+        <echo msg="Dependencies directory: ${dependencies-directory}" />      
+        <if>
+            <not>
+                <equals arg1="${phing.project.name}" arg2="ion/dev" />
+            </not>
+            <then>
+                <echo msg="Version: ${version}" />
+                <echo msg="Additional directories: ${additional-directories}" />      
+                <echo msg="Source templates directory: ${source-templates-directory}" />
+                <echo msg="Builds directory: ${builds-directory}" />   
+                <echo msg="Tests directory: ${tests-directory}" />
+                <echo msg="Archives directory: ${archives-directory}" />
+                <echo msg="Archive directory: ${archive-directory}" />
+                <echo msg="Archive version directory: ${archive-version-directory}" />
+                <echo msg="Archive filename: ${archive-filename}" />
+                <echo msg="Archive output path: ${archive-path}" />    
+                <echo msg="Build tool: ${build-tool}" />
+                <echo msg="Build source version: ${build-source-version}" />
+                <echo msg="Build source major version: ${build-source-major-version}" />
+                <echo msg="Build target versions: ${build-target-versions}" />                            
+            </then>
+        </if>        
+    </target>
+
+    <!-- ===========================================
+        Target: clean
+    ============================================ -->      
+    
+    <target name="clean" depends="clean-archive, clean-builds" />
+
+    <!-- ===========================================
+        Target: clean-all
+    ============================================ -->      
+    
+    <target name="clean-all" depends="clean-archives, clean-builds, clean-dependencies" />
+    
+    <!-- ===========================================
+        Target: check-archives-support
+    ============================================ -->      
+    
+    <target name="check-archives-support">
+        
+        <fail message="Archives are not supported for this package.">
+            <condition>
+                <or>
+                    <equals arg1="${archives-directory}" arg2=""/>
+                    <not>
+                        <isset property="archives-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+    </target>    
+    
+    <!-- ===========================================
+        Target: clean-archives
+    ============================================ -->      
+    
+    <target name="clean-archives" depends="check-archives-support">
+   
+        <delete dir="${archives-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+    </target>
+    
+    
+    <!-- ===========================================
+        Target: check-archive-support
+    ============================================ -->      
+        
+    <target name="check-archive-support" depends="check-archives-support">   
+        <fail message="Archives are not supported for this package.">
+            <condition>
+                <or>
+                    <equals arg1="${archive-version-directory}" arg2=""/>
+                    <not>
+                        <isset property="archive-version-directory"/>
+                    </not>                    
+               </or>
+           </condition>
+        </fail>     
+    </target>        
+    
+    <!-- ===========================================
+        Target: clean-archive
+    ============================================ -->      
+    
+    <target name="clean-archive" depends="check-archive-support">
+   
+        <fail message="Could not determine which archive file to delete - the value of 'archive-path' is '${archive-path}'">
+            <condition>
+                <or>
+                    <equals arg1="${archive-path}" arg2=""/>
+                    <not>
+                        <isset property="archive-path"/>
+                    </not>                    
+               </or>
+           </condition>
+        </fail>        
+        
+        <delete dir="${archive-version-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete file="${archive-path}" verbose="false" failonerror="false" />
+        
+    </target>    
+
+    <!-- ===========================================
+        Target: check-build-support
+    ============================================ -->      
+        
+    <target name="check-build-support">   
+        <fail message="Builds are not supported for this package.">
+            <condition>
+                <or>
+                    <equals arg1="${builds-directory}" arg2=""/>
+                    <not>
+                        <isset property="builds-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+    </target>  
+
+    <!-- ===========================================
+        Target: clean-builds
+    ============================================ -->      
+    
+    <target name="clean-builds" depends="check-build-support">   
+        <delete dir="${builds-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+    </target>
+
+    <!-- ===========================================
+        Target: clean-dependencies
+    ============================================ -->      
+    
+    <target name="clean-dependencies">
+   
+        <delete dir="${package-directory}vendor/" includeemptydirs="true" verbose="false" failonerror="false" />
+        <delete file="composer.lock" verbose="false" failonerror="false" />
+        
+    </target>
+    
+            
+    <!-- ===========================================
+        Target: archive
+    ============================================ -->  
+    <target name="archive" depends="builds, clean-archive">
+        
+        <if>
+            <or>
+                <equals arg1="${archives-directory}" arg2=""/>
+                <not>
+                    <isset property="archives-directory"/>
+                </not>
+                <equals arg1="${archive-directory}" arg2=""/>
+                <not>
+                    <isset property="archive-directory"/>
+                </not>
+                <equals arg1="${archive-filename}" arg2=""/>
+                <not>
+                    <isset property="archive-filename"/>
+                </not>                
+            </or>
+            <then>
+                <echo msg="Nothing to do!" />
+            </then>
+            <else>
+                
+                <echo msg="Compiling distribution archive '${archive-filename}' for package ${version}." />
+
+                <mkdir dir="${archive-directory}" />
+
+                <copy todir="${archive-directory}" haltonerror="false" >
+                    <fileset dir=".">
+                        <include name="*.php" />
+                        <include name="composer.json" />
+                        <include name="version.json" />
+                        <include name="LICENSE.md" />
+                        <include name="README.md" />
+                    </fileset>
+                </copy>
+
+                <copy todir="${archive-directory}${builds-directory}" haltonerror="false" includeemptydirs="false">
+                    <fileset dir="${builds-directory}">        
+                        <include name="**/*" />  
+                    </fileset>
+                </copy>        
+
+                <foreach list="${additional-directories}" param="additional-directory" target="archive-additional-directory" />             
+
+                <echo msg="Updating dependencies in ${archive-directory}" />
+                <exec command="composer update --no-dev" dir="${archive-directory}" />
+
+                <delete>
+                    <fileset dir="${archive-directory}">
+                        <!-- <include name="composer.json" /> -->
+                        <include name="composer.lock" />
+                        <include name="auto-load.json" />
+                    </fileset>
+                </delete>        
+
+                <echo msg="Creating package archive: ${archive-path}." />
+                <zip destfile="${archive-path}">
+                    <fileset dir="${archive-version-directory}">
+                        <include name="**/**" />
+                    </fileset>
+                </zip>
+                
+            </else>
+        </if>        
+    </target>    
+    
+    <target name="archive-additional-directory">
+        <copy todir="${archive-directory}${additional-directory}" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${additional-directory}">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>           
+    </target>
+     
+     
+    <!-- ===========================================
+        Target: builds
+    ============================================ -->
+    
+    <target name="builds" depends="clean-builds, templates">
+                     
+        <if>
+            <or>
+                <equals arg1="${builds-directory}" arg2=""/>
+                <not>
+                    <isset property="builds-directory"/>
+                </not>
+                <equals arg1="${build-target-versions}" arg2=""/>
+                <not>
+                    <isset property="build-target-versions"/>
+                </not>
+                <equals arg1="${build-source-version}" arg2=""/>
+                <not>
+                    <isset property="build-source-version"/>
+                </not>
+            </or>
+            <then>
+                <echo msg="Nothing to do!" />
+            </then>
+            <else>    
+        
+                <mkdir dir="${builds-directory}" />       
+
+                <foreach list="${build-target-versions}" param="build-target-version" target="build-version" />
+
+                <phingcall target="build-current" />
+                
+            </else>
+        </if>
+        
+    </target>
+    
+    <target name="build-version">
+
+        <fail message="No build source version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${build-source-version}" arg2=""/>
+                    <not>
+                        <isset property="build-source-version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+
+        <fail message="No source classes directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${source-classes-directory}" arg2=""/>
+                    <not>
+                        <isset property="source-classes-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+                        
+        <fail message="No build target version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${build-target-version}" arg2=""/>
+                    <not>
+                        <isset property="build-target-version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>    
+        
+        <fail message="No builds directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${builds-directory}" arg2=""/>
+                    <not>
+                        <isset property="builds-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>         
+        
+        <echo msg="Generating build for PHP ${build-target-version}." />
+        
+        <mkdir dir="${builds-directory}${build-target-version}" />        
+        
+        <exec executable="${build-tool}" dir="." checkreturn="true" passthru="false">
+            <arg value="--source-version" />
+            <arg value="${build-source-version}" />
+            <arg value="--target-version" />
+            <arg value="${build-target-version}" />
+            <arg value="--input" />
+            <arg value="${source-classes-directory}" />
+            <arg value="--output" />
+            <arg value="${builds-directory}${build-target-version}/" />
+        </exec>           
+    </target>       
+
+    <target name="build-current">
+        
+        <fail message="No build source version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${build-source-version}" arg2=""/>
+                    <not>
+                        <isset property="build-source-version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+        
+        <fail message="No build source major version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${build-source-major-version}" arg2=""/>
+                    <not>
+                        <isset property="build-source-major-version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+        <fail message="No builds directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${builds-directory}" arg2=""/>
+                    <not>
+                        <isset property="builds-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+
+        <fail message="No source classes directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${source-classes-directory}" arg2=""/>
+                    <not>
+                        <isset property="source-classes-directory"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+        <echo msg="Generating build for PHP ${build-source-version}+." />
+        
+        <mkdir dir="${builds-directory}${build-source-major-version}/" />
+        
+        <copy todir="${builds-directory}${build-source-major-version}/" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${source-classes-directory}/">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>      
+                
+    </target>    
+
+    <!-- ===========================================
+        Target: dependencies
+    ============================================ -->
+    
+    <target name="dependencies">           
+
+        <exec command="composer update" dir="${package-directory}" passthru="true" />
+
+    </target>             
+            
+    <!-- ===========================================
+        Target: tests
+    ============================================ -->
+    
+    <target name="tests">           
+        
+        <exec executable="${test-tool}" dir="${package-directory}" checkreturn="true" passthru="true">
+            <arg value="${tests-directory}" />
+        </exec>
+        
+        <!--
+        <phpunit bootstrap="${package-directory}vendor/autoload.php" haltonfailure="true" haltonerror="true">
+            <formatter type="plain" usefile="false"/>
+            <batchtest>
+                <fileset dir="${package-directory}tests">
+                    <include name="**/*Test.php"/>
+                </fileset>
+            </batchtest>            
+        </phpunit>
+        -->
+    </target>            
+    
+    <!-- ===========================================
+        Target: templates
+    ============================================ -->  
+      
+    <target name="templates">           
+        
+        <echo msg="Validating templates." />
+        <exec command="composer templates validate ${source-templates-directory}templates.xml" checkreturn="true" passthru="true" />
+        
+        <echo msg="Generating templates." />
+        <exec command="composer templates generate ${source-templates-directory}templates.xml" checkreturn="true" passthru="true" />  
+              
+    </target>                      
+    
+    <!-- ===========================================
+        Target: check-version
+    ============================================ -->  
+      
+    <target name="check-version">         
+          
+        <echo msg="Checking if VCS version needs updating..." />
+        <exec command="composer vcs version --check auto" checkreturn="true" passthru="true" />
+    </target>        
+    
+    <!-- ===========================================
+        Target: prepare-package
+    ============================================ -->  
+      
+    <target name="prepare-package" depends="check-version">         
+          
+        <echo msg="No action needed." />        
+    </target>      
+    
+    <!-- ===========================================
+        Target: package
+    ============================================ -->
+    
+    <target name="package" depends="check-version, templates, tests, builds">
+
+        <echo msg="Adding source to VCS..." />
+        
+        <property name="vcs-additional-directories" value="${additional-directories}">
+            <filterchain>
+                <replaceregexp>                    
+                    <regexp pattern="^(.+)" replace="-p \1" ignoreCase="true" />
+                    <regexp pattern="," replace=" -p " ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>     
+        </property>
+        
+        <!-- <echo msg="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" /> -->
+        
+        <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
+       
+        <phingcall target="prepare-package" />
+        
+        <echo msg="Committing source to VCS..." />
+        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="true" />
+        
+        <echo msg="Updating VCS tag..." />
+        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
+
+        <echo msg="Pushing to remote VCS..." />
+        <exec command="composer vcs push" checkreturn="true" passthru="true" />
+    </target>      
+
+</project>

@@ -23,7 +23,7 @@ class RegexCommand extends BaseCommand {
             ->setHelp("This command allows you to load a file, search for text that matches the specified regular expression pattern and replace it with replacement text.")
             ->addArgument('operation', InputArgument::REQUIRED, "Either 'match' or 'replace.'")
             ->addArgument('pattern', InputArgument::REQUIRED, "The regular expression pattern to match (PCRE).")
-            ->addArgument('input', InputArgument::REQUIRED, "The path to the input file.", null)                
+            ->addArgument('input', InputArgument::OPTIONAL, "The path to the input file.", null)                
             ->addOption('replacement', 'r', InputOption::VALUE_OPTIONAL, "The replacement string - defaults to standard input if omitted.", '')            
             ->addOption('output', 'o', InputOption::VALUE_REQUIRED, "The path to the output file - defaults to standard output if omitted.", null)                
             ->addOption('limit', 'l', InputOption::VALUE_REQUIRED, "The number of replacements to allow - defaults to none (no limit) if omitted.", -1)                
