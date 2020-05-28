@@ -46,6 +46,8 @@
         </elseif>
     </if>    
     
+    <property name="auto-load-cache-pattern" value="${config.auto-load-cache-pattern}" />
+    
     <property name="package" value="${phing.project.name}" />
     <property name="vendor" value="${package}">
         <filterchain>
@@ -196,7 +198,8 @@
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
         <echo msg="Source classes directory: ${source-classes-directory}" />
-        <echo msg="Dependencies directory: ${dependencies-directory}" />      
+        <echo msg="Dependencies directory: ${dependencies-directory}" />  
+        <echo msg="Auto-load cache filename pattern: ${auto-load-cache-pattern}" />    
         <if>
             <not>
                 <equals arg1="${phing.project.name}" arg2="ion/dev" />
@@ -224,7 +227,7 @@
         Target: clean
     ============================================ -->      
     
-    <target name="clean" depends="clean-archive, clean-builds" />
+    <target name="clean" depends="clean-archive, clean-builds, clean-cache" />
 
     <!-- ===========================================
         Target: clean-all
@@ -319,6 +322,25 @@
     </target>  
 
     <!-- ===========================================
+        Target: clean-cache
+    ============================================ -->      
+
+    <target name="clean-cache">
+                 
+        <delete verbose="true" failonerror="false"> 
+            <fileset dir="${builds-directory}">
+                <include name="**/${auto-load-cache-pattern}" />
+            </fileset>
+            <fileset dir="${archive-directory}">
+                <include name="**/${auto-load-cache-pattern}" />
+            </fileset>
+            <fileset dir="${source-directory}">
+                <include name="**/${auto-load-cache-pattern}" />
+            </fileset>                
+        </delete>   
+    </target>
+    
+    <!-- ===========================================
         Target: clean-builds
     ============================================ -->      
     
@@ -341,7 +363,7 @@
     <!-- ===========================================
         Target: archive
     ============================================ -->  
-    <target name="archive" depends="builds, clean-archive">
+    <target name="archive" depends="builds, clean-archive, clean-cache">
         
         <if>
             <or>
@@ -420,7 +442,7 @@
         Target: builds
     ============================================ -->
     
-    <target name="builds" depends="clean-builds, templates">
+    <target name="builds" depends="clean-builds, clean-cache, templates">
                      
         <if>
             <or>
@@ -642,7 +664,7 @@
         Target: package
     ============================================ -->
     
-    <target name="package" depends="check-version, templates, tests, builds">
+    <target name="package" depends="check-version, templates, tests, clean-cache, builds">
 
         <echo msg="Adding source to VCS..." />
         

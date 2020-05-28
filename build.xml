@@ -2,6 +2,6 @@
 <project name="ion/dev" default="info">        
 
     <property file="build.properties"/>
-    <import file="source/ant/package-build.xml" />
+    <import file="source/ant/package-build.xml" />   
     
 </project>
