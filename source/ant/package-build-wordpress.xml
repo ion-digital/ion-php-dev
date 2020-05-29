@@ -3,9 +3,9 @@
     
     <property name="config.wordpress.entry-file" value="index.php" />
     
-    <property file="vendor/ion/dev/source/package-build-wordpress.properties"/>
+    <property file="vendor/ion/dev/source/ant/package-build-wordpress.properties"/>
     
-    <import file="vendor/ion/dev/source/ant/package-build-wordpress.xml" />
+    <import file="vendor/ion/dev/source/ant/package-build.xml" />
     
     <!-- ===========================================
         Target: prepare-package
