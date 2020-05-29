@@ -5,6 +5,8 @@
     
     <property file="vendor/ion/dev/source/package-build-wordpress.properties"/>
     
+    <import file="vendor/ion/dev/source/ant/package-build-wordpress.xml" />
+    
     <!-- ===========================================
         Target: prepare-package
     ============================================ -->  
