@@ -3,9 +3,9 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.2" />
+    <property name="build-script-version" value="0.0.3" />
     
-    <property file="build.properties" quiet="true" required="false" />
+    <property file="build.properties" />
     
     <property name="phing-include-directory" value="" />
     
