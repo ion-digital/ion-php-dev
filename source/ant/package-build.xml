@@ -161,16 +161,17 @@
             </replaceregexp>            
         </filterchain>            
     </property>
-    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}/">
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${branch}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
             </replaceregexp>            
         </filterchain>            
     </property>
-    <property name="archive-path" value="${archives-directory}${archive-filename}" />    
-            
+    
     <property name="archive-filename" value="${vendor}-${project}--${branch}--${archive-version}.zip" />    
+    
+    <property name="archive-path" value="${archives-directory}${archive-filename}" />    
     
     <property name="branch" value="?" />
     <exec executable="git" dir="." outputProperty="branch" checkreturn="false" passthru="false">
