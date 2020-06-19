@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.3" />
+    <property name="build-script-version" value="0.0.4" />
     
     <property file="build.properties" />
     
@@ -161,7 +161,23 @@
             </replaceregexp>            
         </filterchain>            
     </property>
-    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${branch}/">
+    
+    <property name="current-branch" value="?" />
+    <exec executable="git" dir="." outputProperty="current-branch" checkreturn="false" passthru="false">
+        <arg value="rev-parse" />
+        <arg value="--abbrev-ref" />
+        <arg value="HEAD" />
+    </exec>        
+    
+    <property name="release-branch" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>                    
+                <regexp pattern="^((dev|rel|development|release|live|prod|production)-)?(.+)" replace="${config.release-prefix}-\3" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>     
+    </property>       
+    
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -169,16 +185,10 @@
         </filterchain>            
     </property>
     
-    <property name="archive-filename" value="${vendor}-${project}--${branch}--${archive-version}.zip" />    
+    <property name="archive-filename" value="${vendor}-${project}--${current-branch}--${archive-version}.zip" />    
     
     <property name="archive-path" value="${archives-directory}${archive-filename}" />    
-    
-    <property name="branch" value="?" />
-    <exec executable="git" dir="." outputProperty="branch" checkreturn="false" passthru="false">
-        <arg value="rev-parse" />
-        <arg value="--abbrev-ref" />
-        <arg value="HEAD" />
-    </exec>    
+
             
     <!-- ===========================================
         Target: none
@@ -197,7 +207,8 @@
         <echo msg="Package: ${package}" />
         <echo msg="Vendor: ${vendor}" />
         <echo msg="Project: ${project}" />
-        <echo msg="Branch: ${branch}" />
+        <echo msg="Current branch: ${current-branch}" />
+        <echo msg="Release branch: ${release-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
         <echo msg="Source classes directory: ${source-classes-directory}" />
@@ -701,5 +712,16 @@
         <echo msg="Pushing to remote VCS..." />
         <exec command="composer vcs push" checkreturn="true" passthru="true" />
     </target>      
+
+    <!-- ===========================================
+        Target: release
+    ============================================ -->
+    
+    <target name="release">
+        
+        <!-- TODO -->
+        
+    </target>
+    
 
 </project>
