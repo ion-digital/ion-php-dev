@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.4" />
+    <property name="build-script-version" value="0.0.5" />
     
     <property file="build.properties" />
     
@@ -171,8 +171,11 @@
     
     <property name="release-branch" value="${current-branch}">
         <filterchain>
-            <replaceregexp>                    
+<!--            <replaceregexp>                    
                 <regexp pattern="^((dev|rel|development|release|live|prod|production)-)?(.+)" replace="${config.release-prefix}-\3" ignoreCase="true" />
+            </replaceregexp>-->
+            <replaceregexp>                    
+                <regexp pattern="((.+)((-?)development|deployment|production|release|live|dev|rel)?)$" replace="\2-${config.release-suffix}" ignoreCase="true" />
             </replaceregexp>            
         </filterchain>     
     </property>       
@@ -180,7 +183,7 @@
     <property name="temporary-branch" value="${current-branch}">
         <filterchain>
             <replaceregexp>                    
-                <regexp pattern="^((dev|rel|development|release|live|prod|production)-)?(.+)" replace="tmp-\3" ignoreCase="true" />
+                <regexp pattern="((.+)((-?)development|deployment|production|release|live|dev|rel)?)$" replace="\2-temp" ignoreCase="true" />
             </replaceregexp>            
         </filterchain>     
     </property>        
@@ -217,6 +220,7 @@
         <echo msg="Project: ${project}" />
         <echo msg="Current branch: ${current-branch}" />
         <echo msg="Release branch: ${release-branch}" />
+        <echo msg="Temporary release branch: ${temporary-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
         <echo msg="Source classes directory: ${source-classes-directory}" />
@@ -227,7 +231,7 @@
                 <equals arg1="${phing.project.name}" arg2="ion/dev" />
             </not>
             <then>
-                <echo msg="Version: ${version}" />
+                <echo msg="Package version: ${version}" />
                 <echo msg="Additional directories: ${additional-directories}" />      
                 <echo msg="Source templates directory: ${source-templates-directory}" />
                 <echo msg="Builds directory: ${builds-directory}" />   
