@@ -732,10 +732,10 @@
         <echo msg="Committing source to VCS." />
         <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="true" />        
         -->
-        
+        <!--
         <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
         <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
-        
+        -->
         <!--<echo msg="Pushing to remote VCS." />
         <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
         
