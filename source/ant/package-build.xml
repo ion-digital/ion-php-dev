@@ -675,7 +675,7 @@
       
     <target name="check-version">         
           
-        <echo msg="Checking if VCS version needs updating..." />
+        <echo msg="Checking if VCS version needs updating." />
         <exec command="composer vcs version --check auto" checkreturn="true" passthru="true" />
     </target>        
     
@@ -694,7 +694,7 @@
     
     <target name="package" depends="check-version, templates, tests, clean-cache, builds">
 
-        <echo msg="Adding source to VCS..." />
+        <echo msg="Adding source to VCS." />
         
         <property name="vcs-additional-directories" value="${additional-directories}">
             <filterchain>
@@ -706,19 +706,34 @@
         </property>
         
         <!-- <echo msg="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" /> -->
-        
-        <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
-       
-        <phingcall target="prepare-package" />
-        
-        <echo msg="Committing source to VCS..." />
-        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="true" />
-        
-        <echo msg="Updating VCS tag..." />
-        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
 
-        <echo msg="Pushing to remote VCS..." />
-        <exec command="composer vcs push" checkreturn="true" passthru="true" />
+        <!--        
+        <echo msg="Adding source to VCS." />
+        <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
+       -->
+       
+        <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
+        <exec command="git add ." checkreturn="true" passthru="false" />
+        
+        <phingcall target="prepare-package" />
+
+        <!-- We check the return for the commit below, since this is the development branch -->
+        <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="false" />
+
+        <!--
+        <echo msg="Committing source to VCS." />
+        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="true" />        
+        -->
+        
+        <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
+        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
+        
+        <!--<echo msg="Pushing to remote VCS." />
+        <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
+        
+        <echo msg="Pushing to remote repository. />
+        <exec command="git push" checkreturn="true" passthru="true" />
     </target>      
 
     <!-- ===========================================
