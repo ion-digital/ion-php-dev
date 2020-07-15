@@ -719,7 +719,7 @@
 
         <!-- We check the return for the commit below, since this is the development branch -->
         <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="false" />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
 
         <!--
         <echo msg="Committing source to VCS." />
@@ -735,16 +735,115 @@
         <echo msg="Pushing to remote upstream." />
         <exec command="git push --set-upstream origin ${current-branch}" checkreturn="true" passthru="false" />
     </target>      
+    
+    <!-- ===========================================
+        Target: check-release
+    ============================================ -->      
+    
+    <target name="check-release">
+
+        <echo msg="Current branch: '${current-branch}'" />
+        <echo msg="Release branch: '${release-branch}'" />
+        <echo msg="Temporary branch: '${temporary-branch}'" />
+                
+        <fail message="You are currently on the release branch ('${release-branch}') - I cannot create a release from a release.">
+            <condition>
+               <equals arg1="${current-branch}" arg2="${release-branch}"/>
+            </condition>
+        </fail>    
+
+    </target>  
 
     <!-- ===========================================
         Target: release
     ============================================ -->
     
-    <target name="release">
+    <target name="release" depends="package">       
         
-        <!-- TODO -->
+        <!-- create a temporary branch (if it doesn't exist) and switch to it -->
+
+        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
+        <exec command="git branch -D ${temporary-branch}" checkreturn="false" passthru="false" />
+                        
+        <echo msg="Creating a temporary GIT branch '${temporary-branch}'." />        
+        <exec command="git branch ${temporary-branch}" checkreturn="false" passthru="false" />
         
+        <echo msg="Switching to the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git checkout ${temporary-branch}" checkreturn="true" passthru="false" />
+        
+        <echo msg="Checking the temporary GIT branch '${temporary-branch}' against the current GIT branch '${current-branch}'." />
+        <exec command="git diff HEAD ${current-branch}" checkreturn="true" passthru="true" />        
+        
+<!--        <echo msg="Removing all local changes in '{temporary-branch}'." />
+        <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
+        
+        <!-- delete all non-release related files -->
+        
+        <echo msg="Removing all development-related objects in the temporary GIT branch '${temporary-branch}'." />
+        
+        <delete dir="${archives-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+        <delete>
+            <fileset dir="${package-directory}">
+                <include name="autoloader.json" />
+                <include name="build.xml" />                
+                <include name="make.bat" />
+                <include name="make" />
+            </fileset>
+        </delete>          
+
+        <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git add ." checkreturn="true" passthru="false" />
+
+        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
+        <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${package-version}).&quot;" checkreturn="false" passthru="false" />
+
+        <!-- create the release branch (if it doesn't exist) and switch to it -->
+        
+        <echo msg="Creating the release GIT branch '${release-branch}'." />        
+        <exec command="git branch ${release-branch}" checkreturn="false" passthru="false" />
+        
+        <echo msg="Switching to the release GIT branch '${release-branch}'." />
+        <exec command="git checkout ${release-branch}" checkreturn="true" passthru="false" />
+                
+        <!-- merge the temporary branch into the release branch -->
+        <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
+        <exec command="git merge -X theirs ${temporary-branch}" checkreturn="true" passthru="false" />
+
+        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />            
+                
+        <!--
+        <echo msg="Committing source to GIT." />
+        <exec command="composer vcs commit -m &quot;Release update commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="false" />
+       -->
+       
+        <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
+        <exec command="git add ." checkreturn="true" passthru="false" />
+
+        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
+        <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
+       
+        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />        
+
+        <!-- delete the temporary branch -->
+        <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
+        <exec command="git branch -D ${temporary-branch}" checkreturn="true" passthru="false" />
+                                
+        <echo msg="Pushing to remote upstream." />
+        <exec command="git push --set-upstream origin ${release-branch}" checkreturn="true" passthru="false" />
+        
+        <!-- revert to the development branch -->
+        
+        <echo msg="Switching to the current / development GIT branch '${current-branch}'." />
+        <exec command="git checkout ${current-branch}" checkreturn="true" passthru="false" />  
     </target>
+
     
 
 </project>
