@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.8" />
+    <property name="build-script-version" value="0.0.9" />
     
     <property file="build.properties" />
     
@@ -734,7 +734,7 @@
         -->
         <!--
         <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
-        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
+        <exec command="composer vcs version - -check auto - -update" checkreturn="true" passthru="true" />
         -->
         <!--<echo msg="Pushing to remote VCS." />
         <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
