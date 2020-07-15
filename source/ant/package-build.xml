@@ -809,7 +809,7 @@
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${package-version}).&quot;" checkreturn="false" passthru="false" />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
 
         <!-- create the release branch (if it doesn't exist) and switch to it -->
         
