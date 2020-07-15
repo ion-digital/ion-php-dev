@@ -177,6 +177,14 @@
         </filterchain>     
     </property>       
     
+    <property name="temporary-branch" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>                    
+                <regexp pattern="^((dev|rel|development|release|live|prod|production)-)?(.+)" replace="tmp-\3" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>     
+    </property>        
+    
     <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch}/">
         <filterchain>
             <replaceregexp>
