@@ -719,11 +719,11 @@
 
         <!-- We check the return for the commit below, since this is the development branch -->
         <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="false" />
+        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="false" />
 
         <!--
         <echo msg="Committing source to VCS." />
-        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${package-version}).&quot;" checkreturn="true" passthru="true" />        
+        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="true" />        
         -->
         
         <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
@@ -733,7 +733,7 @@
         <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
         
         <echo msg="Pushing to remote upstream." />
-        <exec command="git push" checkreturn="true" passthru="true" />
+        <exec command="git push" checkreturn="true" passthru="false" />
     </target>      
 
     <!-- ===========================================
