@@ -732,7 +732,7 @@
         <!--<echo msg="Pushing to remote VCS." />
         <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
         
-        <echo msg="Pushing to remote repository. />
+        <echo msg="Pushing to remote upstream." />
         <exec command="git push" checkreturn="true" passthru="true" />
     </target>      
 
