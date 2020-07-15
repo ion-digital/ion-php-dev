@@ -836,6 +836,9 @@
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
         <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />        
 
+        <echo msg="Updating release version tag for the current / development GIT branch '${release-branch}'." />
+        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
+        
         <!-- delete the temporary branch -->
         <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
         <exec command="git branch -D ${temporary-branch}" checkreturn="true" passthru="false" />
