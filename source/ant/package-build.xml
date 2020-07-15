@@ -711,11 +711,14 @@
         <echo msg="Adding source to VCS." />
         <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
        -->
-       
+
+        <echo msg="Applying BitBucket CI/CD development configuration." />
+        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.development.yml" tofile="./bitbucket-pipelines.xml" haltonerror="false" />
+
+        <phingcall target="prepare-package" />
+                                                               
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
-        
-        <phingcall target="prepare-package" />
 
         <!-- We check the return for the commit below, since this is the development branch -->
         <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
@@ -733,7 +736,7 @@
         <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
         
         <echo msg="Pushing to remote upstream." />
-        <exec command="git push --set-upstream origin ${current-branch}" checkreturn="true" passthru="false" />
+        <exec command="git push --follow-tags --set-upstream origin ${current-branch}" checkreturn="true" passthru="false" />
     </target>      
     
     <!-- ===========================================
@@ -758,7 +761,7 @@
         Target: release
     ============================================ -->
     
-    <target name="release" depends="package">       
+    <target name="release" depends="check-release, package">       
         
         <!-- create a temporary branch (if it doesn't exist) and switch to it -->
 
@@ -794,6 +797,9 @@
             </fileset>
         </delete>          
 
+        <echo msg="Applying BitBucket CI/CD release configuration." />
+        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.release.yml" tofile="./bitbucket-pipelines.xml" haltonerror="false" />
+
         <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
 
@@ -814,12 +820,7 @@
         <exec command="git merge -X theirs ${temporary-branch}" checkreturn="true" passthru="false" />
 
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />            
-                
-        <!--
-        <echo msg="Committing source to GIT." />
-        <exec command="composer vcs commit -m &quot;Release update commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="false" />
-       -->
+        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />                  
        
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
@@ -836,7 +837,7 @@
         <exec command="git branch -D ${temporary-branch}" checkreturn="true" passthru="false" />
                                 
         <echo msg="Pushing to remote upstream." />
-        <exec command="git push --set-upstream origin ${release-branch}" checkreturn="true" passthru="false" />
+        <exec command="git push --follow-tags --set-upstream origin ${release-branch}" checkreturn="true" passthru="false" />
         
         <!-- revert to the development branch -->
         

@@ -24,7 +24,7 @@ class GitProvider extends VcsProvider {
     const AMEND_CMD = 'git commit --amend --no-edit';
     const PULL_CMD = 'git pull';
     const PUSH_CMD = 'git push --follow-tags';
-    const TAGS_CMD = 'git describe'; // https://stackoverflow.com/questions/4277773/how-to-get-latest-tag-name
+    const TAGS_CMD = 'git describe --abbrev=0'; // https://stackoverflow.com/questions/4277773/how-to-get-latest-tag-name
     const TAG_CMD = 'git tag -a';
     const STATUS_CMD = 'git status -s';    
     
