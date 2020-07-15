@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.6" />
+    <property name="build-script-version" value="0.0.8" />
     
     <property file="build.properties" />
     
@@ -171,19 +171,19 @@
     
     <property name="release-branch" value="${current-branch}">
         <filterchain>
-<!--            <replaceregexp>                    
-                <regexp pattern="^((dev|rel|development|release|live|prod|production)-)?(.+)" replace="${config.release-prefix}-\3" ignoreCase="true" />
-            </replaceregexp>-->
             <replaceregexp>                    
+                <regexp pattern="^((development|deployment|production|feature|hotfix|bugfix|release|live|dev|rel))?[-\/]?(.+)" replace="${config.release-prefix}\3" ignoreCase="true" />
+            </replaceregexp>
+<!--            <replaceregexp>                    
                 <regexp pattern="((.+)((-?)development|deployment|production|release|live|dev|rel)?)$" replace="\2-${config.release-suffix}" ignoreCase="true" />
-            </replaceregexp>            
+            </replaceregexp>            -->
         </filterchain>     
     </property>       
     
     <property name="temporary-branch" value="${current-branch}">
         <filterchain>
             <replaceregexp>                    
-                <regexp pattern="((.+)((-?)development|deployment|production|release|live|dev|rel)?)$" replace="\2-temp" ignoreCase="true" />
+                <regexp pattern="^((development|deployment|production|feature|hotfix|bugfix|release|live|dev|rel))?[-\/]?(.+)" replace="release-temp/\3" ignoreCase="true" />
             </replaceregexp>            
         </filterchain>     
     </property>        
