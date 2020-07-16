@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.9" />
+    <property name="build-script-version" value="0.0.10" />
     
     <property file="build.properties" />
     
@@ -434,7 +434,7 @@
                 <foreach list="${additional-directories}" param="additional-directory" target="archive-additional-directory" />             
 
                 <echo msg="Updating dependencies in ${archive-directory}" />
-                <exec command="composer update --no-dev" dir="${archive-directory}" />
+                <exec command="composer update --no-dev --no-interaction" dir="${archive-directory}" />
 
                 <delete>
                     <fileset dir="${archive-directory}">
@@ -717,7 +717,7 @@
        -->
 
         <echo msg="Applying BitBucket CI/CD development configuration." />
-        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.development.yml" tofile="./bitbucket-pipelines.xml" overwrite="true" haltonerror="false" />
+        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.development.yml" tofile="./bitbucket-pipelines.yml" overwrite="true" haltonerror="false" />
 
         <phingcall target="prepare-package" />
                                                                
@@ -791,6 +791,7 @@
         <delete dir="${archives-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         
         <delete>
             <fileset dir="${package-directory}">
@@ -798,11 +799,12 @@
                 <include name="build.xml" />                
                 <include name="make.bat" />
                 <include name="make" />
+                <include name="" />
             </fileset>
         </delete>          
 
         <echo msg="Applying BitBucket CI/CD release configuration." />
-        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.release.yml" tofile="./bitbucket-pipelines.xml" overwrite="true" haltonerror="false" />
+        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.release.yml" tofile="./bitbucket-pipelines.yml" overwrite="true" haltonerror="false" />
 
         <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />

@@ -24,7 +24,7 @@ use \ion\SemVer;
 
 class VcsTool extends Tool {
 
-    use TLoadVersion;
+    use TVersion;
     
     public function execute(): int {
      
