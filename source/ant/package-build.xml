@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.11" />
+    <property name="build-script-version" value="0.1.1" />
     
     <property file="build.properties" />
     
@@ -213,7 +213,9 @@
         </filterchain>            
     </property>
     
-    <property name="archive-version-directory" value="${archives-directory}${archive-version}/">
+    <property name="ide-directory" value="${config.ide-directory}" />
+    
+    <property name="archive-version-directory" value="${archives-directory}${archive-version}/${current-branch-dashed}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -867,6 +869,8 @@
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.vcs.cmd.push} ${current-branch}" />
         </exec>
+        
+        <phingcall target="archive" />
     </target>      
     
     <!-- ===========================================
@@ -889,7 +893,7 @@
             </condition>
         </fail>   
 
-        <echo msg="You are currently on a development branch - release creation can continue!" />
+        <echo msg="You are currently on a development branch ('${current-branch}') - release creation can continue!" />
     </target>  
 
     <!-- ===========================================
@@ -924,7 +928,7 @@
         <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
         
         <echo msg="Creating release archive: ${archive-path}" />
-        <phingcall target="archive" />
+        <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
         
         <!-- delete all non-release related files -->
         
