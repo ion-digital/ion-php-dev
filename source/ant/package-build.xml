@@ -65,19 +65,73 @@
             </replaceregexp>
         </filterchain>        
     </property>    
-    <property name="current-version" value="?" />
-    <exec executable="composer" dir="." outputProperty="current-version" checkreturn="false" passthru="false">
-        <arg value="vcs" />
-        <arg value="version" />
-        <arg value="--check=auto" />
-        <arg value="--output" />
-    </exec>    
-    <property name="current-vcs-version" value="?" />
-    <exec executable="git" dir="." outputProperty="current-vcs-version" checkreturn="false" passthru="false">
-        <arg value="describe" />
-        <arg value="--abbrev=0" />
+    
+    <property name="current-branch" value="?" />
+    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-branch" checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.current-branch}" />
     </exec>        
-    <property name="archive-version" value="v${current-version}">
+    
+    <property name="current-branch-segment" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="((.+)([${config.branch-segment-seperator}]+)([^${config.branch-segment-seperator}]+))$" replace="\4" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
+    
+    <property name="current-branch-dashed" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
+    
+    <property name="current-branch-segment-dashed" value="${current-branch-segment}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>  
+    
+    <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
+    
+    <property name="temporary-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />          
+    
+    <!-- Get the current package version -->
+    <property name="current-package-version" value="?" />
+    <exec executable="${config.pkg.cmd}" dir="." outputProperty="current-package-version" checkreturn="false" passthru="false">
+        <arg line="${config.pkg.cmd.check-version}" />
+    </exec>
+    
+    <!-- Get the current VCS version -->
+    <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+    </exec>
+    
+    <property name="current-vcs-version" value="?" />
+    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-vcs-version" error="NUL" checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.get-tag}" />
+    </exec>
+    
+    <property name="current-vcs-version" value="${current-vcs-version}" override="true">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="^v?(.+)" replace="\1" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>  
+    
+    <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+    </exec>
+        
+    <!-- Set the current archive version string -->
+    <property name="archive-version" value="v${current-package-version}">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="[.]" replace="_" ignoreCase="true" />
@@ -167,44 +221,6 @@
         </filterchain>            
     </property>
     
-    <property name="current-branch" value="?" />
-    <exec executable="git" dir="." outputProperty="current-branch" checkreturn="false" passthru="false">
-        <arg value="rev-parse" />
-        <arg value="--abbrev-ref" />
-        <arg value="HEAD" />
-    </exec>        
-    
-    <property name="current-branch-segment" value="${current-branch}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="((.+)([${config.branch-segment-seperator}]+)([^${config.branch-segment-seperator}]+))$" replace="\4" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>    
-    
-    <property name="current-branch-dashed" value="${current-branch}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>    
-    
-    <property name="current-branch-segment-dashed" value="${current-branch-segment}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>  
-    
-    <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
-    
-    <property name="temporary-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />      
-    
     <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch-dashed}/">
         <filterchain>
             <replaceregexp>
@@ -217,7 +233,7 @@
     
     <property name="archive-path" value="${archives-directory}${archive-filename}" />    
 
-    <property name="commit-message" value="Auto-commit via build tools (package: '${package}', v${current-version}; ANT script: v${build-script-version}; branch: '${current-branch}')." />
+    <property name="commit-message" value="Auto-commit via build tools (package: '${package}', v${current-package-version}; ANT script: v${build-script-version}; branch: '${current-branch}')." />
     
     
     <if>
@@ -226,10 +242,10 @@
         </not>
         <then>
             <!-- TODO: the addition of the branch should happen in the composer version utility; not here -->
-            <property name="release-version" value="${current-version}+${current-branch-segment-dashed}" /> 
+            <property name="release-version" value="${current-package-version}+${current-branch-segment-dashed}" /> 
         </then>
         <else>
-            <property name="release-version" value="${current-version}" />        
+            <property name="release-version" value="${current-package-version}" />        
         </else>
     </if>  
     
@@ -322,8 +338,8 @@
                 <equals arg1="${phing.project.name}" arg2="ion/dev" />
             </not>
             <then>
-                <echo msg="Package version: ${current-version}" />
-                <echo msg="Latest VCS version ${current-vcs-version}" />
+                <echo msg="Package version: ${current-package-version}" />
+                <echo msg="VCS version: ${current-vcs-version}" />
                 <echo msg="Release version: ${release-version}" />
                 <echo msg="Additional directories: ${additional-directories}" />      
                 <echo msg="Source templates directory: ${source-templates-directory}" />
@@ -340,7 +356,8 @@
                 <echo msg="Build target versions: ${build-target-versions}" />                            
                 <echo msg="Commit message: ${commit-message}" />                            
             </then>
-        </if>        
+        </if>  
+        <!-- <echoproperties /> -->
     </target>
 
     <!-- ===========================================
@@ -505,7 +522,7 @@
             </then>
             <else>
                 
-                <echo msg="Compiling distribution archive '${archive-filename}' for package ${current-version}." />
+                <echo msg="Compiling distribution archive '${archive-filename}' for package ${current-package-version}." />
 
                 <mkdir dir="${archive-directory}" />
 
@@ -773,15 +790,43 @@
       
     <target name="check-version">         
           
+<!--        <property name="check-version-return" value="" />-->
+
         <echo msg="Checking if VCS version needs updating." />
-        <exec command="composer vcs version --check auto" checkreturn="true" passthru="true" />
+                
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+        </exec>        
+       
+        <exec executable="${config.pkg.cmd}" dir="." returnProperty="check-version-return" error="NUL" checkreturn="false" passthru="false">
+            <arg line="${config.pkg.cmd.check-version}" />
+        </exec>
+       
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+        </exec>
+        
+        <fail message="The package version (${current-package-version}) is currently lower than the release VCS version (${current-vcs-version}).">
+            <condition>
+               <equals arg1="${check-version-return}" arg2="-1"/>
+            </condition>
+        </fail>    
+
+        <fail message="The package version (${current-package-version}) is currently at the release VCS version (${current-vcs-version}).">
+            <condition>
+               <equals arg1="${check-version-return}" arg2="0"/>
+            </condition>
+        </fail>    
+
+        <echo msg="The package version (${current-package-version}) is currently higher than the release VCS version (${current-vcs-version}) - package or release creation can continue!" />
+
     </target>        
     
     <!-- ===========================================
         Target: prepare-package
     ============================================ -->  
       
-    <target name="prepare-package" depends="check-version">         
+    <target name="prepare-package">         
           
         <echo msg="No action needed." />        
     </target>      
@@ -792,49 +837,36 @@
     
     <target name="package" depends="check-version, templates, tests, clean-cache, builds">
 
-        <echo msg="Adding source to VCS." />
-        
-        <property name="vcs-additional-directories" value="${additional-directories}">
+<!--        <property name="vcs-additional-directories" value="${additional-directories}">
             <filterchain>
                 <replaceregexp>                    
                     <regexp pattern="^(.+)" replace="-p \1" ignoreCase="true" />
                     <regexp pattern="," replace=" -p " ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>     
-        </property>
+        </property>-->
         
-        <!-- <echo msg="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" /> -->
-
-        <!--        
-        <echo msg="Adding source to VCS." />
-        <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
-       -->
-
         <echo msg="Applying BitBucket CI/CD development configuration ('${devops-development-config}' -> '${config.devops-target-config}')." />
         <copy file="${devops-development-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />
         
         <phingcall target="prepare-package" />
-                                                               
+                                                                       
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
-        <exec command="git add ." checkreturn="true" passthru="false" />
-
+        <!-- ${vcs-additional-directories} ${source-directory} ${builds-directory} ./*.json ./*.php -->
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+        
         <!-- We check the return for the commit below, since this is the development branch -->
         <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
-        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>
 
-        <!--
-        <echo msg="Committing source to VCS." />
-        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${current-version}).&quot;" checkreturn="true" passthru="true" />        
-        -->
-        <!--
-        <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
-        <exec command="composer vcs version - -check auto - -update" checkreturn="true" passthru="true" />
-        -->
-        <!--<echo msg="Pushing to remote VCS." />
-        <exec command="composer vcs push" checkreturn="true" passthru="true" />-->
-        
         <echo msg="Pushing to remote upstream." />
-        <exec command="git push --follow-tags --set-upstream origin ${current-branch}" checkreturn="true" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.push} ${current-branch}" />
+        </exec>
     </target>      
     
     <!-- ===========================================
@@ -844,15 +876,20 @@
     <target name="check-release">
 
         <echo msg="Current branch: '${current-branch}'" />
-        <echo msg="Release branch: '${release-branch}'" />
-        <echo msg="Temporary branch: '${temporary-branch}'" />
+<!--        <echo msg="Release branch: '${release-branch}'" />
+        <echo msg="Temporary branch: '${temporary-branch}'" />-->
                 
-        <fail message="You are currently on the release branch ('${release-branch}') - I cannot create a release from a release.">
-            <condition>
-               <equals arg1="${current-branch}" arg2="${release-branch}"/>
-            </condition>
-        </fail>    
+        <property name="is-development-branch" value="" />
+        <propertyregex property="is-development-branch" defaultValue="" override="true" subject="${current-branch}" pattern="([^${config.branch-segment-seperator}]?)" replace="" />
+        <propertyregex property="is-development-branch" defaultValue="${is-development-branch}" override="true" subject="${is-development-branch}" pattern="([${config.branch-segment-seperator}]+)" replace="${config.branch-segment-seperator}" />
 
+        <fail message="You are currently NOT on a development branch ('${current-branch}') - I cannot create a release from here!">
+            <condition>
+               <equals arg1="${is-development-branch}" arg2="${config.branch-segment-seperator}"/>
+            </condition>
+        </fail>   
+
+        <echo msg="You are currently on a development branch - release creation can continue!" />
     </target>  
 
     <!-- ===========================================
@@ -864,16 +901,24 @@
         <!-- create a temporary branch (if it doesn't exist) and switch to it -->
 
         <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
-        <exec command="git branch -D ${temporary-branch}" checkreturn="false" passthru="false" />
-                        
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
+        </exec>           
+             
         <echo msg="Creating a temporary GIT branch '${temporary-branch}'." />        
-        <exec command="git branch ${temporary-branch}" checkreturn="false" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.create-branch} ${temporary-branch}" />
+        </exec>
         
         <echo msg="Switching to the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git checkout ${temporary-branch}" checkreturn="true" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${temporary-branch}" />
+        </exec>
         
         <echo msg="Checking the temporary GIT branch '${temporary-branch}' against the current GIT branch '${current-branch}'." />
-        <exec command="git diff HEAD ${current-branch}" checkreturn="true" passthru="true" />        
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.diff} ${current-branch}" />
+        </exec>        
         
 <!--        <echo msg="Removing all local changes in '{temporary-branch}'." />
         <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
@@ -904,51 +949,71 @@
         </delete>          
 
         <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git add ." checkreturn="true" passthru="false" />
-
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+        
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>
 
         <!-- create the release branch (if it doesn't exist) and switch to it -->
         
         <echo msg="Creating the release GIT branch '${release-branch}'." />        
-        <exec command="git branch ${release-branch}" checkreturn="false" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.create-branch} ${release-branch}" />
+        </exec>
         
         <echo msg="Switching to the release GIT branch '${release-branch}'." />
-        <exec command="git checkout ${release-branch}" checkreturn="true" passthru="false" />
-                
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+        </exec>
+        
         <!-- merge the temporary branch into the release branch -->
         <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
-        <exec command="git merge -X theirs ${temporary-branch}" checkreturn="true" passthru="false" />
-
-        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />                    
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${temporary-branch}" />
+        </exec>
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
-        <exec command="git add ." checkreturn="true" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
-        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>       
        
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />        
-
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.diff} ${temporary-branch}" />
+        </exec>   
+        
         <echo msg="Updating release version tag for the current / development GIT branch '${release-branch}'." />
-        <exec command="composer vcs version --check auto --update" checkreturn="true" passthru="true" />
+        <exec executable="${config.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.pkg.cmd.update-version}" />
+        </exec>        
         
         <!-- delete the temporary branch -->
         <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git branch -D ${temporary-branch}" checkreturn="true" passthru="false" />
-                                
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
+        </exec>           
+           
         <echo msg="Pushing to remote upstream." />
-        <exec command="git push --follow-tags --set-upstream origin ${release-branch}" checkreturn="true" passthru="false" />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.push} ${release-branch}" />
+        </exec>        
         
-        <!-- revert to the development branch -->
-        
+        <!-- revert to the development branch -->        
         <echo msg="Switching to the current / development GIT branch '${current-branch}'." />
-        <exec command="git checkout ${current-branch}" checkreturn="true" passthru="false" />  
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+        </exec>
     </target>
 
     

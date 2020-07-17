@@ -44,7 +44,7 @@ Check if the package version is higher than the specified version.
     * 'composer' (composer.json only)
     * Any valid SemVer version (http://www.semver.org)
         
-If the package version is higher, composer will exit with error code 0 - otherwise with error code -1.
+If the package version is higher, equal or lower; composer will exit with error code 1, 0 or -1 respectively.
 HELP
             )
                 

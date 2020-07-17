@@ -173,7 +173,7 @@ class VcsTool extends Tool {
                     
                     if($update === false) {
 
-                        return 0;
+                        return 1;
                     }
                     
                     if($provider->tag($newVersion->toVcsTag())) {
@@ -199,8 +199,6 @@ class VcsTool extends Tool {
                     
                     $this->write(($prepend === null ? '' : $prepend) . $this->getVersion($output, $currentVersion) . ($append === null ? '' : $append));             
                 }
-                
-                
                 
                 return -1;
             }            
