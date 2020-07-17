@@ -89,6 +89,15 @@
         </filterchain>   
     </property>    
     
+    <property name="archive-branch-dashed" value="${current-branch-dashed}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="^(temp-)" replace="" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>  
+    
     <property name="current-branch-segment-dashed" value="${current-branch-segment}">
         <filterchain>
             <replaceregexp>
@@ -215,7 +224,7 @@
     
     <property name="ide-directory" value="${config.ide-directory}" />
     
-    <property name="archive-version-directory" value="${archives-directory}${archive-version}/${current-branch-dashed}/">
+    <property name="archive-version-directory" value="${archives-directory}${archive-version}/${archive-branch-dashed}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -231,7 +240,7 @@
         </filterchain>            
     </property>
     
-    <property name="archive-filename" value="${vendor}-${project}--${current-branch-dashed}--${archive-version}.zip" />    
+    <property name="archive-filename" value="${vendor}-${project}--${archive-branch-dashed}--${archive-version}.zip" />    
     
     <property name="archive-path" value="${archives-directory}${archive-filename}" />    
 
@@ -323,9 +332,10 @@
         <echo msg="Vendor: ${vendor}" />
         <echo msg="Project: ${project}" />
         <echo msg="Current branch: ${current-branch}" />
-        <echo msg="Release branch: ${release-branch}" />
         <echo msg="Current branch dashed: ${current-branch-dashed}" />
         <echo msg="Current branch segment: ${current-branch-segment}" />
+        <echo msg="Release branch: ${release-branch}" />
+        <echo msg="Archive branch: ${archive-branch-dashed}" />
         <echo msg="Temporary release branch: ${temporary-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
@@ -870,6 +880,7 @@
             <arg line="${config.vcs.cmd.push} ${current-branch}" />
         </exec>
         
+        <echo msg="Creating development archive: " />
         <phingcall target="archive" />
     </target>      
     
@@ -927,7 +938,7 @@
 <!--        <echo msg="Removing all local changes in '{temporary-branch}'." />
         <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
         
-        <echo msg="Creating release archive: ${archive-path}" />
+        <echo msg="Creating release archive: " />
         <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
         
         <!-- delete all non-release related files -->
@@ -977,7 +988,7 @@
         
         <!-- merge the temporary branch into the release branch -->
         <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true"> <!-- false? -->
             <arg line="${config.vcs.cmd.merge-from-theirs} ${temporary-branch}" />
         </exec>
         
