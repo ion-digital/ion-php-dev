@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.0.10" />
+    <property name="build-script-version" value="0.0.11" />
     
     <property file="build.properties" />
     
@@ -65,14 +65,19 @@
             </replaceregexp>
         </filterchain>        
     </property>    
-    <property name="version" value="@dev" />
-    <exec executable="composer" dir="." outputProperty="version" checkreturn="false" passthru="false">
+    <property name="current-version" value="?" />
+    <exec executable="composer" dir="." outputProperty="current-version" checkreturn="false" passthru="false">
         <arg value="vcs" />
         <arg value="version" />
         <arg value="--check=auto" />
         <arg value="--output" />
     </exec>    
-    <property name="archive-version" value="v${version}">
+    <property name="current-vcs-version" value="?" />
+    <exec executable="git" dir="." outputProperty="current-vcs-version" checkreturn="false" passthru="false">
+        <arg value="describe" />
+        <arg value="--abbrev=0" />
+    </exec>        
+    <property name="archive-version" value="v${current-version}">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="[.]" replace="_" ignoreCase="true" />
@@ -169,26 +174,38 @@
         <arg value="HEAD" />
     </exec>        
     
-    <property name="release-branch" value="${current-branch}">
+    <property name="current-branch-segment" value="${current-branch}">
         <filterchain>
-            <replaceregexp>                    
-                <regexp pattern="^((development|deployment|production|feature|hotfix|bugfix|release|live|dev|rel))?[-\/]?(.+)" replace="${config.release-prefix}\3" ignoreCase="true" />
-            </replaceregexp>
-<!--            <replaceregexp>                    
-                <regexp pattern="((.+)((-?)development|deployment|production|release|live|dev|rel)?)$" replace="\2-${config.release-suffix}" ignoreCase="true" />
-            </replaceregexp>            -->
-        </filterchain>     
-    </property>       
+            <replaceregexp>
+                <regexp pattern="((.+)([${config.branch-segment-seperator}]+)([^${config.branch-segment-seperator}]+))$" replace="\4" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
     
-    <property name="temporary-branch" value="${current-branch}">
+    <property name="current-branch-dashed" value="${current-branch}">
         <filterchain>
-            <replaceregexp>                    
-                <regexp pattern="^((development|deployment|production|feature|hotfix|bugfix|release|live|dev|rel))?[-\/]?(.+)" replace="release-temp/\3" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>     
-    </property>        
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
     
-    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch}/">
+    <property name="current-branch-segment-dashed" value="${current-branch-segment}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>  
+    
+    <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
+    
+    <property name="temporary-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />      
+    
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch-dashed}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -196,11 +213,27 @@
         </filterchain>            
     </property>
     
-    <property name="archive-filename" value="${vendor}-${project}--${current-branch}--${archive-version}.zip" />    
+    <property name="archive-filename" value="${vendor}-${project}--${current-branch-dashed}--${archive-version}.zip" />    
     
     <property name="archive-path" value="${archives-directory}${archive-filename}" />    
 
-            
+    <property name="commit-message" value="Auto-commit via build tools (package: '${package}', v${current-version}; ANT script: v${build-script-version}; branch: '${current-branch}')." />
+    
+    
+    <if>
+        <not>
+            <equals arg1="${config.master-branch}" arg2="${current-branch-segment}" />
+        </not>
+        <then>
+            <!-- TODO: the addition of the branch should happen in the composer version utility; not here -->
+            <property name="release-version" value="${current-version}+${current-branch-segment-dashed}" /> 
+        </then>
+        <else>
+            <property name="release-version" value="${current-version}" />        
+        </else>
+    </if>  
+    
+    
     <!-- ===========================================
         Target: none
     ============================================ -->            
@@ -220,6 +253,8 @@
         <echo msg="Project: ${project}" />
         <echo msg="Current branch: ${current-branch}" />
         <echo msg="Release branch: ${release-branch}" />
+        <echo msg="Current branch dashed: ${current-branch-dashed}" />
+        <echo msg="Current branch segment: ${current-branch-segment}" />
         <echo msg="Temporary release branch: ${temporary-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
@@ -231,7 +266,9 @@
                 <equals arg1="${phing.project.name}" arg2="ion/dev" />
             </not>
             <then>
-                <echo msg="Package version: ${version}" />
+                <echo msg="Package version: ${current-version}" />
+                <echo msg="Latest VCS version ${current-vcs-version}" />
+                <echo msg="Release version: ${release-version}" />
                 <echo msg="Additional directories: ${additional-directories}" />      
                 <echo msg="Source templates directory: ${source-templates-directory}" />
                 <echo msg="Builds directory: ${builds-directory}" />   
@@ -245,6 +282,7 @@
                 <echo msg="Build source version: ${build-source-version}" />
                 <echo msg="Build source major version: ${build-source-major-version}" />
                 <echo msg="Build target versions: ${build-target-versions}" />                            
+                <echo msg="Commit message: ${commit-message}" />                            
             </then>
         </if>        
     </target>
@@ -411,7 +449,7 @@
             </then>
             <else>
                 
-                <echo msg="Compiling distribution archive '${archive-filename}' for package ${version}." />
+                <echo msg="Compiling distribution archive '${archive-filename}' for package ${current-version}." />
 
                 <mkdir dir="${archive-directory}" />
 
@@ -726,11 +764,11 @@
 
         <!-- We check the return for the commit below, since this is the development branch -->
         <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
+        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
 
         <!--
         <echo msg="Committing source to VCS." />
-        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${version}).&quot;" checkreturn="true" passthru="true" />        
+        <exec command="composer vcs commit -m &quot;Package update commit via build tools (for package version ${current-version}).&quot;" checkreturn="true" passthru="true" />        
         -->
         <!--
         <echo msg="Updating release version tag for the current / development GIT branch '${current-branch}'." />
@@ -796,10 +834,9 @@
         <delete>
             <fileset dir="${package-directory}">
                 <include name="autoloader.json" />
-                <include name="build.xml" />                
+                <!-- <include name="build.xml" /> -->
                 <include name="make.bat" />
                 <include name="make" />
-                <include name="" />
             </fileset>
         </delete>          
 
@@ -811,7 +848,7 @@
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
+        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
 
         <!-- create the release branch (if it doesn't exist) and switch to it -->
         
@@ -828,12 +865,22 @@
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
         <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />                  
        
+        <echo msg="Creating release archive: ${archive-path}" />
+        <phingcall task="archive" />
+        
+        <echo msg="Removing the release ANT build script." />
+        <delete>
+            <fileset dir="${package-directory}">
+                <include name="build.xml" />                
+            </fileset>
+        </delete>      
+        
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
-        <exec command="git commit -m &quot;Auto-commit via build tools (for package version ${version}).&quot;" checkreturn="false" passthru="false" />
+        <exec command="git commit -m &quot;${commit-message}.&quot;" checkreturn="false" passthru="false" />
        
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
         <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />        
