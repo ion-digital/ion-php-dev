@@ -233,6 +233,59 @@
         </else>
     </if>  
     
+    <!-- DevOps -->
+
+    <property name="tmp-devops-development-config" value="${config.devops-development-config-pattern}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\*" replace="${current-branch-dashed}" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>  
+    </property>
+ 
+    <if>
+        <not>
+            <available file="${tmp-devops-development-config}" />
+        </not>
+        <then>
+            <property name="devops-development-config" value="${config.devops-default-config-pattern}">
+                <filterchain>
+                    <replaceregexp>
+                        <regexp pattern="\*" replace="development" ignoreCase="true" />
+                    </replaceregexp>            
+                </filterchain>  
+            </property>
+        </then>
+        <else>
+            <property name="devops-development-config" value="${tmp-devops-development-config}" />
+        </else>
+    </if>    
+    
+    <property name="tmp-devops-release-config" value="${config.devops-release-config-pattern}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\*" replace="${current-branch-dashed}" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>  
+    </property>
+    
+    <if>
+        <not>
+            <available file="${tmp-devops-release-config}" />
+        </not>
+        <then>
+            <property name="devops-release-config" value="${config.devops-default-config-pattern}">
+                <filterchain>
+                    <replaceregexp>
+                        <regexp pattern="\*" replace="release" ignoreCase="true" />
+                    </replaceregexp>            
+                </filterchain>  
+            </property>
+        </then>
+        <else>
+            <property name="devops-release-config" value="${tmp-devops-release-config}" />
+        </else>
+    </if>    
     
     <!-- ===========================================
         Target: none
@@ -261,6 +314,9 @@
         <echo msg="Source classes directory: ${source-classes-directory}" />
         <echo msg="Dependencies directory: ${dependencies-directory}" />  
         <echo msg="Auto-load cache filename pattern: ${auto-load-cache-pattern}" />    
+        <echo msg="DevOps development configuration file: ${devops-development-config}" />  
+        <echo msg="DevOps release configuration file: ${devops-release-config}" />  
+        <echo msg="DevOps target configuration file: ${config.devops-target-config}" />  
         <if>
             <not>
                 <equals arg1="${phing.project.name}" arg2="ion/dev" />
@@ -754,9 +810,9 @@
         <exec command="composer vcs add ${vcs-additional-directories} -p ${source-directory} -p ${builds-directory} -p *.json -p *.php" checkreturn="true" passthru="true" />
        -->
 
-        <echo msg="Applying BitBucket CI/CD development configuration." />
-        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.development.yml" tofile="./bitbucket-pipelines.yml" overwrite="true" haltonerror="false" />
-
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-development-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-development-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />
+        
         <phingcall target="prepare-package" />
                                                                
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
@@ -822,11 +878,16 @@
 <!--        <echo msg="Removing all local changes in '{temporary-branch}'." />
         <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
         
+        <echo msg="Creating release archive: ${archive-path}" />
+        <phingcall target="archive" />
+        
         <!-- delete all non-release related files -->
+        
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />        
         
         <echo msg="Removing all development-related objects in the temporary GIT branch '${temporary-branch}'." />
         
-        <delete dir="${archives-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
@@ -834,14 +895,13 @@
         <delete>
             <fileset dir="${package-directory}">
                 <include name="autoloader.json" />
-                <!-- <include name="build.xml" /> -->
+                <include name="build.xml" />
                 <include name="make.bat" />
                 <include name="make" />
+                <include name="${devops-release-config-pattern}" />
+                <include name="${devops-development-config-pattern}" />
             </fileset>
         </delete>          
-
-        <echo msg="Applying BitBucket CI/CD release configuration." />
-        <copy file="./vendor/ion/dev/source/devops/bitbucket-pipelines.release.yml" tofile="./bitbucket-pipelines.yml" overwrite="true" haltonerror="false" />
 
         <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
@@ -863,17 +923,7 @@
         <exec command="git merge -X theirs ${temporary-branch}" checkreturn="true" passthru="false" />
 
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
-        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />                  
-       
-        <echo msg="Creating release archive: ${archive-path}" />
-        <phingcall task="archive" />
-        
-        <echo msg="Removing the release ANT build script." />
-        <delete>
-            <fileset dir="${package-directory}">
-                <include name="build.xml" />                
-            </fileset>
-        </delete>      
+        <exec command="git diff HEAD ${temporary-branch}" checkreturn="true" passthru="true" />                    
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec command="git add ." checkreturn="true" passthru="false" />
