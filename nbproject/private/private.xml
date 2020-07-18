@@ -7,5 +7,15 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
+        <group name="ION">
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/default.properties</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package-build.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package.archives.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package-build.properties</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package.state.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package.properties</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/package.builds.xml</file>
+        </group>
     </open-files>
 </project-private>

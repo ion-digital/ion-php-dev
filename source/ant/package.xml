@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+    
+    <if>
+        <equals arg1="${phing.project.name}" arg2="ion/dev" />
+        <then>
+            <property name="state.ant.dir.include" value="${phing.dir}/source/ant/" override="true" />
+        </then>
+        <else>
+            <property name="state.ant.dir.include" value="${phing.dir}/vendor/ion/dev/source/ant/" override="true" />
+        </else>
+    </if>
+    
+    <property file="${state.ant.dir.include}/package.properties" />
+        
+    <import file="${state.ant.dir.include}/package.state.xml" />
+    
+    
+    
+    <!-- ===========================================
+        Target: prepare-package
+    ============================================ -->     
+    
+    
+    <target name="prepare-package" depends="init">
+        
+    </target>    
+
+    
+    <!-- ===========================================
+        Target: prepare-staging
+    ============================================ -->     
+    
+
+    <target name="prepare-staging" depends="init">
+        
+    </target>    
+
+    
+    <!-- ===========================================
+        Target: prepare-release
+    ============================================ -->     
+    
+
+    <target name="prepare-release" depends="init">
+        
+    </target>    
+    
+    
+    <!-- ===========================================
+        Target: templates
+    ============================================ -->     
+    
+
+    <target name="templates" depends="init">
+        
+    </target>    
+
+    
+    <!-- ===========================================
+        Target: builds
+    ============================================ -->     
+    
+
+    <target name="builds" depends="init">
+        
+    </target>    
+    
+    
+    <!-- ===========================================
+        Target: tests
+    ============================================ -->         
+    
+    <target name="tests" depends="init">
+        
+    </target>    
+    
+    
+    <!-- ===========================================
+        Target: archive
+    ============================================ -->         
+
+    <target name="archive" depends="init">
+        
+    </target>    
+        
+    
+    <!-- ===========================================
+        Target: package
+    ============================================ -->         
+            
+    <target name="package" depends="init">
+        
+    </target>    
+    
+    
+    <!-- ===========================================
+        Target: staging
+    ============================================ -->         
+    
+    <target name="staging" depends="init">
+        
+    </target>    
+    
+    
+    <!-- ===========================================
+        Target: release
+    ============================================ -->         
+    
+    <target name="release" depends="init">
+        
+    </target>     
+    
+    
+    
+</project>

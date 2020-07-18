@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.1.7" />
+    <property name="build-script-version" value="0.2.1" />
     
     <property file="build.properties" />
     
@@ -22,15 +22,7 @@
     <property file="${phing-include-directory}/package-build.properties"/>
 
     <property name="package-directory" value="./" />
-    <property name="build-source-version" value="${config.build-source-version}" />
-    <property name="build-target-versions" value="${config.build-target-versions}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="\s+," replace="" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>          
-    </property>
-    <property name="build-tool" value="${dependencies-directory}bin/php-trans-porter" />
+
     
     <if>
         <os family="windows" />
@@ -50,44 +42,15 @@
     
     <property name="auto-load-cache-pattern" value="${config.auto-load-cache-pattern}" />
     
-    <property name="package" value="${phing.project.name}" />
-    <property name="vendor" value="${package}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="\/(.+)" replace="" ignoreCase="true" />
-            </replaceregexp>
-        </filterchain>        
-    </property>
-    <property name="project" value="${package}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)\/" replace="" ignoreCase="true" />
-            </replaceregexp>
-        </filterchain>        
-    </property>    
+    <property name="package" value="" />
+  
     
     <property name="current-branch" value="?" />
-    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-branch" checkreturn="false" passthru="false">
-        <arg line="${config.vcs.cmd.current-branch}" />
-    </exec>        
     
-    <property name="current-branch-segment" value="${current-branch}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="((.+)([${config.branch-segment-seperator}]+)([^${config.branch-segment-seperator}]+))$" replace="\4" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>    
     
-    <property name="current-branch-dashed" value="${current-branch}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>    
+
+    
+
     
     <property name="archive-branch-dashed" value="${current-branch-dashed}">
         <filterchain>
@@ -109,7 +72,7 @@
     
     <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
     
-    <property name="temporary-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />          
+    <property name="staging-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />          
     
     <!-- Get the current package version -->
     <property name="current-package-version" value="?" />
@@ -147,13 +110,7 @@
             </replaceregexp>
         </filterchain>        
     </property>       
-    <property name="build-source-major-version" value="${build-source-version}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="\..+" replace="" ignoreCase="true" />
-            </replaceregexp>
-        </filterchain>        
-    </property>      
+
 
     <property name="source-directory" value="${config.source-directory}">
         <filterchain>
@@ -244,7 +201,6 @@
     
     <property name="archive-path" value="${archives-directory}${archive-filename}" />    
 
-    <property name="commit-message" value="Auto-commit via build tools (package: '${package}', v${current-package-version}; ANT script: v${build-script-version}; branch: '${current-branch}')." />
     
     
     <if>
@@ -336,7 +292,7 @@
         <echo msg="Current branch segment: ${current-branch-segment}" />
         <echo msg="Release branch: ${release-branch}" />
         <echo msg="Archive branch dashed: ${archive-branch-dashed}" />
-        <echo msg="Temporary release branch: ${temporary-branch}" />
+        <echo msg="Temporary release branch: ${staging-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
         <echo msg="Source classes directory: ${source-classes-directory}" />
@@ -892,7 +848,7 @@
 
         <echo msg="Current branch: '${current-branch}'" />
 <!--        <echo msg="Release branch: '${release-branch}'" />
-        <echo msg="Temporary branch: '${temporary-branch}'" />-->
+        <echo msg="Temporary branch: '${staging-branch}'" />-->
                 
         <property name="is-development-branch" value="" />
         <propertyregex property="is-development-branch" defaultValue="" override="true" subject="${current-branch}" pattern="([^${config.branch-segment-seperator}]?)" replace="" />
@@ -907,73 +863,55 @@
         <echo msg="You are currently on a development branch ('${current-branch}') - release creation can continue!" />
     </target>  
 
+
+
     <!-- ===========================================
-        Target: release
+        Target: staging
     ============================================ -->
     
-    <target name="release" depends="check-release, package">       
-        
-        <!-- create a temporary branch (if it doesn't exist) and switch to it -->
+    <target name="staging" depends="package">
+                
+        <echo msg="\n============================================\nstage\n============================================\n" />
 
-<!--        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
-            <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
-        </exec>           
-             
-        <echo msg="Creating a temporary GIT branch '${temporary-branch}'." />        
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
-            <arg line="${config.vcs.cmd.create-branch} ${temporary-branch}" />
+        <!-- create a staging branch (if it doesn't exist) and switch to it -->   
+        
+        <echo msg="VCS: Checking out '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true" error=">
+            <arg line="${config.vcs.cmd.checkout} ${staging-branch}" />
         </exec>
         
-        <echo msg="Switching to the temporary GIT branch '${temporary-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.checkout} ${temporary-branch}" />
-        </exec>
         
-        <echo msg="Checking the temporary GIT branch '${temporary-branch}' against the current GIT branch '${current-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.diff} ${current-branch}" />
-        </exec>        
-       
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
         
         <echo msg="Creating release archive: " />
         <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
         
-         delete all non-release related files 
         
-        
-        !!! NOTE !!! - moved below/
 
-        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
-        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />        
         
-        <echo msg="Removing all development-related objects in the temporary GIT branch '${temporary-branch}'." />
-
-                        
-        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
-        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
-        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         
-        <delete>
-            <fileset dir="${package-directory}">
-                <include name="autoloader.json" />
-                <include name="build.xml" />
-                <include name="make.bat" />
-                <include name="make" />
-                <include name="${devops-release-config-pattern}" />
-                <include name="${devops-development-config-pattern}" />
-            </fileset>
-        </delete>          
-
+                
+        
         !!! NOTE !!! - /moved below
 
-        <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
+        <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.stage}" />
         </exec>
         
          We DON'T check the return for the commit below, since this is NOT a development branch 
-        <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
+        <echo msg="Committing changes to the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>-->
@@ -990,10 +928,10 @@
             <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
         </exec>
         
-        <!-- merge the temporary branch into the release branch -->
-<!--        <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
+        <!-- merge the staging branch into the release branch -->
+<!--        <echo msg="Merging '${staging-branch}' into '${release-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
-            <arg line="${config.vcs.cmd.merge-from-theirs} ${temporary-branch}" />
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${staging-branch}" />
         </exec>-->
         
         
@@ -1012,7 +950,7 @@
         
         <phingcall target="tests" />        
         
-<!--        <echo msg="Removing all other development-related objects on the temporary GIT branch '${temporary-branch}'." />-->
+<!--        <echo msg="Removing all other development-related objects on the staging GIT branch '${staging-branch}'." />-->
         <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
         <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
         <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
@@ -1039,9 +977,9 @@
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>       
        
-<!--        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
+<!--        <echo msg="Checking the release GIT branch '${release-branch}' against the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.diff} ${temporary-branch}" />
+            <arg line="${config.vcs.cmd.diff} ${staging-branch}" />
         </exec>   -->
         
         <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
@@ -1049,10 +987,160 @@
             <arg line="${config.pkg.cmd.update-version}" />
         </exec>        
         
-        <!-- delete the temporary branch -->
-<!--        <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
+        
+    </target>            
+    
+    
+    <!-- ===========================================
+        Target: prepare-release
+    ============================================ -->    
+
+    <target name="prepare-release" depends="">       
+        
+    </target>            
+    
+
+    <!-- ===========================================
+        Target: release
+    ============================================ -->
+    
+    <target name="release" depends="stage">
+        
+        <!-- create a staging branch (if it doesn't exist) and switch to it -->   
+             
+        <echo msg="Creating a staging GIT branch '${staging-branch}'." />        
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.create-branch} ${staging-branch}" />
+        </exec>
+        
+        <echo msg="Switching to the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
+            <arg line="${config.vcs.cmd.checkout} ${staging-branch}" />
+        </exec>
+        
+        <echo msg="Checking the staging GIT branch '${staging-branch}' against the current GIT branch '${current-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.diff} ${current-branch}" />
+        </exec>        
+       
+        
+        <echo msg="Creating release archive: " />
+        <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
+        
+         delete all non-release related files 
+        
+        
+        !!! NOTE !!! - moved below/
+
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />        
+        
+        <echo msg="Removing all development-related objects in the staging GIT branch '${staging-branch}'." />
+
+                        
+        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+        <delete>
+            <fileset dir="${package-directory}">
+                <include name="autoloader.json" />
+                <include name="build.xml" />
+                <include name="make.bat" />
+                <include name="make" />
+                <include name="${devops-release-config-pattern}" />
+                <include name="${devops-development-config-pattern}" />
+            </fileset>
+        </delete>          
+
+        !!! NOTE !!! - /moved below
+
+        <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+        
+         We DON'T check the return for the commit below, since this is NOT a development branch 
+        <echo msg="Committing changes to the staging GIT branch '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>-->
+
+        <!-- create the release branch (if it doesn't exist) and switch to it -->
+        
+        <echo msg="Creating the release GIT branch '${release-branch}'." />        
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${config.vcs.cmd.create-branch} ${release-branch}" />
+        </exec>
+        
+        <echo msg="Switching to the release GIT branch '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+        </exec>
+        
+        <!-- merge the staging branch into the release branch -->
+<!--        <echo msg="Merging '${staging-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${staging-branch}" />
+        </exec>-->
+        
+        
+        <!-- merge the development branch into the release branch -->
+        <echo msg="Rebasing / Merging '${current-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${current-branch}" />
+        </exec>        
+
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />                
+                        
+        <echo msg="Removing '{$source-directory}' for release tests on the release GIT branch '${release-branch}'." />        
+        
+        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+        <phingcall target="tests" />        
+        
+<!--        <echo msg="Removing all other development-related objects on the staging GIT branch '${staging-branch}'." />-->
+        <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
+        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${package-directory}">
+                <include name="autoloader.json" />
+                <include name="build.xml" />
+                <include name="make.bat" />
+                <include name="make" />
+                <include name="${devops-release-config-pattern}" />
+                <include name="${devops-development-config-pattern}" />
+            </fileset>
+        </delete>                  
+        
+        <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+
+        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
+        <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>       
+       
+<!--        <echo msg="Checking the release GIT branch '${release-branch}' against the staging GIT branch '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.diff} ${staging-branch}" />
+        </exec>   -->
+        
+        <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
+        <exec executable="${config.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.pkg.cmd.update-version}" />
+        </exec>        
+        
+        <!-- delete the staging branch -->
+<!--        <echo msg="Cleaning up the staging GIT branch '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.delete-branch} ${staging-branch}" />
         </exec>           -->
            
         <echo msg="Pushing to remote upstream." />
