@@ -250,7 +250,7 @@
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
         <!-- ${vcs-additional-directories} ${source-directory} ${builds-directory} ./*.json ./*.php -->
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.vcs.cmd.state}" />
+            <arg line="${config.vcs.cmd.stage}" />
         </exec>
         
         <!-- We check the return for the commit below, since this is the development branch -->
@@ -327,19 +327,7 @@
         
         
 
-        
-        
-                
-        
-        !!! NOTE !!! - /moved below
-
-        <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.state}" />
-        </exec>
-        
-         We DON'T check the return for the commit below, since this is NOT a development branch 
-        <echo msg="Committing changes to the staging GIT branch '${staging-branch}'." />
+<!--        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>-->
