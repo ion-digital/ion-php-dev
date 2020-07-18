@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.1.4" />
+    <property name="build-script-version" value="0.1.7" />
     
     <property file="build.properties" />
     
@@ -865,7 +865,7 @@
                                                                        
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
         <!-- ${vcs-additional-directories} ${source-directory} ${builds-directory} ./*.json ./*.php -->
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.vcs.cmd.stage}" />
         </exec>
         
@@ -915,7 +915,7 @@
         
         <!-- create a temporary branch (if it doesn't exist) and switch to it -->
 
-        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
+<!--        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
             <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
         </exec>           
@@ -934,20 +934,22 @@
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.diff} ${current-branch}" />
         </exec>        
-        
-<!--        <echo msg="Removing all local changes in '{temporary-branch}'." />
-        <exec command="git reset - -hard" checkreturn="true" passthru="true" /> -->
+       
         
         <echo msg="Creating release archive: " />
         <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
         
-        <!-- delete all non-release related files -->
+         delete all non-release related files 
         
+        
+        !!! NOTE !!! - moved below/
+
         <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
         <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />        
         
         <echo msg="Removing all development-related objects in the temporary GIT branch '${temporary-branch}'." />
-        
+
+                        
         <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
         <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
@@ -963,34 +965,68 @@
             </fileset>
         </delete>          
 
+        !!! NOTE !!! - /moved below
+
         <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.stage}" />
         </exec>
         
-        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
+         We DON'T check the return for the commit below, since this is NOT a development branch 
         <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
-        </exec>
+        </exec>-->
 
         <!-- create the release branch (if it doesn't exist) and switch to it -->
         
         <echo msg="Creating the release GIT branch '${release-branch}'." />        
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true">
             <arg line="${config.vcs.cmd.create-branch} ${release-branch}" />
         </exec>
         
         <echo msg="Switching to the release GIT branch '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
         </exec>
         
         <!-- merge the temporary branch into the release branch -->
-        <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true"> <!-- false? -->
+<!--        <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
             <arg line="${config.vcs.cmd.merge-from-theirs} ${temporary-branch}" />
-        </exec>
+        </exec>-->
+        
+        
+        <!-- merge the development branch into the release branch -->
+        <echo msg="Rebasing / Merging '${current-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${current-branch}" />
+        </exec>        
+
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />                
+                        
+        <echo msg="Removing '{$source-directory}' for release tests on the release GIT branch '${release-branch}'." />        
+        
+        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+        <phingcall target="tests" />        
+        
+<!--        <echo msg="Removing all other development-related objects on the temporary GIT branch '${temporary-branch}'." />-->
+        <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
+        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${package-directory}">
+                <include name="autoloader.json" />
+                <include name="build.xml" />
+                <include name="make.bat" />
+                <include name="make" />
+                <include name="${devops-release-config-pattern}" />
+                <include name="${devops-development-config-pattern}" />
+            </fileset>
+        </delete>                  
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
@@ -1003,30 +1039,34 @@
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>       
        
-        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
+<!--        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.diff} ${temporary-branch}" />
-        </exec>   
+        </exec>   -->
         
-        <echo msg="Updating release version tag for the current / development GIT branch '${release-branch}'." />
+        <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
         <exec executable="${config.pkg.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.pkg.cmd.update-version}" />
         </exec>        
         
         <!-- delete the temporary branch -->
-        <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
+<!--        <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
-        </exec>           
+        </exec>           -->
            
         <echo msg="Pushing to remote upstream." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.vcs.cmd.push} ${release-branch}" />
         </exec>        
         
+        <echo msg="Creating release archive: " />
+        <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
+        
+        
         <!-- revert to the development branch -->        
         <echo msg="Switching to the current / development GIT branch '${current-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
         </exec>
     </target>
