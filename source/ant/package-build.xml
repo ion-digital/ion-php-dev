@@ -9,15 +9,7 @@
     
     <property name="phing-include-directory" value="" />
     
-    <if>
-        <equals arg1="${phing.project.name}" arg2="ion/dev" />
-        <then>
-            <property name="phing-include-directory" value="${phing.dir}/source/ant/" override="true" />
-        </then>
-        <else>
-            <property name="phing-include-directory" value="${phing.dir}/vendor/ion/dev/source/ant/" override="true" />
-        </else>
-    </if>
+
 
     <property file="${phing-include-directory}/package-build.properties"/>
 
@@ -60,43 +52,8 @@
             
         </filterchain>   
     </property>  
-    
-    <property name="current-branch-segment-dashed" value="${current-branch-segment}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
-            </replaceregexp> 
-            
-        </filterchain>   
-    </property>  
-    
-    <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
-    
-    <property name="staging-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />          
-    
-    <!-- Get the current package version -->
-    <property name="current-package-version" value="?" />
-    <exec executable="${config.pkg.cmd}" dir="." outputProperty="current-package-version" checkreturn="false" passthru="false">
-        <arg line="${config.pkg.cmd.check-version}" />
-    </exec>
-    
-    <!-- Get the current VCS version -->
-    <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
-        <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
-    </exec>
-    
-    <property name="current-vcs-version" value="?" />
-    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-vcs-version" error="NUL" checkreturn="false" passthru="false">
-        <arg line="${config.vcs.cmd.get-tag}" />
-    </exec>
-    
-    <property name="current-vcs-version" value="${current-vcs-version}" override="true">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="^v?(.+)" replace="\1" ignoreCase="true" />
-            </replaceregexp>
-        </filterchain>        
-    </property>  
+
+
     
     <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
         <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
@@ -112,94 +69,12 @@
     </property>       
 
 
-    <property name="source-directory" value="${config.source-directory}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>        
-    </property>    
+      
     
-    <property name="builds-directory" value="${config.builds-directory}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>
-    <property name="archives-directory" value="${config.archives-directory}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>
-    <property name="tests-directory" value="${config.tests-directory}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>    
-    <property name="dependencies-directory" value="${config.dependencies-directory}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>    
-    <property name="additional-directories" value="${config.additional-directories}">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern=",\s+" replace="," ignoreCase="true" />
-                <regexp pattern="\s+," replace="," ignoreCase="true" />
-                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
-                <regexp pattern="," replace="/,${package-directory}" ignoreCase="true" />
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>   
-    </property>       
-    <property name="source-classes-directory" value="${source-directory}/classes/">
-        <filterchain>
-            <replaceregexp>                
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>     
-    <property name="source-templates-directory" value="${source-directory}/templates/">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>
+
     
-    <property name="ide-directory" value="${config.ide-directory}" />
     
-    <property name="archive-version-directory" value="${archives-directory}${archive-version}/${archive-branch-dashed}/">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>
     
-    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${archive-branch-dashed}/">
-        <filterchain>
-            <replaceregexp>
-                <regexp pattern="/+" replace="/" ignoreCase="true" />
-            </replaceregexp>            
-        </filterchain>            
-    </property>
-    
-    <property name="archive-filename" value="${vendor}-${project}--${archive-branch-dashed}--${archive-version}.zip" />    
-    
-    <property name="archive-path" value="${archives-directory}${archive-filename}" />    
 
     
     

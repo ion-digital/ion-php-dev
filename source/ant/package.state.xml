@@ -46,6 +46,9 @@
             <arg line="${state.pkg.cmd.version.get}" />
         </exec>
        
+        <property name="state.pkg.tests.cmd" value="${config.pkg.tests.cmd}" />
+        
+        <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
         
         <!-- directories -->
         
@@ -73,7 +76,7 @@
         </property>
 
 
-        <property name="state.pkg.development.dir" value="${config.pkg.development.dir}" override="true">
+        <property name="state.pkg.release.dir" value="${config.pkg.release.dir}" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
@@ -113,16 +116,7 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>            
-        </property>    
-
-        <property name="state.pkg.dependencies.dir" value="${config.pkg.dependencies.dir}">
-            <filterchain>
-                <replaceregexp>
-                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
-                    <regexp pattern="/+" replace="/" ignoreCase="true" />
-                </replaceregexp>            
-            </filterchain>            
-        </property>    
+        </property>      
         <property name="state.pkg.additional.dirs" value="${config.pkg.additional.dirs}">
             <filterchain>
                 <replaceregexp>
@@ -133,16 +127,7 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>   
-        </property>       
-        
-        <!-- archives -->
-        
-        <property name="state.pkg.archive.filename" value="${config.}" override="true" />
-        <property name="state.pkg.archive.version" value="${config.}" override="true" />
-        <property name="state.pkg.archive.dir.version" value="${config.}" override="true" />
-        <property name="state.pkg.archive.dir.branch" value="${config.}" override="true" />
-        <property name="state.pkg.archive.dir.package" value="${config.}" override="true" />
-        <property name="state.pkg.archive.path" value="${config.}" override="true" />
+        </property>               
         
         <!-- builds -->
         
@@ -166,10 +151,6 @@
 <!--        <property name="build-tool" value="${dependencies-directory}bin/php-trans-porter" />-->
         
         
-        <property name="state.pkg.devops.development.filename" value="${config.}" override="true" />
-        <property name="state.pkg.devops.staging.filename" value="${config.}" override="true" />
-        <property name="state.pkg.devops.release.filename" value="${config.}" override="true" />
-        <property name="state.pkg.devops.target.filename" value="${config.}" override="true" />
         
         <property name="state.vcs.cmd" value="${config.vcs.cmd}" override="true" />
         <property name="state.vcs.cmd.commit" value="${config.vcs.cmd.commit}" override="true" />
@@ -183,7 +164,9 @@
         <property name="state.vcs.branches.master.name" value="${config.vcs.branches.master.name}" override="true" />
         
         <property name="state.vcs.branches.segments.seperator" value="${config.vcs.branches.segments.seperator}" override="true" />
-        
+        <property name="state.vcs.branches.segments.release.prefix" value="${config.vcs.branches.segments.release.prefix}" override="true" />
+        <property name="state.vcs.branches.segments.staging.prefix" value="${config.vcs.branches.segments.staging.prefix}" override="true" />
+                
         <!-- state.vcs.branches.current -->
         
         <exec executable="${state.vcs.cmd}" dir="." outputProperty="state.vcs.branches.current.name" checkreturn="false" passthru="false">
@@ -216,6 +199,52 @@
         
         <property name="state.vcs.commit.message" value="Auto-commit via build tools (package: '${state.pkg.package}', v${state.pkg.version}; ANT script: v${state.ant.version}; branch: '${state.vcs.branches.current.name}')." override="true" />
         
+        <!-- state.vcs.branches.current.is.* -->
+        
+        <property name="state.vcs.branches.current.is.development" value="false" override="true" />
+        <propertyregex property="tmp.vcs.branches.current.is.development" defaultValue="${state.vcs.branches.current.name}" override="true" subject="${state.vcs.branches.current.name}" pattern="([${state.vcs.branches.segments.seperator}]?)" replace="" />
+
+        <if>
+            <equals arg1="${tmp.vcs.branches.current.is.development}" arg2="${state.vcs.branches.current.name}" />
+            <then>
+                <property name="state.vcs.branches.current.is.development" value="true" override="true" />
+            </then>
+        </if>
+        
+        <property name="state.vcs.branches.current.is.master" value="false" override="true" />
+    
+        <if>
+            <equals arg1="${state.vcs.branches.current.name}" arg2="${state.vcs.branches.master.name}" />
+            <then>
+                <property name="state.vcs.branches.current.is.master" value="true" override="true" />
+            </then>
+        </if>
+                
+        <property name="state.vcs.branches.current.is.staging" value="false" override="true" />
+        <propertyregex property="tmp.vcs.branches.current.is.staging" defaultValue="${state.vcs.branches.current.name}" override="true" subject="${state.vcs.branches.current.name}" pattern="^(${state.vcs.branches.segments.staging.prefix}[${state.vcs.branches.segments.seperator}]?)" replace="" />
+
+        <if>
+            <not>
+                <equals arg1="${tmp.vcs.branches.current.is.staging}" arg2="${state.vcs.branches.current.name}" />
+            </not>
+            <then>
+                <property name="state.vcs.branches.current.is.staging" value="true" override="true" />
+            </then>
+        </if>
+             
+        <property name="state.vcs.branches.current.is.release" value="false" override="true" />
+        <propertyregex property="tmp.vcs.branches.current.is.release" defaultValue="${state.vcs.branches.current.name}" override="true" subject="${state.vcs.branches.current.name}" pattern="^(${state.vcs.branches.segments.release.prefix}[${state.vcs.branches.segments.seperator}]?)" replace="" />
+        <if>
+            <not>
+                <equals arg1="${tmp.vcs.branches.current.is.release}" arg2="${state.vcs.branches.current.name}" />
+            </not>
+            <then>
+                <property name="state.vcs.branches.current.is.release" value="true" override="true" />
+            </then>
+        </if>                
+                   
+                         
+                
         <!-- state.vcs.branches.staging -->
         
         <property name="state.vcs.branches.staging.name" value="${config.vcs.branches.segments.staging.prefix}${config.vcs.branches.segments.seperator}${state.vcs.branches.current.name.segment}" override="true" />
@@ -271,6 +300,117 @@
                 </replaceregexp> 
             </filterchain>   
         </property>
+        
+        <!-- archives -->
+        
+        <property name="state.pkg.archives.filename" value="${config.}" override="true" />
+        <property name="state.pkg.archives.version" value="${config.}" override="true" />
+        <property name="state.pkg.archives.dir.version" value="${config.}" override="true" />
+        <property name="state.pkg.archives.dir.branch" value="${config.}" override="true" />
+        <property name="state.pkg.archives.dir.package" value="${config.}" override="true" />
+        <property name="state.pkg.archives.path" value="${config.}" override="true" />
+        
+        <property name="state.pkg.archives.version" value="v${state.pkg.version}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="[.]" replace="_" ignoreCase="true" />
+                </replaceregexp>
+            </filterchain>        
+        </property>       
+        
+        <property name="state.pkg.archives.dir.version" value="${state.pkg.archives.dir}${state.pkg.archives.version}/" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+
+        <property name="state.pkg.archives.dir.branch" value="${state.pkg.archives.dir.version}${state.vcs.branches.current.name.dashed}/" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+
+        <property name="state.pkg.archives.dir.package" value="${state.pkg.archives.dir.branch}${state.pkg.vendor}-${state.pkg.project}--${state.vcs.branches.current.name.dashed}/" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>        
+            
+        <property name="state.pkg.archives.filename" value="${state.pkg.vendor}-${state.pkg.project}--${state.vcs.branches.current.name.dashed}--${state.pkg.archives.version}.zip" override="true" />        
+        <property name="state.pkg.archives.path" value="${state.pkg.archives.dir}${state.pkg.archives.filename}" override="true" />    
+    
+        <!-- devops -->
+        
+        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+        <property name="state.pkg.devops.target.filename" value="${config.pkg.devops.target.filename}" override="true" />
+        <property name="tmp.pkg.devops.release.filename" value="${state.pkg.devops.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.current.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.release.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.development.filename" value="${config.pkg.devops.development.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.development.filename" value="${tmp.pkg.devops.development.filename}" override="true" />
+            </else>
+        </if>    
+
+
+ 
+        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+        <property name="tmp.pkg.devops.staging.filename" value="${state.pkg.devops.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.staging.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.staging.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.staging.filename" value="${config.pkg.devops.staging.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.staging.filename" value="${tmp.pkg.devops.staging.filename}" override="true" />
+            </else>
+        </if>    
+
+        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+        <property name="tmp.pkg.devops.release.filename" value="${state.pkg.devops.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.release.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.release.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.release.filename" value="${config.pkg.devops.release.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.release.filename" value="${tmp.pkg.devops.release.filename}" override="true" />
+            </else>
+        </if> 
+        
+                                         
     </target>        
     
     <!-- ===========================================
@@ -298,24 +438,30 @@
         <echo msg=" state.pkg.tests.dir  :  ${state.pkg.tests.dir} " />
         <echo msg=" state.pkg.dependencies.dir  :  ${state.pkg.dependencies.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
-        <echo msg=" state.pkg.development.dir  :  ${state.pkg.development.dir} " />
         <echo msg=" state.pkg.additional.dirs  :  ${state.pkg.additional.dirs} " />
         
-        <echo msg=" state.pkg.archive.filename  :  ${state.pkg.archive.filename} " />
-        <echo msg=" state.pkg.archive.version  :  ${state.pkg.archive.version} " />
-        <echo msg=" state.pkg.archive.dir.version  :  ${state.pkg.archive.dir.version} " />
-        <echo msg=" state.pkg.archive.dir.branch  :  ${state.pkg.archive.dir.branch} " />
-        <echo msg=" state.pkg.archive.dir.package  :  ${state.pkg.archive.dir.package} " />
-        <echo msg=" state.pkg.archive.path  :  ${state.pkg.archive.path} " />
+        <echo msg=" state.pkg.cache.glob  :  ${state.pkg.cache.glob} " />
+        
+        <echo msg=" state.pkg.archives.filename  :  ${state.pkg.archives.filename} " />
+        <echo msg=" state.pkg.archives.version  :  ${state.pkg.archives.version} " />
+        <echo msg=" state.pkg.archives.dir.version  :  ${state.pkg.archives.dir.version} " />
+        <echo msg=" state.pkg.archives.dir.branch  :  ${state.pkg.archives.dir.branch} " />
+        <echo msg=" state.pkg.archives.dir.package  :  ${state.pkg.archives.dir.package} " />
+        <echo msg=" state.pkg.archives.path  :  ${state.pkg.archives.path} " />
+        
+        <echo msg=" state.pkg.tests.cmd  :  ${state.pkg.tests.cmd} " />
         
         <echo msg=" state.pkg.builds.cmd  :  ${state.pkg.builds.cmd} " />
         <echo msg=" state.pkg.builds.source.version  :  ${state.pkg.builds.source.version} " />
         <echo msg=" state.pkg.builds.source.version.major  :  ${state.pkg.builds.source.version.major} " />
         <echo msg=" state.pkg.builds.targets.versions  :  ${state.pkg.builds.targets.versions} " />
+        
+        <echo msg=" state.pkg.devops.glob  :  ${state.pkg.devops.glob} " />
         <echo msg=" state.pkg.devops.development.filename  :  ${state.pkg.devops.development.filename} " />
         <echo msg=" state.pkg.devops.staging.filename  :  ${state.pkg.devops.staging.filename} " />
         <echo msg=" state.pkg.devops.release.filename  :  ${state.pkg.devops.release.filename} " />
         <echo msg=" state.pkg.devops.target.filename  :  ${state.pkg.devops.target.filename} " />
+        
         <echo msg=" state.vcs.commit.message  :  ${state.vcs.commit.message} " />
         <echo msg=" state.vcs.cmd  :  ${state.vcs.cmd} " />
         <echo msg=" state.vcs.cmd.commit  :  ${state.vcs.cmd.commit} " />
@@ -329,10 +475,20 @@
         <echo msg=" state.vcs.cmd.tag.get  :  ${state.vcs.cmd.tag.get} " />
         <echo msg=" state.vcs.cmd.merge.from  :  ${state.vcs.cmd.merge.from} " />
         <echo msg=" state.vcs.branches.master.name  :  ${state.vcs.branches.master.name} " />
+        
+        <echo msg=" state.vcs.branches.segments.release.prefix  :  ${state.vcs.branches.segments.release.prefix} " />
+        <echo msg=" state.vcs.branches.segments.staging.prefix  :  ${state.vcs.branches.segments.staging.prefix} " />
+        <echo msg=" state.vcs.branches.segments.seperator  :  ${state.vcs.branches.segments.seperator} " />
+        
         <echo msg=" state.vcs.branches.current.version  :  ${state.vcs.branches.current.version} " />
         <echo msg=" state.vcs.branches.current.name  :  ${state.vcs.branches.current.name} " />
         <echo msg=" state.vcs.branches.current.name.dashed  :  ${state.vcs.branches.current.name.dashed} " />
         <echo msg=" state.vcs.branches.current.name.segment  :  ${state.vcs.branches.current.name.segment} " />
+        <echo msg=" state.vcs.branches.current.is.development:  ${state.vcs.branches.current.is.development} " />
+        <echo msg=" state.vcs.branches.current.is.master:  ${state.vcs.branches.current.is.master} " />
+        <echo msg=" state.vcs.branches.current.is.staging:  ${state.vcs.branches.current.is.staging} " />
+        <echo msg=" state.vcs.branches.current.is.release:  ${state.vcs.branches.current.is.release} " />
+
         <echo msg=" state.vcs.branches.staging.version  :  ${state.vcs.branches.staging.version} " />
         <echo msg=" state.vcs.branches.staging.name  :  ${state.vcs.branches.staging.name} " />
         <echo msg=" state.vcs.branches.staging.name.dashed  :  ${state.vcs.branches.staging.name.dashed} " />

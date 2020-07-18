@@ -11,7 +11,7 @@
         </else>
     </if>
     
-    <property file="${state.ant.dir.include}/package.properties" />
+    <property name="state.ant.version" value="0.2.2" />
         
     <import file="${state.ant.dir.include}/package.state.xml" />
     
