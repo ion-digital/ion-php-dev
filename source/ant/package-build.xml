@@ -912,9 +912,35 @@
         Target: release
     ============================================ -->
     
-    <target name="release" depends="check-release, package">       
+    <target name="staging" depends="package">
+                
+        <echo msg="\n============================================\nstage\n============================================\n" />
+
+        <!-- create a staging branch (if it doesn't exist) and switch to it -->   
         
-        <!-- create a temporary branch (if it doesn't exist) and switch to it -->
+        <echo msg="VCS: Checking out '${staging-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true" error=">
+            <arg line="${config.vcs.cmd.checkout} ${staging-branch}" />
+        </exec>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        <echo msg="Creating release archive: " />
+        <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
+        
+        
 
 <!--        <echo msg="Removing a temporary GIT branch '${temporary-branch}' (if it exists)." />        
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
