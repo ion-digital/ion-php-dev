@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.1.2" />
+    <property name="build-script-version" value="0.1.4" />
     
     <property file="build.properties" />
     
@@ -931,7 +931,7 @@
         </exec>
         
         <echo msg="Checking the temporary GIT branch '${temporary-branch}' against the current GIT branch '${current-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.diff} ${current-branch}" />
         </exec>        
         
@@ -1004,7 +1004,7 @@
         </exec>       
        
         <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.diff} ${temporary-branch}" />
         </exec>   
         
