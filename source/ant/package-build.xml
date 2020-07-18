@@ -3,7 +3,7 @@
     
     <!-- Calculated properties (don't touch them, if you can help it!) -->
     
-    <property name="build-script-version" value="0.1.1" />
+    <property name="build-script-version" value="0.1.2" />
     
     <property file="build.properties" />
     
@@ -232,7 +232,7 @@
         </filterchain>            
     </property>
     
-    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${current-branch-dashed}/">
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${archive-branch-dashed}/">
         <filterchain>
             <replaceregexp>
                 <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -335,7 +335,7 @@
         <echo msg="Current branch dashed: ${current-branch-dashed}" />
         <echo msg="Current branch segment: ${current-branch-segment}" />
         <echo msg="Release branch: ${release-branch}" />
-        <echo msg="Archive branch: ${archive-branch-dashed}" />
+        <echo msg="Archive branch dashed: ${archive-branch-dashed}" />
         <echo msg="Temporary release branch: ${temporary-branch}" />
         <echo msg="Package directory: ${package-directory}" />
         <echo msg="Source directory: ${source-directory}" />
@@ -993,13 +993,13 @@
         </exec>
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
             <arg line="${config.vcs.cmd.stage}" />
         </exec>
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>       
        
