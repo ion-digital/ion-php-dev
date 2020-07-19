@@ -156,13 +156,15 @@
         <property name="state.vcs.cmd.commit" value="${config.vcs.cmd.commit}" override="true" />
         <property name="state.vcs.cmd.push" value="${config.vcs.cmd.push}" override="true" />
         <property name="state.vcs.cmd.stage" value="${config.vcs.cmd.stage}" override="true" />
+        <property name="state.vcs.cmd.branch.create" value="${config.vcs.cmd.branch.create}" override="true" />
+        <property name="state.vcs.cmd.branch.delete" value="${config.vcs.cmd.branch.delete}" override="true" />
         <property name="state.vcs.cmd.branch.current.get" value="${config.vcs.cmd.branch.current.get}" override="true" />
         <property name="state.vcs.cmd.branch.current.set" value="${config.vcs.cmd.branch.current.set}" override="true" />
         <property name="state.vcs.cmd.tag.set" value="${config.vcs.cmd.tag.set}" override="true" />
         <property name="state.vcs.cmd.tag.get" value="${config.vcs.cmd.tag.get}" override="true" />
         <property name="state.vcs.cmd.merge.from" value="${config.vcs.cmd.merge.from}" override="true" />
-        <property name="state.vcs.branches.master.name" value="${config.vcs.branches.master.name}" override="true" />
         
+        <property name="state.vcs.branches.master.name" value="${config.vcs.branches.master.name}" override="true" />        
         <property name="state.vcs.branches.segments.seperator" value="${config.vcs.branches.segments.seperator}" override="true" />
         <property name="state.vcs.branches.segments.release.prefix" value="${config.vcs.branches.segments.release.prefix}" override="true" />
         <property name="state.vcs.branches.segments.staging.prefix" value="${config.vcs.branches.segments.staging.prefix}" override="true" />
@@ -273,11 +275,10 @@
             </filterchain>   
         </property>
         
-        
         <!-- state.vcs.branches.release -->
-        <property name="state.vcs.branches.release.name" value="${config.vcs.branches.segments.release.prefix}${config.vcs.branches.segments.seperator}${state.vcs.branches.current.name.segment}" override="true" />
+        <property name="state.vcs.branches.release.name" value="${config.vcs.branches.segments.release.prefix}${config.vcs.branches.segments.seperator}${state.vcs.branches.current.name.segment}" override="true" />        
         <exec executable="${state.vcs.cmd}" dir="." outputProperty="state.vcs.branches.release.version" checkreturn="false" passthru="false" error="NUL">
-            <arg line="${state.vcs.cmd.tag.get} ${state.vcs.branches.release.name}" />
+            <arg line="${state.vcs.cmd.tag.get} *+${state.vcs.branches.release.name}*" />
         </exec>
         <property name="state.vcs.branches.release.version" value="${state.vcs.branches.release.version}" override="true">
             <filterchain>
@@ -467,8 +468,8 @@
         <echo msg=" state.vcs.cmd.commit  :  ${state.vcs.cmd.commit} " />
         <echo msg=" state.vcs.cmd.push  :  ${state.vcs.cmd.push} " />
         <echo msg=" state.vcs.cmd.stage  :  ${state.vcs.cmd.stage} " />
-<!--        <echo msg=" state.vcs.cmd.branch.create  :  ${state.vcs.cmd.branch.create} " />
-        <echo msg=" state.vcs.cmd.branch.delete  :  ${state.vcs.cmd.branch.delete} " />-->
+        <echo msg=" state.vcs.cmd.branch.create  :  ${state.vcs.cmd.branch.create} " />
+        <echo msg=" state.vcs.cmd.branch.delete  :  ${state.vcs.cmd.branch.delete} " />
         <echo msg=" state.vcs.cmd.branch.current.get  :  ${state.vcs.cmd.branch.current.get} " />
         <echo msg=" state.vcs.cmd.branch.current.set  :  ${state.vcs.cmd.branch.current.set} " />
         <echo msg=" state.vcs.cmd.tag.set  :  ${state.vcs.cmd.tag.set} " />
