@@ -134,7 +134,7 @@
         
                 <mkdir dir="${state.pkg.builds.dir}" />       
 
-                <foreach list="${state.pkg.builds.targets.versions}" param="build-target-version" target="build-version" />
+                <foreach list="${state.pkg.builds.targets.versions}" param="tmp.build-target-version" target="build-version" />
 
                 <phingcall target="build-current" />
                 
@@ -170,9 +170,9 @@
         <fail message="No build target version specified.">
             <condition>
                 <or>
-                    <equals arg1="${build-target-version}" arg2=""/>
+                    <equals arg1="${tmp.build-target-version}" arg2=""/>
                     <not>
-                        <isset property="build-target-version"/>
+                        <isset property="tmp.build-target-version"/>
                     </not>
                </or>
            </condition>
@@ -189,19 +189,19 @@
            </condition>
         </fail>         
         
-        <echo msg="Generating build for PHP ${build-target-version}." />
+        <echo msg="Generating build for PHP ${tmp.build-target-version}." />
         
-        <mkdir dir="${state.pkg.builds.dir}${build-target-version}" />        
+        <mkdir dir="${state.pkg.builds.dir}${tmp.build-target-version}" />        
         
         <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="false">
             <arg value="--source-version" />
             <arg value="${state.pkg.builds.source.version}" />
             <arg value="--target-version" />
-            <arg value="${build-target-version}" />
+            <arg value="${tmp.build-target-version}" />
             <arg value="--input" />
             <arg value="${state.pkg.source.classes.dir}" />
             <arg value="--output" />
-            <arg value="${state.pkg.builds.dir}${build-target-version}/" />
+            <arg value="${state.pkg.builds.dir}${tmp.build-target-version}/" />
         </exec>           
     </target>       
 
