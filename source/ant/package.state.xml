@@ -350,7 +350,9 @@
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
         <property name="state.pkg.devops.target.filename" value="${config.pkg.devops.target.filename}" override="true" />
-        <property name="tmp.pkg.devops.release.filename" value="${state.pkg.devops.glob}" override="true">
+        
+                
+        <property name="tmp.pkg.devops.current.filename" value="${state.pkg.devops.glob}" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="\*+" replace="${state.vcs.branches.current.name.dashed}" ignoreCase="true" />
@@ -359,19 +361,19 @@
         </property>
         <if>
             <not>
-                <available file="${tmp.pkg.devops.release.filename}" />
+                <available file="${tmp.pkg.devops.current.filename}" />
             </not>
             <then>
-                <property name="state.pkg.devops.development.filename" value="${config.pkg.devops.development.filename}" override="true" />
+                <property name="state.pkg.devops.current.filename" value="${config.pkg.devops.development.filename}" override="true" />
             </then>
             <else>
-                <property name="state.pkg.devops.development.filename" value="${tmp.pkg.devops.development.filename}" override="true" />
+                <property name="state.pkg.devops.current.filename" value="${tmp.pkg.devops.current.filename}" override="true" />
             </else>
         </if>    
 
 
  
-        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+
         <property name="tmp.pkg.devops.staging.filename" value="${state.pkg.devops.glob}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -391,7 +393,7 @@
             </else>
         </if>    
 
-        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+
         <property name="tmp.pkg.devops.release.filename" value="${state.pkg.devops.glob}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -458,7 +460,7 @@
         <echo msg=" state.pkg.builds.targets.versions  :  ${state.pkg.builds.targets.versions} " />
         
         <echo msg=" state.pkg.devops.glob  :  ${state.pkg.devops.glob} " />
-        <echo msg=" state.pkg.devops.development.filename  :  ${state.pkg.devops.development.filename} " />
+        <echo msg=" state.pkg.devops.current.filename  :  ${state.pkg.devops.current.filename} " />
         <echo msg=" state.pkg.devops.staging.filename  :  ${state.pkg.devops.staging.filename} " />
         <echo msg=" state.pkg.devops.release.filename  :  ${state.pkg.devops.release.filename} " />
         <echo msg=" state.pkg.devops.target.filename  :  ${state.pkg.devops.target.filename} " />
