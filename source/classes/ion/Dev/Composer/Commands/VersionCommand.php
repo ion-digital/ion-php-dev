@@ -43,8 +43,19 @@ Check if the package version is higher than the specified version.
     * 'version' (version.json only)
     * 'composer' (composer.json only)
     * Any valid SemVer version (http://www.semver.org)
-        
-If the package version is higher, equal or lower; composer will exit with error code 1, 0 or -1 respectively.
+
+To modify the system exit code behaviour, see --check-return.
+HELP
+            )
+                
+            ->addOption('check-swap', null, InputOption::VALUE_NONE, <<<HELP
+Reverse the comparison expression when checking.                   
+HELP
+            )
+                
+            ->addOption('check-return', null, InputOption::VALUE_NONE, <<<HELP
+If specified: if the package version is higher, equal or lower; composer will exit with error code 1, 0 or -1 respectively.
+If not, composer will exit with error code 1 if no change has been detected, or 0 otherwise.                    
 HELP
             )
                 
@@ -91,6 +102,8 @@ HELP
             
             $input->getArgument('version'),
             ($input->hasParameterOption('--print') ? true : false),
+            ($input->hasParameterOption('--check-return') ? true : false),
+            ($input->hasParameterOption('--check-swap') ? true : false),
             ($input->hasParameterOption('--check') ? $this->nullToStr($input->getOption('check')) : null),
             ($input->hasParameterOption('--increment') ? $this->nullToStr($input->getOption('increment')) : null),
             ($input->hasParameterOption('--update') ? $this->nullToStr($input->getOption('update')) : null),            

@@ -28,6 +28,8 @@ class VersionTool extends Tool {
     private $version = null;
     private $print = null;
     private $check = null;
+    private $checkReturn = null;
+    private $checkSwap = null;
     private $increment = null;
     private $update = null;
     private $release = null;
@@ -37,6 +39,8 @@ class VersionTool extends Tool {
     
             string $version,
             bool $print = null,
+            bool $checkReturn = null,
+            bool $checkSwap = null,
             string $check = null,
             string $increment = null,
             string $update = null,
@@ -49,6 +53,8 @@ class VersionTool extends Tool {
         $this->version = $version;
         $this->print = $print;
         $this->check = $check;
+        $this->checkReturn = $checkReturn;
+        $this->checkSwap = $checkSwap;
         $this->increment = $increment;
         $this->update = $update;
         $this->release = $release;
@@ -73,13 +79,26 @@ class VersionTool extends Tool {
             
             //var_dump($this->print);
             
+            $vars = [];
+            
+            if(!$this->checkSwap) {
+                
+                $vars[] = [ 'version' => $pkgVersion, 'label' => "version.json / composer.json" ];
+                $vars[] = [ 'version' => $version, 'label' => "version.json / composer.json" ];
+                
+            } else {
+                
+                $vars[] = [ 'version' => $version, 'label' => "version.json / composer.json" ];
+                $vars[] = [ 'version' => $pkgVersion, 'label' => "version.json / composer.json" ];
+            }
+            
             if($pkgVersion->isHigherThan($version)) {
                 
             
                 if($this->print === false) {
                     
                     $this->writeln("A version change has been detected.");
-                    $this->writeln("{$version} (specified) < {$pkgVersion} (from package).");
+                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) < {$vars[0]['version']} ({$vars[0]['label']}).");
                 }
                 
                 $return = 1;
@@ -89,7 +108,7 @@ class VersionTool extends Tool {
                 if($this->print === false) {
 
                     $this->writeln("No version change has been detected.");
-                    $this->writeln("{$version} (specified) > {$pkgVersion} (from package).");
+                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) > {$vars[0]['version']} ({$vars[0]['label']}).");
                 }                
                 
                 $return = -1;
@@ -99,7 +118,7 @@ class VersionTool extends Tool {
                 if($this->print === false) {
                 
                     $this->writeln("No version change has been detected.");
-                    $this->writeln("{$version} (specified) == {$pkgVersion} from package).");
+                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) == {$vars[0]['version']} ({$vars[0]['label']}).");
                 }
             }
             
