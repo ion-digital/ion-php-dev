@@ -64,11 +64,21 @@ class VersionTool extends Tool {
         parent::__construct(null, $input, $output);
     }
     
+    private function verToString(ISemVer $semver): string {
+        
+        if($semver->getMajor() === 0 && $semver->getMinor() === 0 && $semver->getPatch() === 0) {
+            
+            return "None";
+        }
+        
+        return (string) $semver;
+    }
+    
     public function execute(): int {
 
         $return = 0;
         
-        $version = $this->loadVersion($this->version);
+        $version = (empty($this->version) ? new SemVer(0,0,0) : $this->loadVersion($this->version));
         
         $pkgVersion = null;
         
@@ -98,7 +108,7 @@ class VersionTool extends Tool {
                 if($this->print === false) {
                     
                     $this->writeln("A version change has been detected.");
-                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) < {$vars[0]['version']} ({$vars[0]['label']}).");
+                    $this->writeln("{$this->verToString($vars[1]['version'])} ({$vars[1]['label']}) < {$this->verToString($vars[0]['version'])} ({$vars[0]['label']}).");
                 }
                 
                 $return = ($this->checkReturn ? 1 : 0);
@@ -108,7 +118,7 @@ class VersionTool extends Tool {
                 if($this->print === false) {
 
                     $this->writeln("No version change has been detected.");
-                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) > {$vars[0]['version']} ({$vars[0]['label']}).");
+                    $this->writeln("{$this->verToString($vars[1]['version'])} ({$vars[1]['label']}) > {$this->verToString($vars[0]['version'])} ({$vars[0]['label']}).");
                 }                
                 
                 $return = ($this->checkReturn ? -1 : 1);
@@ -118,7 +128,7 @@ class VersionTool extends Tool {
                 if($this->print === false) {
                 
                     $this->writeln("No version change has been detected.");
-                    $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) == {$vars[0]['version']} ({$vars[0]['label']}).");
+                    $this->writeln("{$this->verToString($vars[1]['version'])} ({$vars[1]['label']}) == {$this->verToString($vars[0]['version'])} ({$vars[0]['label']}).");
                 }
                 
                 $return = ($this->checkReturn ? 0 : 1);

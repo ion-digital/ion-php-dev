@@ -42,6 +42,7 @@
         <property name="state.pkg.cmd" value="${config.pkg.cmd}" />
         <property name="state.pkg.cmd.version.get" value="${config.pkg.cmd.version.get}" />
         <property name="state.pkg.cmd.version.set" value="${config.pkg.cmd.version.set}" />
+        <property name="state.pkg.cmd.version.check" value="${config.pkg.cmd.version.check}" />
         <exec executable="${state.pkg.cmd}" dir="." outputProperty="state.pkg.version" checkreturn="false" passthru="false">
             <arg line="${state.pkg.cmd.version.get}" />
         </exec>
@@ -429,6 +430,7 @@
         <echo msg="state.pkg.cmd  :  ${state.pkg.cmd}" />
         <echo msg="state.pkg.cmd.version.get  :  ${state.pkg.cmd.version.get}" />
         <echo msg="state.pkg.cmd.version.set  :  ${state.pkg.cmd.version.set}" />        
+        <echo msg="state.pkg.cmd.version.check  :  ${state.pkg.cmd.version.check}" />        
         
         <echo msg=" state.ant.version  :  ${state.ant.version} " />
         <echo msg=" state.ant.dirs.include  :  ${state.ant.dirs.include} " />

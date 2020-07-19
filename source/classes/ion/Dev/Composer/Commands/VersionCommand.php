@@ -12,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Command\BaseCommand;
 use \ion\Dev\Version\VersionTool;
+use \Exception;
 
 class VersionCommand extends BaseCommand {
 
@@ -25,10 +26,16 @@ class VersionCommand extends BaseCommand {
             ->addArgument('version', InputArgument::REQUIRED, <<<HELP
 The specified version to operate on:
     
+    * 'option' (rather specify this value using the '--query' option - useful for build scripts)
     * 'auto' (checks version.json and then composer.json)
     * 'version' (version.json only)
     * 'composer' (composer.json only)
     * Any valid SemVer version (http://www.semver.org)        
+HELP
+            )
+                
+            ->addOption('query', null, InputOption::VALUE_OPTIONAL, <<<HELP
+Specify the version to be queried using a variable command option - useful for adding values to the end of a build script.
 HELP
             )
              
@@ -98,9 +105,21 @@ HELP
     
     protected function execute(InputInterface $input, OutputInterface $output) {
 
+        $query = $input->getArgument('version');
+        
+        if(strtolower($query) == 'option') {
+            
+            if(!$input->hasParameterOption('--query')) {
+                
+                throw new Exception("If 'option' is specified for the query version, then --query also has to be specified.");
+            }
+            
+            $query = ($input->hasParameterOption('--query') ? $this->nullToStr($input->getOption('query')) : null);
+        }
+
         return (new VersionTool(
             
-            $input->getArgument('version'),
+            $query,
             ($input->hasParameterOption('--print') ? true : false),
             ($input->hasParameterOption('--check-return') ? true : false),
             ($input->hasParameterOption('--check-swap') ? true : false),

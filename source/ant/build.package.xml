@@ -12,7 +12,7 @@
         <echo msg="Checking if VCS version needs updating." />
                        
         <exec executable="${state.pkg.cmd}" dir="." returnProperty="tmp.check-version-return" error="NUL" checkreturn="false" passthru="true">
-            <arg line="${state.pkg.cmd.version.get}" />
+            <arg line="${state.pkg.cmd.version.check}${state.vcs.branches.current.version}" />
         </exec>
         
         <fail message="The package version (${state.pkg.version}) is currently lower than the release VCS version (${state.vcs.branches.current.version}).">
