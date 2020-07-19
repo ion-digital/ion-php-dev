@@ -84,15 +84,15 @@ class VersionTool extends Tool {
             if(!$this->checkSwap) {
                 
                 $vars[] = [ 'version' => $pkgVersion, 'label' => "version.json / composer.json" ];
-                $vars[] = [ 'version' => $version, 'label' => "version.json / composer.json" ];
+                $vars[] = [ 'version' => $version, 'label' => "specified" ];
                 
             } else {
                 
-                $vars[] = [ 'version' => $version, 'label' => "version.json / composer.json" ];
+                $vars[] = [ 'version' => $version, 'label' => "specified" ];
                 $vars[] = [ 'version' => $pkgVersion, 'label' => "version.json / composer.json" ];
             }
             
-            if($pkgVersion->isHigherThan($version)) {
+            if($vars[0]['version']->isHigherThan($vars[1]['version'])) {
                 
             
                 if($this->print === false) {
@@ -101,9 +101,9 @@ class VersionTool extends Tool {
                     $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) < {$vars[0]['version']} ({$vars[0]['label']}).");
                 }
                 
-                $return = 1;
+                $return = ($this->checkReturn ? 1 : 0);
                 
-            } else if($pkgVersion->isLowerThan($version)) {
+            } else if($vars[0]['version']->isLowerThan($vars[1]['version'])) {
 
                 if($this->print === false) {
 
@@ -111,7 +111,7 @@ class VersionTool extends Tool {
                     $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) > {$vars[0]['version']} ({$vars[0]['label']}).");
                 }                
                 
-                $return = -1;
+                $return = ($this->checkReturn ? -1 : 1);
                 
             } else {
 
@@ -120,6 +120,8 @@ class VersionTool extends Tool {
                     $this->writeln("No version change has been detected.");
                     $this->writeln("{$vars[1]['version']} ({$vars[1]['label']}) == {$vars[0]['version']} ({$vars[0]['label']}).");
                 }
+                
+                $return = ($this->checkReturn ? 0 : 1);
             }
             
             if($this->update === null && !$this->print) {
@@ -180,19 +182,26 @@ class VersionTool extends Tool {
         
         if($this->update !== null) {
             
-            if($this->check !== null && $return !== 1) {
+            $expectedReturn = ($this->checkReturn ? 1 : 0);
+            
+            if($this->check !== null && ($return !== $expectedReturn)) {
 
                 return 2;
             }
             
-            $targetVersion = ($this->check === null ? $version : $pkgVersion);
+            //$targetVersion = ($this->check === null ? $version : $pkgVersion);
+            
+            $targetVersion = $version;
             
             $return = $this->saveVersion($targetVersion, $this->update, $this->print);
             
-            if($return === 0 && !$this->print) {
+            if($this->print) {
                 
-                
-                
+                return $return;
+            }
+            
+            if($return === $expectedReturn) {
+
                 $this->writeln("Version updated to '{$targetVersion}'.");
                 
             } else {
