@@ -21,9 +21,9 @@
             <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.staging.name}" />
         </exec>
         
-        <echo msg="Rebasing / Merging '${current-branch}' into '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  
-            <arg line="${config.vcs.cmd.merge-from-theirs} ${current-branch}" />
+        <echo msg="Rebasing / Merging '${state.vcs.branches.current.name}' into '${release-branch}'." />
+        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="true" passthru="true">  
+            <arg line="${stage.vcs.cmd.merge-from-theirs} ${state.vcs.branches.current.name}" />
         </exec>  
         
         <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
@@ -52,14 +52,14 @@
         </delete>                  
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${config.vcs.cmd.stage}" />
+        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${stage.vcs.cmd.state}" />
         </exec>
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
         <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${stage.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>       
         
         

@@ -113,7 +113,7 @@
 
                 <echo msg="Creating package archive: ${state.pkg.archives.path}." />
                 <zip destfile="${state.pkg.archives.path}">
-                    <fileset dir="${archive-version-directory}">
+                    <fileset dir="${state.pkg.archives.dir.version}">
                         <include name="**/**" />
                     </fileset>
                 </zip>

@@ -155,7 +155,7 @@
         <property name="state.vcs.cmd" value="${config.vcs.cmd}" override="true" />
         <property name="state.vcs.cmd.commit" value="${config.vcs.cmd.commit}" override="true" />
         <property name="state.vcs.cmd.push" value="${config.vcs.cmd.push}" override="true" />
-        <property name="state.vcs.cmd.stage" value="${config.vcs.cmd.stage}" override="true" />
+        <property name="state.vcs.cmd.state" value="${config.vcs.cmd.state}" override="true" />
         <property name="state.vcs.cmd.branch.create" value="${config.vcs.cmd.branch.create}" override="true" />
         <property name="state.vcs.cmd.branch.delete" value="${config.vcs.cmd.branch.delete}" override="true" />
         <property name="state.vcs.cmd.branch.current.get" value="${config.vcs.cmd.branch.current.get}" override="true" />
@@ -426,6 +426,10 @@
         <echo msg="ANT script version:   ${state.ant.version}" />
         <echo msg="" />
         
+        <echo msg="state.pkg.cmd  :  ${state.pkg.cmd}" />
+        <echo msg="state.pkg.cmd.version.get  :  ${state.pkg.cmd.version.get}" />
+        <echo msg="state.pkg.cmd.version.set  :  ${state.pkg.cmd.version.set}" />        
+        
         <echo msg=" state.ant.version  :  ${state.ant.version} " />
         <echo msg=" state.ant.dirs.include  :  ${state.ant.dirs.include} " />
         <echo msg=" state.pkg.dir  :  ${state.pkg.dir} " />
@@ -470,7 +474,7 @@
         <echo msg=" state.vcs.cmd  :  ${state.vcs.cmd} " />
         <echo msg=" state.vcs.cmd.commit  :  ${state.vcs.cmd.commit} " />
         <echo msg=" state.vcs.cmd.push  :  ${state.vcs.cmd.push} " />
-        <echo msg=" state.vcs.cmd.stage  :  ${state.vcs.cmd.stage} " />
+        <echo msg=" state.vcs.cmd.state  :  ${state.vcs.cmd.state} " />
         <echo msg=" state.vcs.cmd.branch.create  :  ${state.vcs.cmd.branch.create} " />
         <echo msg=" state.vcs.cmd.branch.delete  :  ${state.vcs.cmd.branch.delete} " />
         <echo msg=" state.vcs.cmd.branch.current.get  :  ${state.vcs.cmd.branch.current.get} " />

@@ -250,7 +250,7 @@
         <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
         <!-- ${vcs-additional-directories} ${source-directory} ${builds-directory} ./*.json ./*.php -->
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.vcs.cmd.stage}" />
+            <arg line="${config.vcs.cmd.state}" />
         </exec>
         
         <!-- We check the return for the commit below, since this is the development branch -->
@@ -335,7 +335,7 @@
 
         <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.stage}" />
+            <arg line="${config.vcs.cmd.state}" />
         </exec>
         
          We DON'T check the return for the commit below, since this is NOT a development branch 
@@ -396,7 +396,7 @@
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${config.vcs.cmd.stage}" />
+            <arg line="${config.vcs.cmd.state}" />
         </exec>
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
@@ -485,7 +485,7 @@
 
         <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.stage}" />
+            <arg line="${config.vcs.cmd.state}" />
         </exec>
         
          We DON'T check the return for the commit below, since this is NOT a development branch 
@@ -546,7 +546,7 @@
         
         <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${config.vcs.cmd.stage}" />
+            <arg line="${config.vcs.cmd.state}" />
         </exec>
 
         <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->

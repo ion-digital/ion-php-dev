@@ -7,35 +7,27 @@
       
     <target name="validate-package" depends="init">         
           
-<!--        <property name="check-version-return" value="" />-->
+<!--        <property name="tmp.check-version-return" value="" />-->
 
         <echo msg="Checking if VCS version needs updating." />
-                
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
-            <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
-        </exec>        
-       
-        <exec executable="${config.pkg.cmd}" dir="." returnProperty="check-version-return" error="NUL" checkreturn="false" passthru="false">
-            <arg line="${config.pkg.cmd.check-version}" />
-        </exec>
-       
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
-            <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+                       
+        <exec executable="${state.pkg.cmd}" dir="." returnProperty="tmp.check-version-return" error="NUL" checkreturn="false" passthru="true">
+            <arg line="${state.pkg.cmd.version.get}" />
         </exec>
         
-        <fail message="The package version (${state.pkg.version}) is currently lower than the release VCS version (${current-vcs-version}).">
+        <fail message="The package version (${state.pkg.version}) is currently lower than the release VCS version (${state.vcs.branches.current.version}).">
             <condition>
-               <equals arg1="${check-version-return}" arg2="-1"/>
+               <equals arg1="${tmp.check-version-return}" arg2="-1"/>
             </condition>
         </fail>    
 
-        <fail message="The package version (${state.pkg.version}) is currently at the release VCS version (${current-vcs-version}).">
+        <fail message="The package version (${state.pkg.version}) is currently at the release VCS version (${state.vcs.branches.current.version}).">
             <condition>
-               <equals arg1="${check-version-return}" arg2="0"/>
+               <equals arg1="${tmp.check-version-return}" arg2="0"/>
             </condition>
         </fail>    
 
-        <echo msg="The package version (${state.pkg.version}) is currently higher than the release VCS version (${current-vcs-version}) - package or release creation can continue!" />
+        <echo msg="The package version (${state.pkg.version}) is currently higher than the release VCS version (${state.vcs.branches.current.version}) - package or release creation can continue!" />
 
     </target>  
     
@@ -57,29 +49,33 @@
             
     <target name="package" depends="init, validate-package, templates, tests, clean-cache, builds">
         
-        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-development-config}' -> '${config.devops-target-config}')." />
-        <copy file="${devops-development-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />
+        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
+        <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
         
         <phingcall target="prepare-package" />
                                                                        
-        <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
-        <!-- ${vcs-additional-directories} ${state.pkg.source.dir} ${builds-directory} ./*.json ./*.php -->
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.vcs.cmd.stage}" />
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.current.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
         </exec>
         
         <!-- We check the return for the commit below, since this is the development branch -->
-        <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        <echo msg="Committing changes to the current GIT branch '${state.vcs.branches.current.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.commit} &quot;${state.vcs.commit.message}.&quot;" />
         </exec>
 
+        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.current.name}'." />
+        <exec executable="${state.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.pkg.cmd.version.set} ${state.vcs.branches.current.name}" />
+        </exec>  
+
         <echo msg="Pushing to remote upstream." />
-        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.vcs.cmd.push} ${current-branch}" />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.current.name}" />
         </exec>
         
-        <echo msg="Creating development archive: " />
+        <echo msg="Creating archive: " />
         <phingcall target="archive" />        
         
     </target>    
