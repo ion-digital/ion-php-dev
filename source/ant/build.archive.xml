@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+        
+    <!-- ===========================================
+        Target: clean-archives
+    ============================================ -->      
+    
+    <target name="clean-archives" depends="init, validate-archive-support">
+   
+        <delete dir="${state.pkg.archives.dir}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+    </target>
+       
+    
+    <!-- ===========================================
+        Target: clean-archive
+    ============================================ -->      
+    
+    <target name="clean-archive" depends="init, validate-archive-support">
+   
+        <fail message="Could not determine which archive file to delete - the value of 'state.pkg.archives.path' is '${state.pkg.archives.path}'">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.archives.path}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.archives.path"/>
+                    </not>                    
+               </or>
+           </condition>
+        </fail>        
+        
+        <delete dir="${state.pkg.archives.dir.version}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete file="${state.pkg.archives.path}" verbose="false" failonerror="false" />
+        
+    </target>    
+    
+    <!-- ===========================================
+        Target: validate-archive-support
+    ============================================ -->      
+    
+    <target name="validate-archive-support">
+        
+        <fail message="Archives are not supported for this package.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.archives.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.archives.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+    </target>      
+    
+   <!-- ===========================================
+        Target: archive
+    ============================================ -->  
+    <target name="archive" depends="init, builds, clean-archive, clean-cache">
+        
+        <if>
+            <or>
+                <equals arg1="${state.pkg.archives.dir}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.archives.dir"/>
+                </not>
+                <equals arg1="${state.pkg.archives.dir.package}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.archives.dir.package"/>
+                </not>
+                <equals arg1="${state.pkg.archives.filename}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.archives.filename"/>
+                </not>                
+            </or>
+            <then>
+                <echo msg="Nothing to do!" />
+            </then>
+            <else>
+                
+                <echo msg="Compiling distribution archive '${state.pkg.archives.filename}' for package ${current-package-version}." />
+
+                <mkdir dir="${state.pkg.archives.dir.package}" />
+
+                <copy todir="${state.pkg.archives.dir.package}" haltonerror="false" >
+                    <fileset dir=".">
+                        <include name="*.php" />
+                        <include name="composer.json" />
+                        <include name="version.json" />
+                        <include name="LICENSE.md" />
+                        <include name="README.md" />
+                    </fileset>
+                </copy>
+
+                <copy todir="${state.pkg.archives.dir.package}${state.pkg.builds.dir}" haltonerror="false" includeemptydirs="false">
+                    <fileset dir="${state.pkg.builds.dir}">        
+                        <include name="**/*" />  
+                    </fileset>
+                </copy>        
+
+                <foreach list="${state.pkg.additional.dirs}" param="tmp.additional-directory" target="archive-additional-directory" />             
+
+                <echo msg="Updating dependencies in ${state.pkg.archives.dir.package}" />
+                <exec command="composer update --no-dev --no-interaction" dir="${state.pkg.archives.dir.package}" />
+
+                <delete>
+                    <fileset dir="${state.pkg.archives.dir.package}">
+                        <!-- <include name="composer.json" /> -->
+                        <include name="composer.lock" />
+                        <include name="autoload.json" />
+                    </fileset>
+                </delete>        
+
+                <echo msg="Creating package archive: ${state.pkg.archives.path}." />
+                <zip destfile="${state.pkg.archives.path}">
+                    <fileset dir="${archive-version-directory}">
+                        <include name="**/**" />
+                    </fileset>
+                </zip>
+                
+            </else>
+        </if>        
+    </target>    
+    
+    <target name="archive-additional-directory">
+        <copy todir="${state.pkg.archives.dir.package}${tmp.additional-directory}" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${tmp.additional-directory}">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>           
+    </target>  
+
+    
+</project>

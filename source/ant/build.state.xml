@@ -428,6 +428,7 @@
         
         <echo msg=" state.ant.version  :  ${state.ant.version} " />
         <echo msg=" state.ant.dirs.include  :  ${state.ant.dirs.include} " />
+        <echo msg=" state.pkg.dir  :  ${state.pkg.dir} " />
         <echo msg=" state.pkg.vendor  :  ${state.pkg.vendor} " />
         <echo msg=" state.pkg.project  :  ${state.pkg.project} " />
         <echo msg=" state.pkg.package  :  ${state.pkg.package} " />

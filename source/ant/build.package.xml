@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+    
+<!-- ===========================================
+        Target: validate-package
+    ============================================ -->  
+      
+    <target name="validate-package" depends="init">         
+          
+<!--        <property name="check-version-return" value="" />-->
+
+        <echo msg="Checking if VCS version needs updating." />
+                
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+        </exec>        
+       
+        <exec executable="${config.pkg.cmd}" dir="." returnProperty="check-version-return" error="NUL" checkreturn="false" passthru="false">
+            <arg line="${config.pkg.cmd.check-version}" />
+        </exec>
+       
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+        </exec>
+        
+        <fail message="The package version (${state.pkg.version}) is currently lower than the release VCS version (${current-vcs-version}).">
+            <condition>
+               <equals arg1="${check-version-return}" arg2="-1"/>
+            </condition>
+        </fail>    
+
+        <fail message="The package version (${state.pkg.version}) is currently at the release VCS version (${current-vcs-version}).">
+            <condition>
+               <equals arg1="${check-version-return}" arg2="0"/>
+            </condition>
+        </fail>    
+
+        <echo msg="The package version (${state.pkg.version}) is currently higher than the release VCS version (${current-vcs-version}) - package or release creation can continue!" />
+
+    </target>  
+    
+        
+    <!-- ===========================================
+        Target: prepare-package
+    ============================================ -->     
+    
+    
+    <target name="prepare-package" depends="init">
+        
+        <echo msg="No action needed - continuing." />   
+                
+    </target>                          
+    
+    <!-- ===========================================
+        Target: package
+    ============================================ -->         
+            
+    <target name="package" depends="init, validate-package, templates, tests, clean-cache, builds">
+        
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-development-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-development-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />
+        
+        <phingcall target="prepare-package" />
+                                                                       
+        <echo msg="Staging changes to the current / development GIT branch '${current-branch}'." />
+        <!-- ${vcs-additional-directories} ${state.pkg.source.dir} ${builds-directory} ./*.json ./*.php -->
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+        
+        <!-- We check the return for the commit below, since this is the development branch -->
+        <echo msg="Committing changes to the current / development GIT branch '${current-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>
+
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.vcs.cmd.push} ${current-branch}" />
+        </exec>
+        
+        <echo msg="Creating development archive: " />
+        <phingcall target="archive" />        
+        
+    </target>    
+    
+    
+    
+    
+    
+</project>

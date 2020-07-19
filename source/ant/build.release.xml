@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+       
+    <!-- ===========================================
+        Target: validate-release
+    ============================================ -->      
+    
+    <target name="validate-release" depends="init">
+
+        <echo msg="Current branch: '${current-branch}'" />
+<!--        <echo msg="Release branch: '${release-branch}'" />
+        <echo msg="Temporary branch: '${staging-branch}'" />-->
+                
+        <property name="is-development-branch" value="" />
+        <propertyregex property="is-development-branch" defaultValue="" override="true" subject="${current-branch}" pattern="([^${config.branch-segment-seperator}]?)" replace="" />
+        <propertyregex property="is-development-branch" defaultValue="${is-development-branch}" override="true" subject="${is-development-branch}" pattern="([${config.branch-segment-seperator}]+)" replace="${config.branch-segment-seperator}" />
+
+        <fail message="You are currently NOT on a development branch ('${current-branch}') - I cannot create a release from here!">
+            <condition>
+               <equals arg1="${is-development-branch}" arg2="${config.branch-segment-seperator}"/>
+            </condition>
+        </fail>   
+
+        <echo msg="You are currently on a development branch ('${current-branch}') - release creation can continue!" />
+    </target>  
+    
+    <!-- ===========================================
+        Target: prepare-release
+    ============================================ -->     
+    
+
+    <target name="prepare-release" depends="init">
+        
+    </target>       
+    
+    <!-- ===========================================
+        Target: release
+    ============================================ -->         
+    
+    <target name="release" depends="init, validate-release, staging">
+        
+    </target>     
+    
+</project>

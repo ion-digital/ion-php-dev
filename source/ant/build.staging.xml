@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+    
+    <!-- ===========================================
+        Target: prepare-staging
+    ============================================ -->     
+    
+
+    <target name="prepare-staging" depends="init">
+        
+    </target>    
+    
+    <!-- ===========================================
+        Target: staging
+    ============================================ -->         
+    
+    <target name="staging" depends="init">
+        
+        <echo msg="VCS: Checking out '${staging-branch}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true" error="">
+            <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.staging.name}" />
+        </exec>
+        
+        <echo msg="Rebasing / Merging '${current-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${current-branch}" />
+        </exec>  
+        
+        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
+        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />                
+                              
+        <echo msg="Removing '{$source-directory}' for release tests on the release GIT branch '${release-branch}'." />        
+        
+        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        
+        <phingcall target="tests" />        
+        
+<!--        <echo msg="Removing all other development-related objects on the staging GIT branch '${staging-branch}'." />-->
+        <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
+        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${package-directory}">
+                <include name="autoloader.json" />
+                <include name="build.xml" />
+                <include name="make.bat" />
+                <include name="make" />
+                <include name="${devops-release-config-pattern}" />
+                <include name="${devops-development-config-pattern}" />
+            </fileset>
+        </delete>                  
+        
+        <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${config.vcs.cmd.stage}" />
+        </exec>
+
+        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
+        <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
+            <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
+        </exec>       
+        
+        
+        <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
+        <exec executable="${config.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${config.pkg.cmd.update-version}" />
+        </exec>           
+        
+    </target>    
+    
+    
+    
+</project>

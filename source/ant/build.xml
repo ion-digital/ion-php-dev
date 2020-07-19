@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+    
+    <if>
+        <equals arg1="${phing.project.name}" arg2="ion/dev" />
+        <then>
+            <property name="state.ant.dir.include" value="${phing.dir}/source/ant/" override="true" />
+        </then>
+        <else>
+            <property name="state.ant.dir.include" value="${phing.dir}/vendor/ion/dev/source/ant/" override="true" />
+        </else>
+    </if>
+    
+    <property name="state.ant.version" value="0.2.2" />
+        
+    <import file="${state.ant.dir.include}/build.state.xml" />
+    <import file="${state.ant.dir.include}/build.package.xml" />    
+    <import file="${state.ant.dir.include}/build.staging.xml" />
+    <import file="${state.ant.dir.include}/build.release.xml" />
+    <import file="${state.ant.dir.include}/build.archive.xml" />
+    
+    
+   <!-- ===========================================
+        Target: clean
+    ============================================ -->      
+    
+    <target name="clean" depends="init, clean-archive, clean-builds, clean-cache" />
+
+    <!-- ===========================================
+        Target: clean-all
+    ============================================ -->      
+    
+    <target name="clean-all" depends="init, clean-archives, clean-builds, clean-dependencies" />
+
+    <!-- ===========================================
+        Target: clean-cache
+    ============================================ -->      
+
+    <target name="clean-cache">
+                 
+        <delete verbose="true" failonerror="false"> 
+            <fileset dir="${state.pkg.builds.dir}">
+                <include name="**/${state.pkg.cache.glob}" />
+            </fileset>
+            <fileset dir="${state.pkg.archives.dir.package}">
+                <include name="**/${state.pkg.cache.glob}" />
+            </fileset>
+            <fileset dir="${state.pkg.source.dir}">
+                <include name="**/${state.pkg.cache.glob}" />
+            </fileset>                
+        </delete>   
+    </target>
+
+    <!-- ===========================================
+        Target: clean-dependencies
+    ============================================ -->      
+    
+    <target name="clean-dependencies">
+   
+        <delete dir="${state.pkg.dir}vendor/" includeemptydirs="true" verbose="false" failonerror="false" />
+        <delete file="composer.lock" verbose="false" failonerror="false" />
+        
+    </target>
+    
+
+    <!-- ===========================================
+        Target: validate-build-support
+    ============================================ -->      
+        
+    <target name="validate-build-support">   
+        <fail message="Builds are not supported for this package.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+    </target>  
+
+     
+    
+    <!-- ===========================================
+        Target: templates
+    ============================================ -->     
+    
+
+    <target name="templates" depends="init">
+        
+        <echo msg="Validating templates." />
+        <exec command="composer templates validate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />
+        
+        <echo msg="Generating templates." />
+        <exec command="composer templates generate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />  
+                
+    </target>    
+
+
+    <!-- ===========================================
+        Target: clean-builds
+    ============================================ -->      
+    
+    <target name="clean-builds" depends="init, validate-build-support">   
+        <delete dir="${state.pkg.builds.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+    </target>
+    
+    <!-- ===========================================
+        Target: builds
+    ============================================ -->     
+    
+    <target name="builds" depends="init, clean-builds, clean-cache, templates">
+                     
+        <if>
+            <or>
+                <equals arg1="${state.pkg.builds.dir}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.builds.dir"/>
+                </not>
+                <equals arg1="${state.pkg.builds.targets.versions}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.builds.targets.versions"/>
+                </not>
+                <equals arg1="${state.pkg.builds.source.version}" arg2=""/>
+                <not>
+                    <isset property="state.pkg.builds.source.version"/>
+                </not>
+            </or>
+            <then>
+                <echo msg="Nothing to do!" />
+            </then>
+            <else>    
+        
+                <mkdir dir="${state.pkg.builds.dir}" />       
+
+                <foreach list="${state.pkg.builds.targets.versions}" param="build-target-version" target="build-version" />
+
+                <phingcall target="build-current" />
+                
+            </else>
+        </if>
+        
+    </target>
+    
+    <target name="build-version">
+
+        <fail message="No build source version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.source.version}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.source.version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+
+        <fail message="No source classes directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.source.classes.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.source.classes.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+                        
+        <fail message="No build target version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${build-target-version}" arg2=""/>
+                    <not>
+                        <isset property="build-target-version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>    
+        
+        <fail message="No builds directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>         
+        
+        <echo msg="Generating build for PHP ${build-target-version}." />
+        
+        <mkdir dir="${state.pkg.builds.dir}${build-target-version}" />        
+        
+        <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg value="--source-version" />
+            <arg value="${state.pkg.builds.source.version}" />
+            <arg value="--target-version" />
+            <arg value="${build-target-version}" />
+            <arg value="--input" />
+            <arg value="${state.pkg.source.classes.dir}" />
+            <arg value="--output" />
+            <arg value="${state.pkg.builds.dir}${build-target-version}/" />
+        </exec>           
+    </target>       
+
+    <target name="build-current">
+        
+        <fail message="No build source version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.source.version}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.source.version"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>
+        
+        <fail message="No build source major version specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.source.version.major}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.source.version.major"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+        <fail message="No builds directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.builds.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.builds.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+
+        <fail message="No source classes directory specified.">
+            <condition>
+                <or>
+                    <equals arg1="${state.pkg.source.classes.dir}" arg2=""/>
+                    <not>
+                        <isset property="state.pkg.source.classes.dir"/>
+                    </not>
+               </or>
+           </condition>
+        </fail>        
+        
+        <echo msg="Generating build for PHP ${state.pkg.builds.source.version}+." />
+        
+        <mkdir dir="${state.pkg.builds.dir}${state.pkg.builds.source.version.major}/" />
+        
+        <copy todir="${state.pkg.builds.dir}${state.pkg.builds.source.version.major}/" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${state.pkg.source.classes.dir}/">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>      
+                
+    </target>      
+    
+    
+    <!-- ===========================================
+        Target: tests
+    ============================================ -->         
+    
+    <target name="tests" depends="init">
+        
+        <exec executable="${state.pkg.tests.cmd}" dir="${state.pkg.dir}" checkreturn="true" passthru="true">
+            <arg value="${state.pkg.tests.dir}" />
+        </exec>
+        
+    </target>    
+    
+
+    
+</project>
