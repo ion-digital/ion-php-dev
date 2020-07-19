@@ -199,6 +199,13 @@
                 </replaceregexp> 
             </filterchain>   
         </property>
+        <property name="state.vcs.branches.current.name.prefix" value="${state.vcs.branches.current.name}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="((.+)([${state.vcs.branches.segments.seperator}]+)([^${state.vcs.branches.segments.seperator}]+))$" replace="\2" ignoreCase="true" />
+                </replaceregexp> 
+            </filterchain>   
+        </property>        
         
         <property name="state.vcs.commit.message" value="Auto-commit via build tools (package: '${state.pkg.package}', v${state.pkg.version}; ANT script: v${state.ant.version}; branch: '${state.vcs.branches.current.name}')." override="true" />
         
@@ -494,6 +501,8 @@
         <echo msg=" state.vcs.branches.current.name  :  ${state.vcs.branches.current.name} " />
         <echo msg=" state.vcs.branches.current.name.dashed  :  ${state.vcs.branches.current.name.dashed} " />
         <echo msg=" state.vcs.branches.current.name.segment  :  ${state.vcs.branches.current.name.segment} " />
+        <echo msg=" state.vcs.branches.current.name.prefix  :  ${state.vcs.branches.current.name.prefix} " />
+        
         <echo msg=" state.vcs.branches.current.is.development:  ${state.vcs.branches.current.is.development} " />
         <echo msg=" state.vcs.branches.current.is.master:  ${state.vcs.branches.current.is.master} " />
         <echo msg=" state.vcs.branches.current.is.staging:  ${state.vcs.branches.current.is.staging} " />
