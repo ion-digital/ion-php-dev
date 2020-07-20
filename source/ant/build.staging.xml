@@ -1,72 +1,80 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+         
+    <!-- ===========================================
+        Target: validate-staging
+    ============================================ -->     
+    
+
+    <target name="validate-staging" depends="init, validate-package">
+        
+        
+    </target>      
     
     <!-- ===========================================
         Target: prepare-staging
     ============================================ -->     
     
-
-    <target name="prepare-staging" depends="init">
+    <target name="prepare-staging" depends="init, validate-staging">
         
+        <delete dir="${state.pkg.source.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${state.pkg.dir}">
+                <include name="autoloader.json" />
+            </fileset>
+        </delete>          
+        
+        <phingcall target="tests" />
+
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${state.pkg.dir}">
+                <include name="${state.pkg.devops.glob}" />
+            </fileset>
+        </delete>          
     </target>    
     
     <!-- ===========================================
         Target: staging
     ============================================ -->         
     
-    <target name="staging" depends="init">
+    <target name="staging" depends="init, package">
         
-        <echo msg="VCS: Checking out '${staging-branch}'." />
-        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true" error="">
+        <echo msg="Resetting script state." />
+        <phingcall target="init" />
+
+        <property name="tmp.staging.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
+                
+        <echo msg="Creating out the GIT branch '${state.vcs.branches.staging.name}' (if it doesn't exist)." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.branch.create} ${state.vcs.branches.staging.name}" />
+        </exec>        
+        
+        <echo msg="Checking out the GIT branch '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.staging.name}" />
         </exec>
         
-        <echo msg="Rebasing / Merging '${state.vcs.branches.current.name}' into '${release-branch}'." />
-        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="true" passthru="true">  
-            <arg line="${stage.vcs.cmd.merge-from-theirs} ${state.vcs.branches.current.name}" />
-        </exec>  
-        
-        <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
-        <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />                
-                              
-        <echo msg="Removing '{$source-directory}' for release tests on the release GIT branch '${release-branch}'." />        
-        
-        <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
-        
-        <phingcall target="tests" />        
-        
-<!--        <echo msg="Removing all other development-related objects on the staging GIT branch '${staging-branch}'." />-->
-        <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
-        <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
-        <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
-        
-        <delete includeemptydirs="true" verbose="false" failonerror="false">
-            <fileset dir="${package-directory}">
-                <include name="autoloader.json" />
-                <include name="build.xml" />
-                <include name="make.bat" />
-                <include name="make" />
-                <include name="${devops-release-config-pattern}" />
-                <include name="${devops-development-config-pattern}" />
-            </fileset>
-        </delete>                  
-        
-        <echo msg="Staging changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${stage.vcs.cmd.state}" />
-        </exec>
+        <echo msg="Pulling the GIT branch '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.pull}" />
+        </exec>        
 
-        <!-- We DON'T check the return for the commit below, since this is NOT a development branch -->
-        <echo msg="Committing changes to the release GIT branch '${release-branch}'." />
-        <exec executable="${stage.vcs.cmd}" dir="." checkreturn="false" passthru="true"> <!-- false? -->
-            <arg line="${stage.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
-        </exec>       
+        <echo msg="Merging rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.merge.from} ${tmp.staging.previous.branch}" />
+        </exec>
+                        
+        <phingcall target="prepare-staging" />
+        <phingcall target="package" />        
         
+        <echo msg="Checking out the previous GIT branch '${tmp.staging.previous.branch}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.branch.current.set} ${tmp.staging.previous.branch}" />
+        </exec>        
         
-        <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
-        <exec executable="${config.pkg.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${config.pkg.cmd.update-version}" />
-        </exec>           
+        <echo msg="Restoring script state." />
+        <phingcall target="init" />
         
     </target>    
     

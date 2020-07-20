@@ -29,6 +29,23 @@
 
         <echo msg="The package version (${state.pkg.version}) is currently higher than the release VCS version (${state.vcs.branches.current.version}) - package or release creation can continue!" />
 
+<!--        <echo msg="state.ant.allow-release                  : ${state.ant.allow-release}" />
+        <echo msg="state.vcs.branches.current.is.staging    : ${state.vcs.branches.current.is.staging}" />
+        <echo msg="state.vcs.branches.current.is.release    : ${state.vcs.branches.current.is.release}" />
+        <echo msg="state.vcs.branches.current.is.development: ${state.vcs.branches.current.is.development}" />-->
+                
+        <if>
+            <and>
+                <equals arg1="${state.ant.allow-release}" arg2="" />
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <fail msg="You are currently on the branch '${state.vcs.branches.current.name}' - packaging is not allowed here!" />
+            </then> 
+        </if>        
+        
+        <echo msg="You are currently on the branch '${state.vcs.branches.current.name}' - packaging can continue!" />                
+        
     </target>  
     
         
@@ -37,7 +54,7 @@
     ============================================ -->     
     
     
-    <target name="prepare-package" depends="init">
+    <target name="prepare-package" depends="init, validate-package">
         
         <echo msg="No action needed - continuing." />   
                 
@@ -47,13 +64,26 @@
         Target: package
     ============================================ -->         
             
-    <target name="package" depends="init, validate-package, templates, tests, clean-cache, builds">
+    <target name="package" depends="init, validate-package, clean-cache">
         
         <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
         <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
         
+<!--        <phingcall target="prepare-package" />-->
+                                                  
+        <if>
+            <and>
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <phingcall target="templates" />
+                <phingcall target="builds" />    
+            </then> 
+        </if> 
+                                                                                   
+        <phingcall target="tests" />    
         <phingcall target="prepare-package" />
-                                                                       
+                                                                                           
         <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.current.name}'." />
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.state}" />
@@ -85,6 +115,8 @@
         <echo msg="Creating archive: " />
         <phingcall target="archive" />        
         
+        <!-- allow this target to be run on the staging / release branches for this session -->
+        <property name="state.ant.allow-release" value="1" override="true" />
     </target>    
     
     

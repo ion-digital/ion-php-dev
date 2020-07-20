@@ -24,7 +24,16 @@
         
         <property file="${state.ant.dirs.include}/package.properties" />        
         <property file="${state.ant.dirs.include}/config.properties" />
-                
+                        
+        <if>
+            <not>
+                <equals arg1="${state.ant.allow-release}" arg2="1" />
+            </not>
+            <then>
+                <property name="state.ant.allow-release" value="false" override="true" />
+            </then>
+        </if>
+        
         <property name="state.pkg.vendor" value="${state.pkg.package}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -110,6 +119,14 @@
                 </replaceregexp>            
             </filterchain>            
         </property>
+        <property name="state.pkg.development.dir" value="${config.pkg.development.dir}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>        
         <property name="state.pkg.tests.dir" value="${config.pkg.tests.dir}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -129,6 +146,8 @@
                 </replaceregexp>            
             </filterchain>   
         </property>               
+        
+        
         
         <!-- builds -->
         
@@ -156,6 +175,7 @@
         <property name="state.vcs.cmd" value="${config.vcs.cmd}" override="true" />
         <property name="state.vcs.cmd.commit" value="${config.vcs.cmd.commit}" override="true" />
         <property name="state.vcs.cmd.push" value="${config.vcs.cmd.push}" override="true" />
+        <property name="state.vcs.cmd.pull" value="${config.vcs.cmd.pull}" override="true" />
         <property name="state.vcs.cmd.state" value="${config.vcs.cmd.state}" override="true" />
         <property name="state.vcs.cmd.branch.create" value="${config.vcs.cmd.branch.create}" override="true" />
         <property name="state.vcs.cmd.branch.delete" value="${config.vcs.cmd.branch.delete}" override="true" />
@@ -176,8 +196,8 @@
             <arg line="${state.vcs.cmd.branch.current.get}" />
         </exec>          
         <exec executable="${state.vcs.cmd}" dir="." outputProperty="state.vcs.branches.current.version" checkreturn="false" passthru="false" error="NUL">
-            <arg line="${state.vcs.cmd.tag.get} ${state.vcs.cmd.branch.current.get}" />
-        </exec>
+            <arg line="${state.vcs.cmd.tag.get} *+${state.vcs.branches.current.name}*" />
+        </exec>        
         <property name="state.vcs.branches.current.version" value="${state.vcs.branches.current.version}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -259,8 +279,9 @@
         
         <property name="state.vcs.branches.staging.name" value="${config.vcs.branches.segments.staging.prefix}${config.vcs.branches.segments.seperator}${state.vcs.branches.current.name.segment}" override="true" />
         <exec executable="${state.vcs.cmd}" dir="." outputProperty="state.vcs.branches.staging.version" checkreturn="false" passthru="false" error="NUL">
-            <arg line="${state.vcs.cmd.tag.get} ${state.vcs.branches.staging.name}" />
+            <arg line="${state.vcs.cmd.tag.get} *+${state.vcs.branches.staging.name}*" />
         </exec>
+        
         <property name="state.vcs.branches.staging.version" value="${state.vcs.branches.staging.version}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -312,12 +333,12 @@
         
         <!-- archives -->
         
-        <property name="state.pkg.archives.filename" value="${config.}" override="true" />
+<!--        <property name="state.pkg.archives.filename" value="${config.}" override="true" />
         <property name="state.pkg.archives.version" value="${config.}" override="true" />
         <property name="state.pkg.archives.dir.version" value="${config.}" override="true" />
         <property name="state.pkg.archives.dir.branch" value="${config.}" override="true" />
         <property name="state.pkg.archives.dir.package" value="${config.}" override="true" />
-        <property name="state.pkg.archives.path" value="${config.}" override="true" />
+        <property name="state.pkg.archives.path" value="${config.}" override="true" />-->
         
         <property name="state.pkg.archives.version" value="v${state.pkg.version}" override="true">
             <filterchain>
@@ -441,6 +462,7 @@
         
         <echo msg=" state.ant.version  :  ${state.ant.version} " />
         <echo msg=" state.ant.dirs.include  :  ${state.ant.dirs.include} " />
+        <echo msg=" state.ant.allow-release  :  ${state.ant.allow-release} " />
         <echo msg=" state.pkg.dir  :  ${state.pkg.dir} " />
         <echo msg=" state.pkg.vendor  :  ${state.pkg.vendor} " />
         <echo msg=" state.pkg.project  :  ${state.pkg.project} " />
@@ -455,7 +477,8 @@
         <echo msg=" state.pkg.tests.dir  :  ${state.pkg.tests.dir} " />
         <echo msg=" state.pkg.dependencies.dir  :  ${state.pkg.dependencies.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
-        <echo msg=" state.pkg.additional.dirs  :  ${state.pkg.additional.dirs} " />
+        <echo msg=" state.pkg.development.dir  :  ${state.pkg.development.dir} " />
+        <echo msg=" state.pkg.additional.dirs  :  ${state.pkg.additional.dirs} " />        
         
         <echo msg=" state.pkg.cache.glob  :  ${state.pkg.cache.glob} " />
         

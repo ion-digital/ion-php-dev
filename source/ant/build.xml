@@ -38,7 +38,7 @@
 
     <target name="clean-cache">
                  
-        <delete verbose="true" failonerror="false"> 
+        <delete verbose="false" failonerror="false"> 
             <fileset dir="${state.pkg.builds.dir}">
                 <include name="**/${state.pkg.cache.glob}" />
             </fileset>

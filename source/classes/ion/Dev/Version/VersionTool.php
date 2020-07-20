@@ -30,6 +30,7 @@ class VersionTool extends Tool {
     private $check = null;
     private $checkReturn = null;
     private $checkSwap = null;
+    private $clearBuild = null;
     private $increment = null;
     private $update = null;
     private $release = null;
@@ -41,6 +42,7 @@ class VersionTool extends Tool {
             bool $print = null,
             bool $checkReturn = null,
             bool $checkSwap = null,
+            bool $clearBuild = null,
             string $check = null,
             string $increment = null,
             string $update = null,
@@ -55,6 +57,7 @@ class VersionTool extends Tool {
         $this->check = $check;
         $this->checkReturn = $checkReturn;
         $this->checkSwap = $checkSwap;
+        $this->clearBuild = $clearBuild;
         $this->increment = $increment;
         $this->update = $update;
         $this->release = $release;
@@ -141,6 +144,18 @@ class VersionTool extends Tool {
             }
         }
         
+        if($this->clearBuild) {
+        
+            $version = new SemVer(
+                    
+                $version->getMajor(),
+                $version->getMinor(),
+                $version->getPatch(),
+                $version->getRelease(),
+                []
+            );            
+        } 
+        
         if(is_countable($this->build)) {
             
             $version = new SemVer(
@@ -149,7 +164,7 @@ class VersionTool extends Tool {
                 $version->getMinor(),
                 $version->getPatch(),
                 $version->getRelease(),
-                $this->build
+                array_merge($version->getBuildData(), $this->build)
             );
         }
         

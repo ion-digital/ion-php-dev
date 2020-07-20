@@ -78,7 +78,7 @@
             </then>
             <else>
                 
-                <echo msg="Compiling distribution archive '${state.pkg.archives.filename}' for package ${current-package-version}." />
+                <echo msg="Compiling distribution archive '${state.pkg.archives.filename}' for package ${state.pkg.version}." />
 
                 <mkdir dir="${state.pkg.archives.dir.package}" />
 

@@ -60,6 +60,11 @@ Reverse the comparison expression when checking.
 HELP
             )
                 
+            ->addOption('clear-build', null, InputOption::VALUE_NONE, <<<HELP
+Clear the build component of the output version, before adding additional build components.
+HELP
+            )
+                
             ->addOption('check-return', null, InputOption::VALUE_NONE, <<<HELP
 If specified: if the package version is higher, equal or lower; composer will exit with error code 1, 0 or -1 respectively.
 If not, composer will exit with error code 1 if no change has been detected, or 0 otherwise.                    
@@ -123,6 +128,7 @@ HELP
             ($input->hasParameterOption('--print') ? true : false),
             ($input->hasParameterOption('--check-return') ? true : false),
             ($input->hasParameterOption('--check-swap') ? true : false),
+            ($input->hasParameterOption('--clear-build') ? true : false),
             ($input->hasParameterOption('--check') ? $this->nullToStr($input->getOption('check')) : null),
             ($input->hasParameterOption('--increment') ? $this->nullToStr($input->getOption('increment')) : null),
             ($input->hasParameterOption('--update') ? $this->nullToStr($input->getOption('update')) : null),            
