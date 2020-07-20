@@ -173,6 +173,7 @@
         
         
         <property name="state.vcs.cmd" value="${config.vcs.cmd}" override="true" />
+        <property name="state.vcs.cmd.revert-file" value="${config.vcs.cmd.revert-file}" override="true" />
         <property name="state.vcs.cmd.commit" value="${config.vcs.cmd.commit}" override="true" />
         <property name="state.vcs.cmd.push" value="${config.vcs.cmd.push}" override="true" />
         <property name="state.vcs.cmd.pull" value="${config.vcs.cmd.pull}" override="true" />
@@ -515,6 +516,8 @@
         <echo msg=" state.vcs.cmd.tag.get  :  ${state.vcs.cmd.tag.get} " />
         <echo msg=" state.vcs.cmd.merge.from  :  ${state.vcs.cmd.merge.from} " />
         <echo msg=" state.vcs.branches.master.name  :  ${state.vcs.branches.master.name} " />
+        <echo msg=" state.vcs.cmd.revert-file  :  ${state.vcs.cmd.revert-file} " />
+<!--        <echo msg=" state.vcs.cmd.revert-file  :  ${state.vcs.cmd.revert-file} " />-->
         
         <echo msg=" state.vcs.branches.segments.release.prefix  :  ${state.vcs.branches.segments.release.prefix} " />
         <echo msg=" state.vcs.branches.segments.staging.prefix  :  ${state.vcs.branches.segments.staging.prefix} " />

@@ -40,7 +40,7 @@
         
         <property name="tmp.staging.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
                 
-        <echo msg="Creating out the GIT branch '${state.vcs.branches.staging.name}' (if it doesn't exist)." />        
+        <echo msg="Creating the GIT branch '${state.vcs.branches.staging.name}' (if it doesn't exist)." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
             <arg line="${state.vcs.cmd.branch.create} ${state.vcs.branches.staging.name}" />
         </exec>        
@@ -48,6 +48,11 @@
         <echo msg="Checking out the GIT branch '${state.vcs.branches.staging.name}'." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.staging.name}" />
+        </exec>
+        
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.staging.name}" />
         </exec>
         
         <echo msg="Resetting script state." />
@@ -64,6 +69,7 @@
         </exec>
                         
         <phingcall target="prepare-staging" />
+        <phingcall target="tests" /> <!-- For STAGING: run this AFTER we've deleted the source directory; to test the builds -->
         <phingcall target="package-staging" />        
         
         <echo msg="Checking out the previous GIT branch '${tmp.staging.previous.branch}'." />        
@@ -88,7 +94,7 @@
 <!--        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.staging.filename}' -> '${state.pkg.devops.target.filename}')." />
         <copy file="${state.pkg.devops.staging.filename}" tofile="${state.pkg.devops.staging.filename}" overwrite="true" haltonerror="false" />-->
                                                                                                                                                                                                                                                          
-        <phingcall target="tests" />            
+                    
                                                                                            
         <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.staging.name}'." />
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
