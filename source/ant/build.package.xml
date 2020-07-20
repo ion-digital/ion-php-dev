@@ -66,20 +66,13 @@
             
     <target name="package" depends="init, validate-package, clean-cache">
         
-        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
-        <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
+<!--        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
+        <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />-->
         
 <!--        <phingcall target="prepare-package" />-->
                                                   
-        <if>
-            <and>
-                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
-            </and>           
-            <then>
-                <phingcall target="templates" />
-                <phingcall target="builds" />    
-            </then> 
-        </if> 
+        <phingcall target="templates" />
+        <phingcall target="builds" />    
                                                                                    
         <phingcall target="tests" />    
         <phingcall target="prepare-package" />
@@ -112,8 +105,8 @@
             <arg line="${state.vcs.cmd.push} ${state.vcs.branches.current.name}" />
         </exec>
         
-        <echo msg="Creating archive: " />
-        <phingcall target="archive" />        
+<!--        <echo msg="Creating distribution archive: " />
+        <phingcall target="archive" />        -->
         
         <!-- allow this target to be run on the staging / release branches for this session -->
         <property name="state.ant.allow-release" value="1" override="true" />

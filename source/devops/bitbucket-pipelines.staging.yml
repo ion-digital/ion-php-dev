@@ -1,3 +1,7 @@
+#
+# staging
+#
+
 image: php:7.2.3
 
 pipelines:

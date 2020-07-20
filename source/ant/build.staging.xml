@@ -24,8 +24,6 @@
                 <include name="autoloader.json" />
             </fileset>
         </delete>          
-        
-        <phingcall target="tests" />
 
         <delete includeemptydirs="true" verbose="false" failonerror="false">
             <fileset dir="${state.pkg.dir}">
@@ -40,9 +38,6 @@
     
     <target name="staging" depends="init, package">
         
-        <echo msg="Resetting script state." />
-        <phingcall target="init" />
-
         <property name="tmp.staging.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
                 
         <echo msg="Creating out the GIT branch '${state.vcs.branches.staging.name}' (if it doesn't exist)." />        
@@ -55,18 +50,21 @@
             <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.staging.name}" />
         </exec>
         
-        <echo msg="Pulling the GIT branch '${state.vcs.branches.staging.name}'." />        
+        <echo msg="Resetting script state." />
+        <phingcall target="init" />        
+        
+<!--        <echo msg="Pulling the GIT branch '${state.vcs.branches.staging.name}'." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.pull}" />
-        </exec>        
+        </exec>        -->
 
-        <echo msg="Merging rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
+        <echo msg="Merging / rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.merge.from} ${tmp.staging.previous.branch}" />
         </exec>
                         
         <phingcall target="prepare-staging" />
-        <phingcall target="package" />        
+        <phingcall target="package-staging" />        
         
         <echo msg="Checking out the previous GIT branch '${tmp.staging.previous.branch}'." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
@@ -78,6 +76,53 @@
         
     </target>    
     
-    
+    <target name="package-staging">
+                                                  
+<!--        <if>
+            <equals arg1="${state.vcs.branches.current.is.development}" arg2="1" />
+            <then>
+                <fail msg="This is a development branch!" />
+            </then>
+        </if> -->
+
+<!--        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.staging.filename}' -> '${state.pkg.devops.target.filename}')." />
+        <copy file="${state.pkg.devops.staging.filename}" tofile="${state.pkg.devops.staging.filename}" overwrite="true" haltonerror="false" />-->
+                                                                                                                                                                                                                                                         
+        <phingcall target="tests" />            
+                                                                                           
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.staging.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
+        </exec>
+        
+        <!-- We check the return for the commit below, since this is the development branch -->
+        <echo msg="Committing changes to the current GIT branch '${state.vcs.branches.staging.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.commit} &quot;${state.vcs.commit.message}.&quot;" />
+        </exec>
+
+        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.staging.name}'." />
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.staging.name}" />
+        </exec>  
+        
+<!--        <fail msg="DEBUG:[${state.vcs.cmd} ${state.vcs.cmd.tag.set} v${tmp}]" />-->
+        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.tag.set} v${tmp}" />
+        </exec> 
+
+        <echo msg="Pulling the GIT branch '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.pull}" />
+        </exec>  
+
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.staging.name}" />
+        </exec>
+        
+    </target>
     
 </project>
