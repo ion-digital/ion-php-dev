@@ -11,7 +11,7 @@
         Target: prepare-package
     ============================================ -->  
       
-    <target name="prepare-package" depends="check-version">         
+    <target name="prepare-package">         
           
         <echo msg="Updating WordPress version..." />
         <exec command="composer vcs version --check=auto --output --prepend &quot;Version: &quot; | composer regex replace &quot;/Version\s*:\s*[0-9]+\.[0-9]+\.[0-9]+\S*/&quot; ${config.wordpress.entry-file} --output=${config.wordpress.entry-file}" passthru="true" />        

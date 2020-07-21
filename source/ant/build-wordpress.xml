@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package-wordpress" default="info">
+    
+    <import file="./vendor/ion/dev/source/ant/build.xml" />
+    
+    <property file="./vendor/ion/dev/source/ant/config.wordpress.properties" />
+    
+    <!-- ===========================================
+        Target: prepare-package
+    ============================================ -->  
+      
+    <target name="prepare-package" depends="init">
+          
+        <echo msg="Updating WordPress version..." />
+
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.version.get}" />
+        </exec>  
+
+<!--        <echo msg="${state.vcs.branches.current.name.segment}" />
+        <echo msg="${state.vcs.branches.master.name}" />
+        <echo msg="${state.vcs.branches.current.is.release}" />-->
+
+        <if>
+            <and>
+                <equals arg1="${state.vcs.branches.current.name.segment}" arg2="${state.vcs.branches.master.name}" />
+                <equals arg1="${state.vcs.branches.current.is.release}" arg2="1" />
+            </and>        
+            <then>
+                <property name="tmp" value="Version: ${tmp}" override="true" />
+            </then>
+            <else>
+                <property name="tmp" value="Version: ${tmp} (${state.vcs.branches.current.name})" override="true" />
+            </else>
+        </if>
+                
+        <exec executable="${state.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg value="regex" />
+            <arg value="replace" />
+            <arg value="/Version\s*:\s*[0-9]+\.[0-9]+\.[0-9]+\S*(.*)/" />
+            <arg value="${config.wordpress.entry-file}" />
+            <arg value="--output=${config.wordpress.entry-file}" />
+            <arg value="--replacement=${tmp}" />
+            <arg value="--limit=1" />
+        </exec>
+        
+    </target>      
+</project>
