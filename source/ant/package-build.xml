@@ -1,6 +1,277 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ion/dev-package-build" default="none" phingVersion="2.16.3">    
     
+<<<<<<< HEAD
+=======
+    <!-- Calculated properties (don't touch them, if you can help it!) -->
+    
+    <property name="build-script-version" value="0.1.7" />
+    
+    <property file="build.properties" />
+    
+    <property name="phing-include-directory" value="" />
+    
+    <if>
+        <equals arg1="${phing.project.name}" arg2="ion/dev" />
+        <then>
+            <property name="phing-include-directory" value="${phing.dir}/source/ant/" override="true" />
+        </then>
+        <else>
+            <property name="phing-include-directory" value="${phing.dir}/vendor/ion/dev/source/ant/" override="true" />
+        </else>
+    </if>
+
+    <property file="${phing-include-directory}/package-build.properties"/>
+
+    <property name="package-directory" value="./" />
+    <property name="build-source-version" value="${config.build-source-version}" />
+    <property name="build-target-versions" value="${config.build-target-versions}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\s+," replace="" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>          
+    </property>
+    <property name="build-tool" value="${dependencies-directory}bin/php-trans-porter" />
+    
+    <if>
+        <os family="windows" />
+        <then>
+            <property name="test-tool" value="${dependencies-directory}bin/phpunit.bat" />
+        </then>
+        <elseif>
+            <or>
+                <os family="unix" />
+                <os family="max" />
+            </or>
+            <then>
+                <property name="test-tool" value="${dependencies-directory}bin/phpunit" />
+            </then>
+        </elseif>
+    </if>    
+    
+    <property name="auto-load-cache-pattern" value="${config.auto-load-cache-pattern}" />
+    
+    <property name="package" value="${phing.project.name}" />
+    <property name="vendor" value="${package}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\/(.+)" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>
+    <property name="project" value="${package}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)\/" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>    
+    
+    <property name="current-branch" value="?" />
+    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-branch" checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.current-branch}" />
+    </exec>        
+    
+    <property name="current-branch-segment" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="((.+)([${config.branch-segment-seperator}]+)([^${config.branch-segment-seperator}]+))$" replace="\4" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
+    
+    <property name="current-branch-dashed" value="${current-branch}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>    
+    
+    <property name="archive-branch-dashed" value="${current-branch-dashed}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="^(temp-)" replace="" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>  
+    
+    <property name="current-branch-segment-dashed" value="${current-branch-segment}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[^A-Za-z0-9]+" replace="-" ignoreCase="true" />
+            </replaceregexp> 
+            
+        </filterchain>   
+    </property>  
+    
+    <property name="release-branch" value="${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />
+    
+    <property name="temporary-branch" value="temp${config.branch-segment-seperator}${config.release-prefix}${config.branch-segment-seperator}${current-branch-segment}" />          
+    
+    <!-- Get the current package version -->
+    <property name="current-package-version" value="?" />
+    <exec executable="${config.pkg.cmd}" dir="." outputProperty="current-package-version" checkreturn="false" passthru="false">
+        <arg line="${config.pkg.cmd.check-version}" />
+    </exec>
+    
+    <!-- Get the current VCS version -->
+    <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
+    </exec>
+    
+    <property name="current-vcs-version" value="?" />
+    <exec executable="${config.vcs.cmd}" dir="." outputProperty="current-vcs-version" error="NUL" checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.get-tag}" />
+    </exec>
+    
+    <property name="current-vcs-version" value="${current-vcs-version}" override="true">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="^v?(.+)" replace="\1" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>  
+    
+    <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
+        <arg line="${config.vcs.cmd.checkout} ${current-branch}" />
+    </exec>
+        
+    <!-- Set the current archive version string -->
+    <property name="archive-version" value="v${current-package-version}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="[.]" replace="_" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>       
+    <property name="build-source-major-version" value="${build-source-version}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\..+" replace="" ignoreCase="true" />
+            </replaceregexp>
+        </filterchain>        
+    </property>      
+
+    <property name="source-directory" value="${config.source-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>        
+    </property>    
+    
+    <property name="builds-directory" value="${config.builds-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="archives-directory" value="${config.archives-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    <property name="tests-directory" value="${config.tests-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>    
+    <property name="dependencies-directory" value="${config.dependencies-directory}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>    
+    <property name="additional-directories" value="${config.additional-directories}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern=",\s+" replace="," ignoreCase="true" />
+                <regexp pattern="\s+," replace="," ignoreCase="true" />
+                <regexp pattern="(.+)" replace="${package-directory}\1/" ignoreCase="true" />
+                <regexp pattern="," replace="/,${package-directory}" ignoreCase="true" />
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>   
+    </property>       
+    <property name="source-classes-directory" value="${source-directory}/classes/">
+        <filterchain>
+            <replaceregexp>                
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>     
+    <property name="source-templates-directory" value="${source-directory}/templates/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    
+    <property name="ide-directory" value="${config.ide-directory}" />
+    
+    <property name="archive-version-directory" value="${archives-directory}${archive-version}/${archive-branch-dashed}/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    
+    <property name="archive-directory" value="${archive-version-directory}${vendor}-${project}--${archive-branch-dashed}/">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="/+" replace="/" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>            
+    </property>
+    
+    <property name="archive-filename" value="${vendor}-${project}--${archive-branch-dashed}--${archive-version}.zip" />    
+    
+    <property name="archive-path" value="${archives-directory}${archive-filename}" />    
+
+    <property name="commit-message" value="Auto-commit via build tools (package: '${package}', v${current-package-version}; ANT script: v${build-script-version}; branch: '${current-branch}')." />
+    
+    
+    <if>
+        <not>
+            <equals arg1="${config.master-branch}" arg2="${current-branch-segment}" />
+        </not>
+        <then>
+            <!-- TODO: the addition of the branch should happen in the composer version utility; not here -->
+            <property name="release-version" value="${current-package-version}+${current-branch-segment-dashed}" /> 
+        </then>
+        <else>
+            <property name="release-version" value="${current-package-version}" />        
+        </else>
+    </if>  
+    
+    <!-- DevOps -->
+
+    <property name="tmp-devops-development-config" value="${config.devops-development-config-pattern}">
+        <filterchain>
+            <replaceregexp>
+                <regexp pattern="\*" replace="${current-branch-dashed}" ignoreCase="true" />
+            </replaceregexp>            
+        </filterchain>  
+    </property>
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
  
     
             
@@ -444,14 +715,23 @@
         <phing inheritAll="false" inheritRefs="false" dir="." phingFile="build.xml" target="archive" haltonfailure="false" />
         
          delete all non-release related files 
+<<<<<<< HEAD
         
         
+=======
+        
+        
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         !!! NOTE !!! - moved below/
 
         <echo msg="Applying BitBucket CI/CD development configuration ('${devops-release-config}' -> '${config.devops-target-config}')." />
         <copy file="${devops-release-config}" tofile="${config.devops-target-config}" overwrite="true" haltonerror="false" />        
         
+<<<<<<< HEAD
         <echo msg="Removing all development-related objects in the staging GIT branch '${staging-branch}'." />
+=======
+        <echo msg="Removing all development-related objects in the temporary GIT branch '${temporary-branch}'." />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
 
                         
         <delete dir="${source-directory}" includeemptydirs="true" verbose="false" failonerror="false" />            
@@ -471,13 +751,21 @@
 
         !!! NOTE !!! - /moved below
 
+<<<<<<< HEAD
         <echo msg="Staging changes to the staging GIT branch '${staging-branch}'." />
+=======
+        <echo msg="Staging changes to the temporary GIT branch '${temporary-branch}'." />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.state}" />
         </exec>
         
          We DON'T check the return for the commit below, since this is NOT a development branch 
+<<<<<<< HEAD
         <echo msg="Committing changes to the staging GIT branch '${staging-branch}'." />
+=======
+        <echo msg="Committing changes to the temporary GIT branch '${temporary-branch}'." />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="false" passthru="false">
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>-->
@@ -494,10 +782,17 @@
             <arg line="${config.vcs.cmd.checkout} ${release-branch}" />
         </exec>
         
+<<<<<<< HEAD
         <!-- merge the staging branch into the release branch -->
 <!--        <echo msg="Merging '${staging-branch}' into '${release-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
             <arg line="${config.vcs.cmd.merge-from-theirs} ${staging-branch}" />
+=======
+        <!-- merge the temporary branch into the release branch -->
+<!--        <echo msg="Merging '${temporary-branch}' into '${release-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="true">  false? 
+            <arg line="${config.vcs.cmd.merge-from-theirs} ${temporary-branch}" />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         </exec>-->
         
         
@@ -516,7 +811,11 @@
         
         <phingcall target="tests" />        
         
+<<<<<<< HEAD
 <!--        <echo msg="Removing all other development-related objects on the staging GIT branch '${staging-branch}'." />-->
+=======
+<!--        <echo msg="Removing all other development-related objects on the temporary GIT branch '${temporary-branch}'." />-->
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         <echo msg="Removing all other development-related objects on the release GIT branch '${release-branch}'." />
         <delete dir="${ide-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
         <delete dir="${tests-directory}" includeemptydirs="true" verbose="false" failonerror="false" />                    
@@ -543,9 +842,15 @@
             <arg line="${config.vcs.cmd.commit} &quot;${commit-message}.&quot;" />
         </exec>       
        
+<<<<<<< HEAD
 <!--        <echo msg="Checking the release GIT branch '${release-branch}' against the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.diff} ${staging-branch}" />
+=======
+<!--        <echo msg="Checking the release GIT branch '${release-branch}' against the temporary GIT branch '${temporary-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.diff} ${temporary-branch}" />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         </exec>   -->
         
         <echo msg="Updating the version tag for the release GIT branch '${release-branch}'." />
@@ -553,10 +858,17 @@
             <arg line="${config.pkg.cmd.update-version}" />
         </exec>        
         
+<<<<<<< HEAD
         <!-- delete the staging branch -->
 <!--        <echo msg="Cleaning up the staging GIT branch '${staging-branch}'." />
         <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
             <arg line="${config.vcs.cmd.delete-branch} ${staging-branch}" />
+=======
+        <!-- delete the temporary branch -->
+<!--        <echo msg="Cleaning up the temporary GIT branch '${temporary-branch}'." />
+        <exec executable="${config.vcs.cmd}" dir="." checkreturn="true" passthru="false">
+            <arg line="${config.vcs.cmd.delete-branch} ${temporary-branch}" />
+>>>>>>> 8f5edeaf39d73f099da2e85965b12e47313ffb97
         </exec>           -->
            
         <echo msg="Pushing to remote upstream." />
