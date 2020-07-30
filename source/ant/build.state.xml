@@ -185,6 +185,7 @@
         <property name="state.vcs.cmd.tag.set" value="${config.vcs.cmd.tag.set}" override="true" />
         <property name="state.vcs.cmd.tag.get" value="${config.vcs.cmd.tag.get}" override="true" />
         <property name="state.vcs.cmd.merge.from" value="${config.vcs.cmd.merge.from}" override="true" />
+        <property name="state.vcs.cmd.merge.continue" value="${config.vcs.cmd.merge.continue}" override="true" />
         
         <property name="state.vcs.branches.master.name" value="${config.vcs.branches.master.name}" override="true" />        
         <property name="state.vcs.branches.segments.seperator" value="${config.vcs.branches.segments.seperator}" override="true" />

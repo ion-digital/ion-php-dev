@@ -67,6 +67,16 @@
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.merge.from} ${tmp.staging.previous.branch}" />
         </exec>
+        
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.staging.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
+        </exec>      
+        
+        <echo msg="Continuing merging / rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.merge.continue} ${tmp.staging.previous.branch}" />
+        </exec>            
                         
         <phingcall target="prepare-staging" />
         <phingcall target="tests" /> <!-- For STAGING: run this AFTER we've deleted the source directory; to test the builds -->
