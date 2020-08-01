@@ -40,7 +40,25 @@
         Target: release
     ============================================ -->         
     
-    <target name="release" depends="init, staging">
+    <target name="release" depends="init, staging, continue-release">
+    </target>    
+    
+    <!-- ===========================================
+        Target: continue-release
+    ============================================ -->         
+    
+    <target name="continue-release" depends="init">
+                
+        <if>
+            <and>
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <fail msg="You are currently NOT on a development branch: '${state.vcs.branches.current.name}' - releases are not allowed from here!" />
+            </then> 
+        </if>        
+        
+        <echo msg="You are currently on the branch '${state.vcs.branches.current.name}' - release can continue!" /> 
         
         <property name="tmp.release.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
                        
@@ -78,8 +96,8 @@
         </exec>      
         
         <echo msg="Continuing merging / rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
-        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${state.vcs.cmd.merge.continue} ${tmp.staging.previous.branch}" />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.merge.continue}" />
         </exec>         
                                                         
         <phingcall target="prepare-release" />

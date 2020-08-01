@@ -40,11 +40,11 @@
                 <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
             </and>           
             <then>
-                <fail msg="You are currently on the branch '${state.vcs.branches.current.name}' - packaging is not allowed here!" />
+                <fail msg="You are currently on the branch: '${state.vcs.branches.current.name}' - packaging is not allowed here!" />
             </then> 
         </if>        
         
-        <echo msg="You are currently on the branch '${state.vcs.branches.current.name}' - packaging can continue!" />                
+        <echo msg="You are currently on the branch: '${state.vcs.branches.current.name}' - packaging can continue!" />                
         
     </target>  
     

@@ -36,9 +36,27 @@
         Target: staging
     ============================================ -->         
     
-    <target name="staging" depends="init, package">
+    <target name="staging" depends="init, package, continue-staging">
+    </target>     
+    
+    <!-- ===========================================
+        Target: continue-staging
+    ============================================ -->         
+    
+    <target name="continue-staging" depends="init">
         
         <property name="tmp.staging.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
+        
+        <if>
+            <and>
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <fail msg="You are currently NOT on a development branch: '${state.vcs.branches.current.name}' - staging is not allowed from here!" />
+            </then> 
+        </if>        
+        
+        <echo msg="You are currently on the branch '${state.vcs.branches.current.name}' - staging can continue!" />           
                 
         <echo msg="Creating the GIT branch '${state.vcs.branches.staging.name}' (if it doesn't exist)." />        
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
@@ -74,8 +92,8 @@
         </exec>      
         
         <echo msg="Continuing merging / rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
-        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg line="${state.vcs.cmd.merge.continue} ${tmp.staging.previous.branch}" />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.merge.continue}" />
         </exec>            
                         
         <phingcall target="prepare-staging" />
