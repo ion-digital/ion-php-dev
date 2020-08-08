@@ -17,7 +17,7 @@ use \ion\ISemVer;
 use \ion\SemVer;
 use \Exception;
 
-trait TLoadVersion {
+trait TVersion {
 
     protected function loadVersion(string $option = null): ?ISemVer {
         

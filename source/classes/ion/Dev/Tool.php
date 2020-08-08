@@ -30,7 +30,7 @@ abstract class Tool implements ITool {
     private $input;
     private $output;
     
-    protected function __construct(\stdClass $args = null, InputInterface $input = null, OutputInterface $output = null) {
+    public function __construct(\stdClass $args = null, InputInterface $input = null, OutputInterface $output = null) {
         
         $this->args = ($args !== null ? $args : new \stdClass);
         $this->input = $input;

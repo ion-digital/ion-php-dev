@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+         
+    <!-- ===========================================
+        Target: validate-release
+    ============================================ -->     
+    
+
+    <target name="validate-release" depends="init, validate-package">
+        
+        
+    </target>      
+    
+    <!-- ===========================================
+        Target: prepare-release
+    ============================================ -->     
+    
+    <target name="prepare-release" depends="init, validate-release">
+        
+        <delete dir="${state.pkg.source.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${state.pkg.dir}">
+                <include name="autoloader.json" />
+            </fileset>
+        </delete>          
+        
+        <delete dir="${state.pkg.development.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        <delete dir="${state.pkg.tests.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+        
+        <delete includeemptydirs="true" verbose="false" failonerror="false">
+            <fileset dir="${state.pkg.dir}">
+                <include name="make.bat" />
+                <include name="make" />
+            </fileset>
+        </delete>          
+    </target>    
+    
+    <!-- ===========================================
+        Target: release
+    ============================================ -->         
+    
+    <target name="release" depends="init, staging, continue-release">
+    </target>    
+    
+    <!-- ===========================================
+        Target: continue-release
+    ============================================ -->         
+    
+    <target name="continue-release" depends="init">
+                
+        <if>
+            <and>
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <fail msg="You are currently NOT on a development branch: '${state.vcs.branches.current.name}' - releases are not allowed from here!" />
+            </then> 
+        </if>        
+        
+        <echo msg="You are currently on the branch '${state.vcs.branches.current.name}' - release can continue!" /> 
+        
+        <property name="tmp.release.previous.branch" value="${state.vcs.branches.current.name}" override="true" />        
+                       
+        <echo msg="Creating the GIT branch '${state.vcs.branches.release.name}' (if it doesn't exist)." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.branch.create} ${state.vcs.branches.release.name}" />
+        </exec>        
+        
+        <echo msg="Checking out the GIT branch '${state.vcs.branches.release.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.branch.current.set} ${state.vcs.branches.release.name}" />
+        </exec>
+        
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.release.name}" />
+        </exec>        
+        
+        <echo msg="Resetting script state." />
+        <phingcall target="init" />        
+        
+<!--        <echo msg="Pulling the GIT branch '${state.vcs.branches.release.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.pull}" />
+        </exec>        -->
+
+        <echo msg="Merging / rebasing GIT branch '${state.vcs.branches.staging.name}' to '${state.vcs.branches.release.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.merge.from} ${state.vcs.branches.staging.name}" />
+        </exec>
+        
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.staging.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
+        </exec>      
+        
+        <echo msg="Continuing merging / rebasing GIT branch '${tmp.staging.previous.branch}' to '${state.vcs.branches.staging.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.merge.continue}" />
+        </exec>         
+                                                        
+        <phingcall target="prepare-release" />
+        <phingcall target="package-release" />        
+        
+        <echo msg="Checking out the previous GIT branch '${tmp.release.previous.branch}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.branch.current.set} ${tmp.release.previous.branch}" />
+        </exec>        
+        
+<!--        <echo msg="Reverting build.xml in GIT branch '${tmp.release.previous.branch}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${revert-file} ./build.xml" />
+        </exec>          -->
+        
+    </target>    
+    
+    <target name="package-release">
+                                                  
+<!--        <if>
+            <equals arg1="${state.vcs.branches.current.is.development}" arg2="1" />
+            <then>
+                <fail msg="This is a development branch!" />
+            </then>
+        </if> -->
+
+<!--        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.release.filename}' -> '${state.pkg.devops.target.filename}')." />
+        <copy file="${state.pkg.devops.release.filename}" tofile="${state.pkg.devops.release.filename}" overwrite="true" haltonerror="false" />-->
+                                                                                                                                                                                                                                                         
+<!--        <delete file="build.xml" verbose="false" failonerror="false" />                               -->
+                                                                                           
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.release.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
+        </exec>
+        
+        <echo msg="Committing changes to the current GIT branch '${state.vcs.branches.release.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.commit} &quot;${state.vcs.commit.message}.&quot;" />
+        </exec>
+
+        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.release.name}'." />
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.release.name}" />
+        </exec>  
+        
+<!--        <fail msg="DEBUG:[${state.vcs.cmd} ${state.vcs.cmd.tag.set} v${tmp}]" />-->
+        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.tag.set} v${tmp}" />
+        </exec> 
+
+        <echo msg="Pulling the GIT branch '${state.vcs.branches.release.name}'." />        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.pull}" />
+        </exec>  
+
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.release.name}" />
+        </exec>
+        
+    </target>
+    
+</project>

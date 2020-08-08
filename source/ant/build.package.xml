@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="ion/dev-package" default="info" phingVersion="2.16.3">    
+    
+<!-- ===========================================
+        Target: validate-package
+    ============================================ -->  
+      
+    <target name="validate-package" depends="init">         
+          
+<!--        <property name="tmp.check-version-return" value="" />-->
+
+        <echo msg="Checking if VCS version needs updating." />
+                       
+        <exec executable="${state.pkg.cmd}" dir="." returnProperty="tmp.check-version-return" error="NUL" checkreturn="false" passthru="true">
+            <arg line="${state.pkg.cmd.version.check}${state.vcs.branches.current.version}" />
+        </exec>
+        
+        <fail message="The package version (${state.pkg.version}) is currently lower than the release VCS version (${state.vcs.branches.current.version}).">
+            <condition>
+               <equals arg1="${tmp.check-version-return}" arg2="-1"/>
+            </condition>
+        </fail>    
+
+        <fail message="The package version (${state.pkg.version}) is currently at the release VCS version (${state.vcs.branches.current.version}).">
+            <condition>
+               <equals arg1="${tmp.check-version-return}" arg2="0"/>
+            </condition>
+        </fail>    
+
+        <echo msg="The package version (${state.pkg.version}) is currently higher than the release VCS version (${state.vcs.branches.current.version}) - package or release creation can continue!" />
+
+<!--        <echo msg="state.ant.allow-release                  : ${state.ant.allow-release}" />
+        <echo msg="state.vcs.branches.current.is.staging    : ${state.vcs.branches.current.is.staging}" />
+        <echo msg="state.vcs.branches.current.is.release    : ${state.vcs.branches.current.is.release}" />
+        <echo msg="state.vcs.branches.current.is.development: ${state.vcs.branches.current.is.development}" />-->
+                
+        <if>
+            <and>
+                <equals arg1="${state.ant.allow-release}" arg2="" />
+                <equals arg1="${state.vcs.branches.current.is.development}" arg2="" />
+            </and>           
+            <then>
+                <fail msg="You are currently on the branch: '${state.vcs.branches.current.name}' - packaging is not allowed here!" />
+            </then> 
+        </if>        
+        
+        <echo msg="You are currently on the branch: '${state.vcs.branches.current.name}' - packaging can continue!" />                
+        
+    </target>  
+    
+        
+    <!-- ===========================================
+        Target: prepare-package
+    ============================================ -->     
+    
+    
+    <target name="prepare-package" depends="init, validate-package">
+        
+        <echo msg="No action needed - continuing." />   
+                
+    </target>                          
+    
+    <!-- ===========================================
+        Target: package
+    ============================================ -->         
+            
+    <target name="package" depends="init, validate-package, clean-cache">
+        
+        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
+        <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
+        
+<!--        <phingcall target="prepare-package" />-->
+                                                  
+        <phingcall target="templates" />
+        <phingcall target="builds" />    
+                                                                                   
+        <phingcall target="tests" />    
+        <phingcall target="prepare-package" />
+                                                                                           
+        <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.current.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.state}" />
+        </exec>
+        
+        <echo msg="Committing changes to the current GIT branch '${state.vcs.branches.current.name}'." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
+            <arg line="${state.vcs.cmd.commit} &quot;${state.vcs.commit.message}.&quot;" />
+        </exec>
+
+        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.current.name}'." />
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.current.name}" />
+        </exec>  
+        
+<!--        <fail msg="DEBUG:[${state.vcs.cmd} ${state.vcs.cmd.tag.set} v${tmp}]" />-->
+        
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.tag.set} v${tmp}" />
+        </exec> 
+
+        <echo msg="Pushing to remote upstream." />
+        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.vcs.cmd.push} ${state.vcs.branches.current.name}" />
+        </exec>
+        
+<!--        <echo msg="Creating distribution archive: " />
+        <phingcall target="archive" />        -->
+        
+        <!-- allow this target to be run on the staging / release branches for this session -->
+        <property name="state.ant.allow-release" value="1" override="true" />
+    </target>    
+    
+    
+    
+    
+    
+</project>

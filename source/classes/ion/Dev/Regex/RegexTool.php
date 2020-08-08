@@ -76,7 +76,9 @@ class RegexTool extends Tool {
                 return 0;
             }
                         
-            file_put_contents($output, $f);
+//            die("[$output]");
+            
+            file_put_contents(trim($output), $f);
             $this->writeln("'{$output}' written.");
             
             return 0;

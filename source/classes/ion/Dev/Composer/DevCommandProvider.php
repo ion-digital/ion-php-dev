@@ -10,7 +10,9 @@ use Composer\Plugin\Capability\CommandProvider;
 use ion\Dev\Composer\Commands\VcsCommand;
 use ion\Dev\Composer\Commands\TemplatesCommand;
 use ion\Dev\Composer\Commands\RegexCommand;
-use ion\Dev\Composer\Commands\BackportCommand;
+use ion\Dev\Composer\Commands\VersionCommand;
+use ion\Dev\Composer\Commands\BuildCommand;
+use ion\Dev\Composer\Commands\ProjectCommand;
 
 class DevCommandProvider implements CommandProvider {
 
@@ -21,7 +23,9 @@ class DevCommandProvider implements CommandProvider {
             new VcsCommand(),
             new TemplatesCommand(),
             new RegexCommand(),
-            new BackportCommand()
+            new VersionCommand(),
+            new BuildCommand(),
+            new ProjectCommand()
             
         ];
     }
