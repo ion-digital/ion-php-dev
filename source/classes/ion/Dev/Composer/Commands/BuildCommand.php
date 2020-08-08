@@ -32,6 +32,20 @@ use \ion\Dev\Regex\BuildTool;
 //--non-recursive         If specified and the input parameter is a directory, then
 //                        only files in the specified directory will be converted.
 
+//IDEAS:
+// --isolate=namespace  Isolate the build and dependencies in its own namespace.
+// --obfuscate=level Obfuscate the build at the specified level
+// --create-profile=filename Create the build profile
+// --apply-profile=filename Apply the build profile (taking into account --isolate and --obfuscate)
+//--target-version        The target PHP version to convert to (required if --help was
+//                        not specified).
+//--source-version        The source PHP version to convert from (defaults to PHP 7.2)
+//--input                 The input directory OR input file (defaults to current directory).
+//--output                The output directory OR output file (defaults to target PHP version).
+//--non-recursive         If specified and the input parameter is a directory, then
+//                        only files in the specified directory will be converted.
+
+
 class BuildCommand extends BaseCommand {
 
     protected function configure() {
