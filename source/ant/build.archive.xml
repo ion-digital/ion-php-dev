@@ -56,7 +56,7 @@
    <!-- ===========================================
         Target: archive
     ============================================ -->  
-    <target name="archive" depends="init, builds, clean-archive, clean-cache">
+    <target name="archive" depends="init, prepare-package, builds, clean-archive, clean-cache">
         
         <if>
             <or>
