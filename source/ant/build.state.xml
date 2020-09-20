@@ -134,7 +134,8 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>            
-        </property>      
+        </property>     
+          
         <property name="state.pkg.additional.dirs" value="${config.pkg.additional.dirs}">
             <filterchain>
                 <replaceregexp>
