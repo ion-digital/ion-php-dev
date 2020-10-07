@@ -60,15 +60,11 @@
         
         <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
         
+        <property name="state.pkg.placeholder.filename" value="${config.pkg.placeholder.filename}" override="true" />        
+        
         <!-- directories -->
-        <property name="state.pkg.placeholder.filename" value="${config.pkg.placeholder.filename}" override="true">
-            <filterchain>
-                <replaceregexp>
-                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
-                    <regexp pattern="/+" replace="/" ignoreCase="true" />
-                </replaceregexp>            
-            </filterchain>        
-        </property>        
+
+
         <property name="state.pkg.source.dir" value="${config.pkg.source.dir}" override="true">
             <filterchain>
                 <replaceregexp>
