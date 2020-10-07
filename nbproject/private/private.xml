@@ -7,9 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build-wordpress.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.package.xml</file>
-        </group>
+        <group name="ION"/>
     </open-files>
 </project-private>
