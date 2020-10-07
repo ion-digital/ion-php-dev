@@ -68,17 +68,24 @@ class RegexTool extends Tool {
         
         if($this->getArgs()->operation === 'replace') {
         
-            $f = preg_replace($pattern, $replacement, $f, $limit);
+            $fOut = preg_replace($pattern, $replacement, $f, $limit);
 
             if($output === null) {
             
-                echo $f;
+                echo $fOut;
                 return 0;
             }
-                        
+            
+            if($fOut == $f) {
+                
+                $this->writeln("'{$output}' NOT written (the resulting output was identicial to the input; so no change occurred).");
+                return 0;
+            }            
+            
+            
 //            die("[$output]");
             
-            file_put_contents(trim($output), $f);
+            file_put_contents(trim($output), $fOut);
             $this->writeln("'{$output}' written.");
             
             return 0;

@@ -76,7 +76,15 @@
                                                                                    
         <phingcall target="tests" />    
         <phingcall target="prepare-package" />
-                                                                                           
+        
+        <echo msg="Updating version placeholder." />
+        <delete>
+            <fileset dir=".">
+                <include name="v*_*_*" />
+            </fileset>
+        </delete>          
+        <copy file="${state.pkg.placeholder.filename}" tofile="./${state.pkg.archives.version}" overwrite="true" haltonerror="false" />
+                                                                   
         <echo msg="Staging changes to the current GIT branch '${state.vcs.branches.current.name}'." />
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.state}" />

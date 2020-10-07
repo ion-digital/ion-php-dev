@@ -61,7 +61,14 @@
         <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
         
         <!-- directories -->
-        
+        <property name="state.pkg.placeholder.filename" value="${config.pkg.placeholder.filename}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>        
+        </property>        
         <property name="state.pkg.source.dir" value="${config.pkg.source.dir}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -69,7 +76,7 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>        
-        </property>          
+        </property>      
         <property name="state.pkg.source.classes.dir" value="${state.pkg.source.dir}/classes/" override="true">
             <filterchain>
                 <replaceregexp>                
@@ -483,6 +490,8 @@
         <echo msg=" state.pkg.additional.dirs  :  ${state.pkg.additional.dirs} " />        
         
         <echo msg=" state.pkg.cache.glob  :  ${state.pkg.cache.glob} " />
+        
+        <echo msg=" state.pkg.placeholder.filename  :  ${state.pkg.placeholder.filename} " />
         
         <echo msg=" state.pkg.archives.filename  :  ${state.pkg.archives.filename} " />
         <echo msg=" state.pkg.archives.version  :  ${state.pkg.archives.version} " />
