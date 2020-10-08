@@ -33,16 +33,36 @@
                 <property name="tmp" value="Version: ${tmp} (${state.vcs.branches.current.name})" override="true" />
             </else>
         </if>
-                
-        <exec executable="${state.pkg.cmd}" dir="." checkreturn="true" passthru="true">
-            <arg value="regex" />
-            <arg value="replace" />
-            <arg value="/Version\s*:\s*[0-9]+\.[0-9]+\.[0-9]+\S*(.*)/" />
-            <arg value="${config.wordpress.entry-file}" />
-            <arg value="--output=${config.wordpress.entry-file}" />
-            <arg value="--replacement=${tmp}" />
-            <arg value="--limit=1" />
-        </exec>
-        
+
+        <if>
+            <available file="${config.wordpress.plugin-file}" />                
+            <then>                                
+                <exec executable="${state.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+                    <arg value="regex" />
+                    <arg value="replace" />
+                    <arg value="/Version\s*:\s*[0-9]+\.[0-9]+\.[0-9]+\S*(.*)/" />
+                    <arg value="${config.wordpress.plugin-file}" />
+                    <arg value="--output=${config.wordpress.plugin-file}" />
+                    <arg value="--replacement=${tmp}" />
+                    <arg value="--limit=1" />
+                </exec>
+            </then>
+        </if>
+
+        <if>
+            <available file="${config.wordpress.theme-file}" />                
+            <then>  
+                <exec executable="${state.pkg.cmd}" dir="." checkreturn="true" passthru="true">
+                    <arg value="regex" />
+                    <arg value="replace" />
+                    <arg value="/Version\s*:\s*[0-9]+\.[0-9]+\.[0-9]+\S*(.*)/" />
+                    <arg value="${config.wordpress.theme-file}" />
+                    <arg value="--output=${config.wordpress.theme-file}" />
+                    <arg value="--replacement=${tmp}" />
+                    <arg value="--limit=1" />
+                </exec>
+            </then>
+        </if>
+                        
     </target>      
 </project>

@@ -60,8 +60,11 @@
         
         <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
         
-        <!-- directories -->
+        <property name="state.pkg.placeholder.filename" value="${config.pkg.placeholder.filename}" override="true" />        
         
+        <!-- directories -->
+
+
         <property name="state.pkg.source.dir" value="${config.pkg.source.dir}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -69,7 +72,7 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>        
-        </property>          
+        </property>      
         <property name="state.pkg.source.classes.dir" value="${state.pkg.source.dir}/classes/" override="true">
             <filterchain>
                 <replaceregexp>                
@@ -378,6 +381,8 @@
         <property name="state.pkg.archives.filename" value="${state.pkg.vendor}-${state.pkg.project}--${state.vcs.branches.current.name.dashed}--${state.pkg.archives.version}.zip" override="true" />        
         <property name="state.pkg.archives.path" value="${state.pkg.archives.dir}${state.pkg.archives.filename}" override="true" />    
     
+        <property name="state.pkg.source.templates.exists" value="false" override="true" />
+        <available property="state.pkg.source.templates.exists" value="true" file="${state.pkg.source.templates.dir}" />
         <!-- devops -->
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
@@ -485,12 +490,16 @@
         
         <echo msg=" state.pkg.cache.glob  :  ${state.pkg.cache.glob} " />
         
+        <echo msg=" state.pkg.placeholder.filename  :  ${state.pkg.placeholder.filename} " />
+        
         <echo msg=" state.pkg.archives.filename  :  ${state.pkg.archives.filename} " />
         <echo msg=" state.pkg.archives.version  :  ${state.pkg.archives.version} " />
         <echo msg=" state.pkg.archives.dir.version  :  ${state.pkg.archives.dir.version} " />
         <echo msg=" state.pkg.archives.dir.branch  :  ${state.pkg.archives.dir.branch} " />
         <echo msg=" state.pkg.archives.dir.package  :  ${state.pkg.archives.dir.package} " />
         <echo msg=" state.pkg.archives.path  :  ${state.pkg.archives.path} " />
+        
+        <echo msg=" state.pkg.source.templates.exists  :  ${state.pkg.source.templates.exists} " />
         
         <echo msg=" state.pkg.tests.cmd  :  ${state.pkg.tests.cmd} " />
         
