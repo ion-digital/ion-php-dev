@@ -85,6 +85,8 @@
                 <copy todir="${state.pkg.archives.dir.package}" haltonerror="false" >
                     <fileset dir=".">
                         <include name="*.php" />
+                        <include name="*.css" />
+                        <include name="*.html" />
                         <include name="composer.json" />
                         <include name="version.json" />
                         <include name="LICENSE.md" />
