@@ -86,15 +86,22 @@
         Target: templates
     ============================================ -->     
     
+    <target name="templates" depends="init">        
+        <if>
+            <equals arg1="${state.pkg.source.templates.exists}" arg2="1"/>
+            <then>
+        
+                <echo msg="Validating templates." />
+                <exec command="composer templates validate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />
 
-    <target name="templates" depends="init">
-        
-        <echo msg="Validating templates." />
-        <exec command="composer templates validate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />
-        
-        <echo msg="Generating templates." />
-        <exec command="composer templates generate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />  
-                
+                <echo msg="Generating templates." />
+                <exec command="composer templates generate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />  
+
+            </then>
+            <else>
+                <echo msg="No templates are available - continuing." />
+            </else>
+        </if>                                
     </target>    
 
 

@@ -380,6 +380,8 @@
         <property name="state.pkg.archives.filename" value="${state.pkg.vendor}-${state.pkg.project}--${state.vcs.branches.current.name.dashed}--${state.pkg.archives.version}.zip" override="true" />        
         <property name="state.pkg.archives.path" value="${state.pkg.archives.dir}${state.pkg.archives.filename}" override="true" />    
     
+        <property name="state.pkg.source.templates.exists" value="false" override="true" />
+        <available property="state.pkg.source.templates.exists" value="true" file="${state.pkg.source.templates.dir}" />
         <!-- devops -->
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
@@ -495,6 +497,8 @@
         <echo msg=" state.pkg.archives.dir.branch  :  ${state.pkg.archives.dir.branch} " />
         <echo msg=" state.pkg.archives.dir.package  :  ${state.pkg.archives.dir.package} " />
         <echo msg=" state.pkg.archives.path  :  ${state.pkg.archives.path} " />
+        
+        <echo msg=" state.pkg.source.templates.exists  :  ${state.pkg.source.templates.exists} " />
         
         <echo msg=" state.pkg.tests.cmd  :  ${state.pkg.tests.cmd} " />
         
