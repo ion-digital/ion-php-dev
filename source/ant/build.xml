@@ -275,12 +275,19 @@
         Target: tests
     ============================================ -->         
     
-    <target name="tests" depends="init">
-        
-        <exec executable="${state.pkg.tests.cmd}" dir="${state.pkg.dir}" checkreturn="true" passthru="true">
-            <arg value="${state.pkg.tests.dir}" />
-        </exec>
-        
+    <target name="tests" depends="init">        
+        <if>
+            <available file="${state.pkg.tests.dir}" />
+            <then>        
+                <echo msg="Executing tests." />
+                <exec executable="${state.pkg.tests.cmd}" dir="${state.pkg.dir}" checkreturn="true" passthru="true">
+                    <arg value="${state.pkg.tests.dir}" />
+                </exec>
+            </then>
+            <else>
+                <echo msg="No tests are available - continuing." />
+            </else>
+        </if>            
     </target>    
     
 
