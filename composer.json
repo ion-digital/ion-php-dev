@@ -30,7 +30,7 @@
         "composer-plugin-api": "^2.0",
         "phpunit/phpunit": "^6.2",
         "phing/phing": "2.*",
-        "ion/php-trans-porter": "^0.0.19",
+        "ion/php-trans-porter": "^0.0.20",
         "symfony/framework-bundle": "^4.1.4",
         "symfony/console": "^4.1.5",
         "theseer/phpdox": "^0.11.2",

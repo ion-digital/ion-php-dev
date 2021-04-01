@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6fef5e68f0bd24402343c533be018b4c",
+    "content-hash": "7eefd1404ecf461fa966102cac71bc02",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -77,16 +77,16 @@
         },
         {
             "name": "ion/php-trans-porter",
-            "version": "v0.0.19",
+            "version": "v0.0.20",
             "source": {
-                "type": "hg",
-                "url": "https://bitbucket.org/justusmeyer/php-trans-porter",
-                "reference": "89e066dee1d3f74fadd8b2db256c0027c8550f13"
+                "type": "git",
+                "url": "https://bitbucket.org/justusmeyer/php-trans-porter.git",
+                "reference": "0bd3cb732a73a533a01afc241e8e424805964425"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://bitbucket.org/justusmeyer/php-trans-porter/get/89e066dee1d3f74fadd8b2db256c0027c8550f13.zip",
-                "reference": "89e066dee1d3f74fadd8b2db256c0027c8550f13",
+                "url": "https://bitbucket.org/justusmeyer/php-trans-porter/get/0bd3cb732a73a533a01afc241e8e424805964425.zip",
+                "reference": "0bd3cb732a73a533a01afc241e8e424805964425",
                 "shasum": ""
             },
             "require": {
@@ -142,9 +142,9 @@
             ],
             "support": {
                 "issues": "https://bitbucket.org/justusmeyer/php-trans-porter/issues",
-                "source": "https://bitbucket.org/justusmeyer/php-trans-porter/src/89e066dee1d3f74fadd8b2db256c0027c8550f13/?at=v0.0.19"
+                "source": "https://bitbucket.org/justusmeyer/php-trans-porter/src/0bd3cb732a73a533a01afc241e8e424805964425/?at=v0.0.20"
             },
-            "time": "2018-04-04T11:59:13+00:00"
+            "time": "2021-04-01T05:49:03+00:00"
         },
         {
             "name": "kint-php/kint",
