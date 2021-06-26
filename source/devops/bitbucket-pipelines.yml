@@ -13,12 +13,13 @@ pipelines:
                 - apt-get update
                 - apt-get install -y unzip          
                 - apt-get install -y git
-                - apt-get install -y mercurial
+#                - apt-get install -y mercurial
+                - apt-get install -y libxslt-dev && docker-php-ext-install xsl
                 - curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
                 - mkdir -p ~/.ssh
                 - (umask 077 ; echo $COMPOSER_SSH | base64 --decode > ~/.ssh/id_rsa)          
                 - composer install
-                - chmod +x run-tests
+                - chmod +x make
                 - chmod +x vendor/phpunit/phpunit/phpunit
                 - chmod +x vendor/bin/phpunit
-                - ./run-tests
+                - ./make tests
