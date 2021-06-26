@@ -7,8 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/composer.json</file>
-        </group>
+        <group name="ION"/>
     </open-files>
 </project-private>
