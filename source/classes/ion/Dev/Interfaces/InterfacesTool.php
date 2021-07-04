@@ -278,9 +278,12 @@ class InterfacesTool extends Tool {
                                 new Interface_($this->interfaceName), 
                                 function(Class_ $old, Interface_ $new) {
 
-                            $tmp = str_replace("*", $old->extends->getLast(), $this->fnTemplate);
-
-                            $new->extends = [ new Name($tmp) ];
+                              
+                            if($old->extends !== null ) {
+                                
+                                $tmp = str_replace("*", $old->extends->getLast(), $this->fnTemplate);
+                                $new->extends = [ new Name($tmp) ];
+                            }
 
                             return;
                             
