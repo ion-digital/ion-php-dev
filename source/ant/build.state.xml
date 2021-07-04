@@ -58,6 +58,9 @@
        
         <property name="state.pkg.tests.cmd" value="${config.pkg.tests.cmd}" />
         
+        <property name="state.pkg.cmd.generate.interfaces" value="${config.pkg.cmd.generate.interfaces}" />
+        <property name="state.pkg.cmd.generate.documentation" value="${config.pkg.cmd.generate.documentation}" />
+        
         <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
         
         <property name="state.pkg.placeholder.filename" value="${config.pkg.placeholder.filename}" override="true" />        
@@ -79,7 +82,14 @@
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
                 </replaceregexp>            
             </filterchain>            
-        </property>     
+        </property>
+        <property name="state.pkg.source.interfaces.dir" value="${state.pkg.source.dir}/interfaces/" override="true">
+            <filterchain>
+                <replaceregexp>                
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>                
         <property name="state.pkg.source.templates.dir" value="${state.pkg.source.dir}/templates/" override="true">
             <filterchain>
                 <replaceregexp>
@@ -138,6 +148,14 @@
                 </replaceregexp>            
             </filterchain>            
         </property>      
+        <property name="state.pkg.documentation.dir" value="${config.pkg.documentation.dir}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>          
         <property name="state.pkg.additional.dirs" value="${config.pkg.additional.dirs}">
             <filterchain>
                 <replaceregexp>
@@ -465,7 +483,10 @@
         <echo msg="state.pkg.cmd  :  ${state.pkg.cmd}" />
         <echo msg="state.pkg.cmd.version.get  :  ${state.pkg.cmd.version.get}" />
         <echo msg="state.pkg.cmd.version.set  :  ${state.pkg.cmd.version.set}" />        
-        <echo msg="state.pkg.cmd.version.check  :  ${state.pkg.cmd.version.check}" />        
+        <echo msg="state.pkg.cmd.version.check  :  ${state.pkg.cmd.version.check}" />    
+            
+        <echo msg="state.pkg.cmd.generate.interfaces  :  ${state.pkg.cmd.generate.interfaces}" />
+        <echo msg="state.pkg.cmd.generate.documentation  :  ${state.pkg.cmd.generate.documentation}" />
         
         <echo msg=" state.ant.version  :  ${state.ant.version} " />
         <echo msg=" state.ant.dirs.include  :  ${state.ant.dirs.include} " />
@@ -478,10 +499,12 @@
         
         <echo msg=" state.pkg.source.dir  :  ${state.pkg.source.dir} " />
         <echo msg=" state.pkg.source.classes.dir  :  ${state.pkg.source.classes.dir} " />
+        <echo msg=" state.pkg.source.interfaces.dir  :  ${state.pkg.source.interfaces.dir} " />
         <echo msg=" state.pkg.source.templates.dir  :  ${state.pkg.source.templates.dir} " />
         <echo msg=" state.pkg.builds.dir  :  ${state.pkg.builds.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
         <echo msg=" state.pkg.tests.dir  :  ${state.pkg.tests.dir} " />
+        <echo msg=" state.pkg.documentation.dir  :  ${state.pkg.documentation.dir} " />
         <echo msg=" state.pkg.dependencies.dir  :  ${state.pkg.dependencies.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
         <echo msg=" state.pkg.development.dir  :  ${state.pkg.development.dir} " />

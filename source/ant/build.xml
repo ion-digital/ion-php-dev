@@ -30,7 +30,7 @@
         Target: clean-all
     ============================================ -->      
     
-    <target name="clean-all" depends="init, clean-archives, clean-builds, clean-dependencies" />
+    <target name="clean-all" depends="init, clean-archives, clean-builds, clean-dependencies, clean-documentation" />
 
     <!-- ===========================================
         Target: clean-cache
@@ -61,7 +61,7 @@
         <delete file="composer.lock" verbose="false" failonerror="false" />
         
     </target>
-    
+   
 
     <!-- ===========================================
         Target: validate-build-support
@@ -117,7 +117,7 @@
         Target: builds
     ============================================ -->     
     
-    <target name="builds" depends="init, clean-builds, clean-cache, templates">
+    <target name="builds" depends="init, clean-builds, clean-cache, templates, interfaces">
                      
         <if>
             <or>
@@ -183,7 +183,7 @@
                     </not>
                </or>
            </condition>
-        </fail>    
+        </fail>
         
         <fail message="No builds directory specified.">
             <condition>
@@ -290,6 +290,66 @@
         </if>            
     </target>    
     
-
+    <!-- ===========================================
+        Target: clean-interfaces
+    ============================================ -->      
+    
+    <target name="clean-interfaces" depends="init">   
+        <delete dir="${state.pkg.source.interfaces.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+    </target>    
+    
+    <!-- ===========================================
+        Target: interfaces
+    ============================================ -->    
+    
+    <target name="interfaces" depends="init, clean-interfaces">     
+        
+        <echo msg="Generating interfaces." />
+           
+        <if>
+            <not>
+                <available file="${state.pkg.source.interfaces.dir}" />
+            </not>
+            <then>        
+                <mkdir dir="${state.pkg.source.interfaces.dir}/" />
+            </then>            
+        </if>        
+        
+<!--        <echo msg="${state.pkg.cmd} ${state.pkg.cmd.generate.interfaces}" />-->
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.generate.interfaces}" />
+        </exec>
+    </target>    
+    
+    <!-- ===========================================
+        Target: clean-documentation
+    ============================================ -->      
+    
+    <target name="clean-documentation" depends="init">   
+        <delete dir="${state.pkg.documentation.dir}" includeemptydirs="true" verbose="false" failonerror="false" />                    
+    </target>    
+    
+    <!-- ===========================================
+        Target: documentation
+    ============================================ -->    
+    
+    <target name="documentation" depends="init, clean-documentation">     
+        
+        <echo msg="Generating documentation." />
+           
+        <if>
+            <not>
+                <available file="${state.pkg.documentation.dir}" />
+            </not>
+            <then>        
+                <mkdir dir="${state.pkg.documentation.dir}/" />
+            </then>            
+        </if>        
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+            <arg line="${state.pkg.cmd.generate.documentation}" />
+        </exec>
+    </target>   
     
 </project>

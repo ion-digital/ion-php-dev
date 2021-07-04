@@ -7,6 +7,13 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION"/>
+        <group name="ION">
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/config.properties</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/Commands/DocumentationCommand.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/Commands/InterfacesCommand.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacesTool.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/DevCommandProvider.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Documentation/DocumentationTool.php</file>
+        </group>
     </open-files>
 </project-private>

@@ -13,6 +13,8 @@ use ion\Dev\Composer\Commands\RegexCommand;
 use ion\Dev\Composer\Commands\VersionCommand;
 use ion\Dev\Composer\Commands\BuildCommand;
 use ion\Dev\Composer\Commands\ProjectCommand;
+use ion\Dev\Composer\Commands\InterfacesCommand;
+use ion\Dev\Composer\Commands\DocumentationCommand;
 
 class DevCommandProvider implements CommandProvider {
 
@@ -25,7 +27,10 @@ class DevCommandProvider implements CommandProvider {
             new RegexCommand(),
             new VersionCommand(),
             new BuildCommand(),
-            new ProjectCommand()
+            new ProjectCommand(),            
+            //new TestsCommand(),
+            new DocumentationCommand(),
+            new InterfacesCommand()
             
         ];
     }
