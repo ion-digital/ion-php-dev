@@ -153,6 +153,24 @@ class InterfacesTool extends Tool {
                  
                 if($action === 'clean') {
                     
+                    $inputFn = "{$inputDir}" . $interfaceName . ".php";
+                    
+                    $output->write("Cleaning '{$inputFn}' ... ");                                        
+                    
+                    if(!file_exists($inputFn)) {
+                        
+                        $output->writeln("Done (file did not exist!).");
+                        continue;
+                    }
+                    
+                    if(unlink($inputFn)) {
+                        
+                        $output->writeln("Done.");
+                        continue;
+                    }
+                    
+                    $output->writeln("Error: Could not delete file!");
+                    
                     continue;
                 }
                 
@@ -160,7 +178,7 @@ class InterfacesTool extends Tool {
                 
                     $from = str_replace(getcwd() . DIRECTORY_SEPARATOR, '', "{$inputDir}{$classBn}");
                     
-                    $output->write("Creating '{$interfaceFn}' ({$interfaceName}) from '{$from}' ... ");
+                    $output->write("Generating '{$interfaceFn}' ({$interfaceName}) from '{$from}' ... ");
                     
                     try {
                         
@@ -169,13 +187,16 @@ class InterfacesTool extends Tool {
                             throw new Exception("File already exists - specify --overwrite to override.");
                         }                                                
                         
-                        file_put_contents($interfaceFn, $this->processFile(
-                                $interfaceName, 
-                                $output, 
-                                $fnTemplate,                                
-                                file_get_contents($path), 
-                                $index === 0,
-                                $firstFnTemplate)
+                        file_put_contents(
+                                $interfaceFn, 
+                                $this->processFile(
+                                    $interfaceName, 
+                                    $output, 
+                                    $fnTemplate,                                
+                                    file_get_contents($path), 
+                                    $index === 0,
+                                    $firstFnTemplate
+                                )
                         );  
                         
                         $output->writeln("Done.");

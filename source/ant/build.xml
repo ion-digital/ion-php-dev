@@ -317,7 +317,7 @@
         
 <!--        <echo msg="${state.pkg.cmd} ${state.pkg.cmd.generate.interfaces}" />-->
         
-        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
             <arg line="${state.pkg.cmd.generate.interfaces}" />
         </exec>
     </target>    
@@ -347,7 +347,7 @@
             </then>            
         </if>        
         
-        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
             <arg line="${state.pkg.cmd.generate.documentation}" />
         </exec>
     </target>   

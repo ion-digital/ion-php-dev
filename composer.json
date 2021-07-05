@@ -27,6 +27,7 @@
     },
     "require": {
         "php": ">=7.2",
+        "ext-curl": "*",
         "composer-plugin-api": "^2.0",
         "phpunit/phpunit": "^6.2",
         "phing/phing": "2.*",
