@@ -21,7 +21,7 @@ class DocumentationCommand extends BaseCommand {
             ->setName('documentation')
             ->setDescription("Generate documentation using either PHP Documentor or PHP Dox.")
             ->setHelp("")
-            ->addArgument('generator', InputArgument::REQUIRED, "Either 'phpdoc' (https://phpdoc.org - the default) or 'phpdox' (https://phpdox.net).")            
+            ->addArgument('generator', InputArgument::OPTIONAL, "Currently only 'phpdoc' is supported (https://phpdoc.org).") // "Either 'phpdoc' (https://phpdoc.org - the default) or 'phpdox' (https://phpdox.net)."            
             ->addOption('input', 'i', InputOption::VALUE_OPTIONAL, "The source input directory to scan (relative to the current working directory).", 'source/')
             ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, "The output directory (relative to the current working directory).", 'documentation/html/')
             ->addOption('overwrite', 'ow', InputOption::VALUE_NONE, "Overwrite output files.")
@@ -34,7 +34,7 @@ class DocumentationCommand extends BaseCommand {
 
         return (new DocumentationTool(
             
-            $input->getArgument('generator'),
+            $input->getArgument('generator') ?? 'phpdoc',
             explode(',', $input->getOption('input')),
             $input->getOption('output'),
             $input->getOption('overwrite'), 
