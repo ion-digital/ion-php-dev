@@ -25,7 +25,7 @@ interface DocumentationGeneratorInterface {
     
     function prepareCommand(): string;
     
-    function execute(OutputInterface $output): int;    
+    function execute(OutputInterface $output, bool $ignoreSslCert = false): int;    
     
     function getInputObjects(): array;
     

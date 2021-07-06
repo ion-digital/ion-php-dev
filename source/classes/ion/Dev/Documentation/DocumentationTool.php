@@ -53,8 +53,6 @@ class DocumentationTool extends Tool {
         $this->ignoreCert = $ignoreCert;
         $this->input = $input;
         $this->output = $output;
-        
-        
     }    
     
     public function execute(): int {
@@ -69,7 +67,7 @@ class DocumentationTool extends Tool {
             $this->overwriteOutput, 
             $this->overwriteProject
 
-        )->execute($this->output);
+        )->execute($this->output, $this->ignoreCert);
     }
 
 }

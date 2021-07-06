@@ -83,13 +83,13 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return str_replace("/", DIRECTORY_SEPARATOR, self::PHAR_DIR . DIRECTORY_SEPARATOR . $this->getBinaryFilename());
     }
     
-    final public function execute(OutputInterface $output): int {
+    final public function execute(OutputInterface $output, bool $ignoreSslCert = false): int {
         
         if(!$this->isBinaryDownloaded()) {
             
             $output->write("Downloading generator PHAR binary from: {$this->getUri()} ... ");
                         
-            $this->downloadBinary($this->ignoreCert);
+            $this->downloadBinary($ignoreSslCert);
 
             if(!$this->isBinaryDownloaded()) {
                 
