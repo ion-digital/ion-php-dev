@@ -65,7 +65,10 @@
     ============================================ -->         
             
     <target name="package" depends="init, validate-package, clean-cache">
-        
+
+        <echo msg="Applying .gitignore ('${config.pkg.devops.git.ignore.filename}' -> '.gitignore" />
+        <copy file="${config.pkg.devops.git.ignore.filename}" tofile=".gitignore" overwrite="true" haltonerror="false" />        
+                
         <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.filename}')." />
         <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
         

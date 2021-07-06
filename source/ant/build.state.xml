@@ -403,6 +403,7 @@
         <!-- devops -->
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
+        <property name="state.pkg.devops.git.ignore.filename" value="${config.pkg.devops.git.ignore.filename}" override="true" />
         <property name="state.pkg.devops.target.filename" value="${config.pkg.devops.target.filename}" override="true" />
         
                 
@@ -535,6 +536,7 @@
         <echo msg=" state.pkg.devops.staging.filename  :  ${state.pkg.devops.staging.filename} " />
         <echo msg=" state.pkg.devops.release.filename  :  ${state.pkg.devops.release.filename} " />
         <echo msg=" state.pkg.devops.target.filename  :  ${state.pkg.devops.target.filename} " />
+        <echo msg=" state.pkg.devops.git.ignore.filename  :  ${state.pkg.devops.git.ignore.filename} " />        
         
         <echo msg=" state.vcs.commit.message  :  ${state.vcs.commit.message} " />
         <echo msg=" state.vcs.cmd  :  ${state.vcs.cmd} " />
