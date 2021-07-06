@@ -12,16 +12,29 @@ namespace ion\Dev\Documentation;
  * @author Justus
  */
 
+use \Symfony\Component\Console\Output\OutputInterface;
+
 abstract class DocumentationGenerator implements DocumentationGeneratorInterface {
     
     const PHAR_DIR = "./vendor/bin";
     
     private $inputObjects = [];
     private $outputDirectory = null;
+    private $overwriteOutput = false;
+    private $overwriteProject = false;
     
-    public function __construct(array $inputObjects = [], string $outputDirectory = null) {
+    public function __construct(
+
+            array $inputObjects = [],
+            string $outputDirectory = null,
+            bool $overwriteOutput = false,
+            bool $overwriteProject = false
+            
+        ) {
      
         $this->inputObjects = [];
+        
+
         
         foreach($inputObjects as $inputObject) {
         
@@ -42,7 +55,12 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
             $this->inputObjects[$inputObject] = false;
         }
         
+//        var_dump($this->inputObjects);
+//        exit;        
+        
         $this->outputDirectory = $outputDirectory ?? getcwd() . DIRECTORY_SEPARATOR . $this->getKey();
+        $this->overwriteOutput = $overwriteOutput;
+        $this->overwriteProject = $overwriteProject;
     }    
     
     public function getInputObjects(): array {
@@ -60,14 +78,92 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return static::getClassKey();
     }        
     
-    final public function getPath(): string {
+    final public function getBinaryPath(): string {
         
-        return str_replace("/", DIRECTORY_SEPARATOR, self::PHAR_DIR . DIRECTORY_SEPARATOR . $this->getFilename());
+        return str_replace("/", DIRECTORY_SEPARATOR, self::PHAR_DIR . DIRECTORY_SEPARATOR . $this->getBinaryFilename());
     }
     
-    public function isDownloaded(): bool {
+    final public function execute(OutputInterface $output): int {
         
-        $fn = $this->getPath();
+        if(!$this->isBinaryDownloaded()) {
+            
+            $output->write("Downloading generator PHAR binary from: {$this->getUri()} ... ");
+                        
+            $this->downloadBinary($this->ignoreCert);
+
+            if(!$this->isBinaryDownloaded()) {
+                
+                throw new Exception("Could not find the documentation generator binary ('{$this->getBinaryPath()}').");
+            }
+
+            $output->writeln("Done.");            
+        }         
+        
+        $output->writeln("Found document generator binary: '{$this->getBinaryPath()}.'");        
+        
+        $output->writeln("Objects to scan: \n\n\t -> " . implode("\n\t -> ", array_keys($this->getInputObjects())) . "\n");
+
+        if(!file_exists($this->getProjectFilename()) || $this->overwriteProject) {
+        
+            $output->write(($this->overwriteProject ? "Overwriting project file" : "Creating project file") . " ... ");        
+            $this->writeConfig();        
+            $output->writeln("Done.");
+        }
+        
+        if($this->overwriteOutput && is_dir($this->outputDirectory)) {
+            
+            $output->write("Removing output directory ... ");
+            static::rmdir($this->outputDirectory);            
+            $output->writeln("Done.");
+        }
+        
+        $cmdOutput = [];
+        $cmdResult = 0;
+        
+        $output->writeln("\nExecuting: {$this->prepareCommand()}\n");
+        
+        exec($this->prepareCommand(), $cmdOutput, $cmdResult);
+        
+        $output->writeln($cmdOutput);
+        
+        if($cmdResult === 0) {
+            
+            $output->writeln("Done.");
+            return $cmdResult;
+        }
+        
+        $output->writeln("Failed!");                
+        return $cmdResult;
+    }
+    
+    // Thanks to: itay@itgoldman.com (https://www.php.net/manual/en/function.rmdir.php#117354)
+    
+    private static function rmdir($src) {
+
+        $dir = opendir($src);
+        while (false !== ( $file = readdir($dir))) {
+            
+            if (( $file != '.' ) && ( $file != '..' )) {
+                $full = $src . '/' . $file;
+                
+                if (is_dir($full)) {
+                    
+                    static::rmdir($full);
+                    
+                } else {
+                    
+                    unlink($full);
+                }
+            }
+        }
+        
+        closedir($dir);
+        rmdir($src);
+    }
+
+    public function isBinaryDownloaded(): bool {
+        
+        $fn = $this->getBinaryPath();
         
         if(!file_exists($fn)) {
             
@@ -77,13 +173,13 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         return true;
     }    
     
-    public function download(bool $ignoreCert): void {
+    public function downloadBinary(bool $ignoreCert): void {
         
         $uri = $this->getUri();
                 
         $handle = curl_init();
         
-        $fp = fopen($this->getPath(), 'w');
+        $fp = fopen($this->getBinaryPath(), 'w');
 
         $opts = [
 
@@ -116,9 +212,9 @@ abstract class DocumentationGenerator implements DocumentationGeneratorInterface
         
         if(!empty($error) || $code !== 200) {
             
-            unlink($this->getFilename());
+            unlink($this->getBinaryFilename());
             
-            throw new Exception("Error downloading file ('{$this->getPath()}'): {$error}.");
+            throw new Exception("Error downloading file ('{$this->getBinaryPath()}'): {$error}.");
         }
         
         return;

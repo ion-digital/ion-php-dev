@@ -22,11 +22,12 @@ class DocumentationCommand extends BaseCommand {
             ->setDescription("Generate documentation using either PHP Documentor or PHP Dox.")
             ->setHelp("")
             ->addArgument('generator', InputArgument::OPTIONAL, "Currently only 'phpdoc' is supported (https://phpdoc.org).") // "Either 'phpdoc' (https://phpdoc.org - the default) or 'phpdox' (https://phpdox.net)."            
-            ->addOption('input', 'i', InputOption::VALUE_OPTIONAL, "The source input directory to scan (relative to the current working directory).", 'source/')
+            ->addOption('input', 'i', InputOption::VALUE_OPTIONAL, "A list of comma-separated source input directories and files to scan (relative to the current working directory).", 'source/')
             ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, "The output directory (relative to the current working directory).", 'documentation/html/')
-            ->addOption('overwrite', 'ow', InputOption::VALUE_NONE, "Overwrite output files.")
+            ->addOption('overwrite-output', 'oo', InputOption::VALUE_NONE, "Remove the output directory, if it exists and regenerate.")
+            ->addOption('overwrite-project', 'op', InputOption::VALUE_NONE, "Overwrite the generator's configuration output file (otherwise the existing one will be used).")
             ->addOption('download', 'dl', InputOption::VALUE_NONE, "Force a new download of the generator PHAR binary.")
-            ->addOption('ignore-certificate', 'ic', InputOption::VALUE_NONE, "Allow insecure connections to download the PHAR binary.")
+            ->addOption('ignore-ssl-certificate', 'ic', InputOption::VALUE_NONE, "Allow insecure connections to download the PHAR binary.")
         ;              
     }
 
@@ -37,9 +38,10 @@ class DocumentationCommand extends BaseCommand {
             $input->getArgument('generator') ?? 'phpdoc',
             explode(',', $input->getOption('input')),
             $input->getOption('output'),
-            $input->getOption('overwrite'), 
+            $input->getOption('overwrite-output'), 
+            $input->getOption('overwrite-project'), 
             $input->getOption('download'),       
-            $input->getOption('ignore-certificate'),
+            $input->getOption('ignore-ssl-certificate'),
             $input,
             $output
                 

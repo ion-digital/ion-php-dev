@@ -23,7 +23,8 @@ class DocumentationTool extends Tool {
     private $generator;
     private $inputDirs;
     private $outputDir;
-    private $overwrite;
+    private $overwriteOutput;
+    private $overwriteProject;
     private $ignoreCert;
     private $input;
     private $output;
@@ -34,7 +35,8 @@ class DocumentationTool extends Tool {
         string $generator,
         array $inputDirs,
         string $outputDir,
-        bool $overwrite,
+        bool $overwriteOutput,
+        bool $overwriteProject,
         bool $download,
         bool $ignoreCert,
         InputInterface $input = null,
@@ -45,7 +47,8 @@ class DocumentationTool extends Tool {
         $this->generator = strtolower($generator);
         $this->inputDirs = $inputDirs;
         $this->outputDir = $outputDir;
-        $this->overwrite = $overwrite;
+        $this->overwriteOutput = $overwriteOutput;
+        $this->overwriteProject = $overwriteProject;
         $this->download = $download;
         $this->ignoreCert = $ignoreCert;
         $this->input = $input;
@@ -58,39 +61,15 @@ class DocumentationTool extends Tool {
         
         $factory = new DocumentationGeneratorFactory();
         
-        $generator = $factory->createInstance(
+        return $factory->createInstance(
                 
-                $this->generator,
-                $this->inputDirs,
-                $this->outputDir
-            );
-        
-        if(!$generator->isDownloaded()) {
-            
-            $this->output->write("Downloading generator PHAR binary from: {$generator->getUri()} ... ");
-                        
-            $generator->download($this->ignoreCert);
+            $this->generator,
+            $this->inputDirs,
+            $this->outputDir,
+            $this->overwriteOutput, 
+            $this->overwriteProject
 
-            if(!$generator->isDownloaded()) {
-                
-                throw new Exception("Could not find documentation generator binary ('{$generator->getFilename()}').");
-            }
-
-            $this->output->writeln("Done.");            
-        } 
-        
-        $this->output->writeln("Found document generator binary: '{$generator->getFilename()}.'");
-
-        $code = $generator->execute($this->output);
-        
-        if($code === 0) {
-            
-            $this->output->writeln("Done.");
-            return $code;
-        }
-        
-        $this->output->writeln("Failed!");
-        return $code;
+        )->execute($this->output);
     }
 
 }

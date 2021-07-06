@@ -17,7 +17,13 @@ interface DocumentationGeneratorInterface {
     
     function getUri(): string;
     
-    function getFilename(): ?string;
+    function getBinaryFilename(): ?string;
+    
+    function getBinaryPath(): string;
+    
+    function getProjectFilename(): ?string;
+    
+    function prepareCommand(): string;
     
     function execute(OutputInterface $output): int;    
     
@@ -25,11 +31,9 @@ interface DocumentationGeneratorInterface {
     
     function getOutputDirectory(): string;
     
-    public function getInstanceKey(): string;
+    function getInstanceKey(): string;
     
-    public function getPath(): string;
+    function isBinaryDownloaded(): bool;
     
-    function isDownloaded(): bool;
-    
-    function download(bool $ignoreCert): void;
+    function downloadBinary(bool $ignoreCert): void;
 }

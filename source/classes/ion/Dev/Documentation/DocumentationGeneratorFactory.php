@@ -17,7 +17,15 @@ use \Exception;
 
 final class DocumentationGeneratorFactory {
 
-    public function createInstance(string $key, array $inputObjects = [], string $outputDirectory = null): ?DocumentationGenerator {
+    public function createInstance(
+            
+            string $key, 
+            array $inputObjects = [], 
+            string $outputDirectory = null,
+            bool $overwriteOutput = false,
+            bool $overwriteProject = false
+            
+    ): ?DocumentationGenerator {
         
         $generators = DocumentationGenerators::get();
         
@@ -28,6 +36,6 @@ final class DocumentationGeneratorFactory {
         
         $class = DocumentationGenerators::get()[$key];
         
-        return new $class($inputObjects, $outputDirectory);
+        return new $class($inputObjects, $outputDirectory, $overwriteOutput, $overwriteProject);
     }    
 }

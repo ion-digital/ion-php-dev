@@ -31,100 +31,101 @@ class PhpDocDocumentationGenerator extends DocumentationGenerator {
         return self::URI;
     }    
     
-    public function getFilename(): ?string {
+    public function getBinaryFilename(): ?string {
         
         return pathinfo($this->getUri())['basename'];
     }        
     
-    public function execute(OutputInterface $output): int {
+    public function getProjectFilename(): ?string {
         
-        $output->writeln("Objects to scan: \n\n\t -> " . implode("\t -> ", array_keys($this->getInputObjects())) . "\n");
-        
-        $output->write("Creating configuration file ... ");
-        
-        $this->writeConfig();
-        
-        $output->writeln("Done.");
-        
-        $cmdOutput = [];
-        $cmdResult = 0;
-        
-        $output->writeln("php " . $this->getPath() . " --config " . self::CONFIG_FILENAME);
-        
-        exec($this->getPath() . " --config " . self::CONFIG_FILENAME, $cmdOutput, $cmdResult);
-        
-        $output->write($cmdOutput);
-        
-        return $cmdResult;
+        return self::CONFIG_FILENAME;
+    }
+    
+    public function prepareCommand(): string {
+                        
+        //return "php -B \"error_reporting(E_ERROR | E_PARSE);\" {$this->getBinaryPath()} --config " . $this->getProjectFilename();  
+        return "php {$this->getBinaryPath()} --config " . $this->getProjectFilename();  
     }
     
     protected function writeConfig(): void {
         
+        $packageName = null;
+
+        if(file_exists("composer.json")) {
+            
+            $composerJson = json_decode(file_get_contents("composer.json"));
+            
+            $packageName = $composerJson->name;
+        }
+        
+        $title = (empty($packageName) ? "" : "<title>{$packageName}</title>");                
+        
+        $sources = "";
+        
+        foreach($this->getInputObjects() as $obj => $exists) {
+            
+            if(!$exists) {
+                
+                continue;
+            }
+            
+            $sources .= "\t\t\t\t<path>" . str_replace(DIRECTORY_SEPARATOR, '/', $obj) . "</path>\n";
+        }
+                
+        $output = $this->getOutputDirectory();
         
         
         file_put_contents(self::CONFIG_FILENAME, trim(<<<XML
-                
+               
 <?xml version="1.0" encoding="UTF-8" ?>
-<phpdocumentor configVersion="3.0">
-  <paths>
-    <output>build/docs</output>
-    <!--Optional:-->
-    <cache>string</cache>
-  </paths>
-  <!--Zero or more repetitions:-->
-  <version number="3.0">
-    <!--Optional:-->
-    <folder>latest</folder>
-    <!--Zero or more repetitions:-->
-    <api format="php">
-      <source dsn=".">
-        <!--1 or more repetitions:-->
-        <path>src</path>
-      </source>
-      <!--Optional:-->
-      <output>api</output>
-      <!--Optional:-->
-      <ignore hidden="true" symlinks="true">
-        <!--1 or more repetitions:-->
-        <path>tests/**/*</path>
-      </ignore>
-      <!--Optional:-->
-      <extensions>
-        <!--1 or more repetitions:-->
-        <extension>php</extension>
-      </extensions>
-      <!--Optional:-->
-      <visibility>private</visibility>
-      <!--Optional:-->
-      <default-package-name>MyPackage</default-package-name>
-      <!--Optional:-->
-      <include-source>true</include-source>
-      <!--Optional:-->
-      <markers>
-        <!--1 or more repetitions:-->
-        <marker>TODO</marker>
-        <marker>FIXME</marker>
-      </markers>
-    </api>
-    <!--Zero or more repetitions:-->
-    <guide format="rst">
-      <source dsn=".">
-        <!--1 or more repetitions:-->
-        <path>support/docs</path>
-      </source>
-      <!--Optional:-->
-      <output>docs</output>
-    </guide>
-  </version>
-  <!--Zero or more repetitions:-->
-  <setting name="string" value="string"/>
-  <!--Zero or more repetitions:-->
-  <template name="string" location="string">
-    <!--Zero or more repetitions:-->
-    <parameter name="string" value="string"/>
-  </template>
-</phpdocumentor>
+<phpdocumentor
+        configVersion="3"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="https://www.phpdoc.org"
+        xsi:noNamespaceSchemaLocation="data/xsd/phpdoc.xsd"
+>
+{$title}
+    <paths>
+
+      <output>{$output}</output>
+      
+    </paths>
+    <version number="latest">
+    
+        <folder>latest/</folder>
+    
+        <api>
+            <source dsn=".">
+{$sources}
+            </source>
+    
+            <output>package/</output>
+       
+            <ignore-tags>
+                <ignore-tag>template</ignore-tag>
+                <ignore-tag>template-extends</ignore-tag>
+                <ignore-tag>template-implements</ignore-tag>
+                <ignore-tag>extends</ignore-tag>
+                <ignore-tag>implements</ignore-tag>
+            </ignore-tags>
+    
+            <default-package-name>{$packageName}</default-package-name>
+            
+            <visibility>public</visibility>
+            <visibility>protected</visibility>
+            
+        </api>
+        <guide>
+            
+            <source dsn=".">
                 
+            </source>
+
+        </guide>
+    </version>
+    <template name="default"/>
+</phpdocumentor>   
+ 
 XML
         ) . "\n");
     }
