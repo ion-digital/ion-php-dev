@@ -87,7 +87,16 @@ class InterfacesTool extends Tool {
             mkdir($outputDir);
         }
         
-        $this->processDirectory($this->output, $this->action, $inputDir, $outputDir, $this->filenames, $this->overwrite);
+        $this->processDirectory(
+                
+            $this->output, 
+            $this->action, 
+            $inputDir, 
+            realpath($inputDir) . DIRECTORY_SEPARATOR, 
+            $outputDir, 
+            $this->filenames, 
+            $this->overwrite
+        );
 
         return 0;
     }
@@ -97,11 +106,12 @@ class InterfacesTool extends Tool {
             OutputInterface $output, 
             string $action, 
             string $inputDir, 
+            string $baseInputDir,
             string $outputDir, 
             array $fnTemplates = [], 
-            bool $overwrite = false
+            bool $overwrite = false            
             
-            ): void {
+    ): void {
 
         $absDir = realpath($inputDir) . DIRECTORY_SEPARATOR; 
         
@@ -114,14 +124,25 @@ class InterfacesTool extends Tool {
 
             return true;            
         });
-        
+ 
         foreach(array_values($objs) as $obj) {
             
             $path = realpath($absDir . DIRECTORY_SEPARATOR . $obj);
                        
             if(is_dir($path)) {
                 
-                $this->processDirectory($output, $action, $path . DIRECTORY_SEPARATOR, $outputDir, $fnTemplates, $overwrite);
+                $this->processDirectory(
+                        
+                    $output,
+                    $action,
+                    $path . DIRECTORY_SEPARATOR,
+                    $baseInputDir,
+                    $outputDir,
+                    $fnTemplates,
+                    $overwrite
+                        
+                );
+                
                 continue;
             }            
             
@@ -148,9 +169,24 @@ class InterfacesTool extends Tool {
                 $fnTemplate = str_replace(".php", "", $fnTemplate);
                 
                 $interfaceName = pathinfo(str_replace('*', $classFn, $fnTemplate))['filename'];
-                $interfaceFn = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" . $interfaceName . ".php");
                 
-                 
+                $tmp = '';
+                
+                if($baseInputDir === null) {
+
+                    $baseInputDir = realpath($inputDir);
+                }                
+                
+                //$baseInputDir .= DIRECTORY_SEPARATOR;
+                
+                $cwd = realpath(getcwd());
+                $tmp = str_replace($baseInputDir, "", $inputDir);
+                
+                $interfaceFn = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}{$tmp}" . $interfaceName . ".php");
+                
+//                echo "\n\$path:\t\t\t {$path}\n\$baseInputDir:\t\t {$baseInputDir}\n\$inputDir:\t\t {$inputDir}\n\$cwd:\t\t\t {$cwd}\n\$interfaceName:\t\t {$interfaceName}\n\$tmp:\t\t {$tmp}\n\$interfaceFn:\t\t {$interfaceFn}\n\n";                
+//                continue;
+                
                 if($action === 'clean') {
                     
                     $inputFn = "{$inputDir}" . $interfaceName . ".php";
@@ -186,6 +222,11 @@ class InterfacesTool extends Tool {
                             
                             throw new Exception("File already exists - specify --overwrite to override.");
                         }                                                
+                        
+                        if(!is_dir(dirname($interfaceFn))) {
+                            
+                            mkdir(dirname($interfaceFn), 0777, true);
+                        }
                         
                         file_put_contents(
                                 $interfaceFn, 
