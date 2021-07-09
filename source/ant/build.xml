@@ -200,6 +200,7 @@
         
         <mkdir dir="${state.pkg.builds.dir}${tmp.build-target-version}" />        
         
+        <!-- classes -->
         <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
             <arg value="--source-version" />
             <arg value="${state.pkg.builds.source.version}" />
@@ -209,7 +210,31 @@
             <arg value="${state.pkg.source.classes.dir}" />
             <arg value="--output" />
             <arg value="${state.pkg.builds.dir}${tmp.build-target-version}/" />
-        </exec>           
+        </exec>      
+        
+        <!-- interfaces -->
+        <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg value="--source-version" />
+            <arg value="${state.pkg.builds.source.version}" />
+            <arg value="--target-version" />
+            <arg value="${tmp.build-target-version}" />
+            <arg value="--input" />
+            <arg value="${state.pkg.source.interfaces.dir}" />
+            <arg value="--output" />
+            <arg value="${state.pkg.builds.dir}${tmp.build-target-version}/" />
+        </exec>   
+        
+        <!-- traits -->
+        <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
+            <arg value="--source-version" />
+            <arg value="${state.pkg.builds.source.version}" />
+            <arg value="--target-version" />
+            <arg value="${tmp.build-target-version}" />
+            <arg value="--input" />
+            <arg value="${state.pkg.source.traits.dir}" />
+            <arg value="--output" />
+            <arg value="${state.pkg.builds.dir}${tmp.build-target-version}/" />
+        </exec>                                               
     </target>       
 
     <target name="build-current">
@@ -266,7 +291,19 @@
             <fileset dir="${state.pkg.source.classes.dir}/">        
                 <include name="**/*" />  
             </fileset>
-        </copy>      
+        </copy>
+        
+        <copy todir="${state.pkg.builds.dir}${state.pkg.builds.source.version.major}/" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${state.pkg.source.interfaces.dir}/">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>   
+        
+        <copy todir="${state.pkg.builds.dir}${state.pkg.builds.source.version.major}/" haltonerror="false" includeemptydirs="false">
+            <fileset dir="${state.pkg.source.traits.dir}/">        
+                <include name="**/*" />  
+            </fileset>
+        </copy>                          
                 
     </target>      
     
