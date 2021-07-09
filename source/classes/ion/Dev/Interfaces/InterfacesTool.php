@@ -228,16 +228,25 @@ class InterfacesTool extends Tool {
                             mkdir(dirname($interfaceFn), 0777, true);
                         }
                         
+                        $tmp = $this->processFile(
+                                
+                            $interfaceName, 
+                            $output, 
+                            $fnTemplate,                                
+                            file_get_contents($path), 
+                            $index === 0,
+                            $firstFnTemplate
+                        );           
+                        
+                        if($tmp === null) {
+                            
+                            $output->writeln("No class definitions found - skipping.");
+                            continue;
+                        }
+                        
                         file_put_contents(
-                                $interfaceFn, 
-                                $this->processFile(
-                                    $interfaceName, 
-                                    $output, 
-                                    $fnTemplate,                                
-                                    file_get_contents($path), 
-                                    $index === 0,
-                                    $firstFnTemplate
-                                )
+                            $interfaceFn, 
+                            $tmp
                         );  
                         
                         $output->writeln("Done.");
@@ -262,7 +271,7 @@ class InterfacesTool extends Tool {
             bool $primary,
             string $firstFnTemplate
             
-    ): string {
+    ): ?string {
         
         
         $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
@@ -278,7 +287,7 @@ class InterfacesTool extends Tool {
        
         
         
-        $traverser->addVisitor(new class($interfaceName, $fnTemplate, $primary, $firstFnTemplate) extends NodeVisitorAbstract {
+        $visitor = new class($interfaceName, $fnTemplate, $primary, $firstFnTemplate) extends NodeVisitorAbstract {
 
             private $interfaceName;
             private $remove;
@@ -286,6 +295,7 @@ class InterfacesTool extends Tool {
             private $fnTemplate;
             private $firstFnTemplate;
             private $primary;
+            private $classCnt;
 
             public function __construct(string $interfaceName, string $fnTemplate, bool $primary, string $firstFnTemplate = null) {
 
@@ -295,6 +305,7 @@ class InterfacesTool extends Tool {
                 $this->fnTemplate = $fnTemplate;
                 $this->firstFnTemplate = $firstFnTemplate;
                 $this->primary = $primary;
+                $this->classCnt = 0;
             }
 
             private static function convertNode(Node $old, Node $new, callable $converter, bool $children = true): Stmt {
@@ -333,9 +344,12 @@ class InterfacesTool extends Tool {
                         return $node;
                     }
                     
+                    $this->classCnt++;
+                    
                     if($this->primary) {
                     
                         return self::convertNode(
+                                
                                 $node, 
                                 new Interface_($this->interfaceName), 
                                 function(Class_ $old, Interface_ $new) {
@@ -409,9 +423,22 @@ class InterfacesTool extends Tool {
                 return null;
             }            
 
-        });              
+            public function getClassCount(): int {
+                
+                return $this->classCnt;
+            }
+        };
         
-        return "<?php\n" . (new PrettyPrinter())->prettyPrint($traverser->traverse($ast));
+        $traverser->addVisitor($visitor);
+        
+        $result = $traverser->traverse($ast);
+        
+        if($visitor->getClassCount() === 0) {
+            
+            return null;
+        }
+        
+        return "<?php\n" . (new PrettyPrinter())->prettyPrint($result);
     }
 }
 
