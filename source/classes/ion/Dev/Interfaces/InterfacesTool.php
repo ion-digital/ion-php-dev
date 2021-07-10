@@ -308,8 +308,13 @@ class InterfacesTool extends Tool {
                 $this->classCnt = 0;
             }
 
-            private static function convertNode(Node $old, Node $new, callable $converter, bool $children = true): Stmt {
+            private static function convertNode(Node $old, callable $converter, Node $new, bool $children = true): ?Stmt {
 
+                if($new === null) {
+                    
+                    return null;
+                }
+                
                 if($old->getDocComment() !== null) {
                     
                     $new->setDocComment(new Doc(str_replace($old->name, $new->name, $old->getDocComment()->getReformattedText())));
@@ -351,7 +356,7 @@ class InterfacesTool extends Tool {
                         return self::convertNode(
                                 
                                 $node, 
-                                new Interface_($this->interfaceName), 
+                                 
                                 function(Class_ $old, Interface_ $new) {
 
                               
@@ -363,12 +368,14 @@ class InterfacesTool extends Tool {
 
                             return;
                             
-                        }, true);
+                        },
+                        new Interface_($this->interfaceName),
+                        true);
                     }
                     
                     return self::convertNode(
-                            $node, 
-                            new Interface_($this->interfaceName), 
+                            
+                            $node,                              
                             function(Class_ $old, Interface_ $new) {
 
                         $tmp = str_replace("*", $old->name, $this->firstFnTemplate);                        
@@ -379,7 +386,9 @@ class InterfacesTool extends Tool {
                         
                         return;
                         
-                    }, false);                    
+                    },
+                    new Interface_($this->interfaceName),
+                    false);                    
                     
                 }
 
@@ -387,36 +396,60 @@ class InterfacesTool extends Tool {
 
                     if(!$node->isPublic()) {
 
-                        $this->remove = true;                    
-                    }
+                        $this->remove = true;                         
+                    }                    
 
                     return self::convertNode(
-                            $node, 
-                            $node, 
-                            function(ClassMethod $old, ClassMethod $new) {
+                        $node, 
 
-                        $modifiers = 0;
+                        function(ClassMethod $old, ClassMethod $new) {
 
-                        if($old->flags & Class_::MODIFIER_STATIC) {
+                            $modifiers = 0;
 
-                            $modifiers = Class_::MODIFIER_STATIC;
-                        }                        
+                            if($old->flags & Class_::MODIFIER_STATIC) {
 
-                        $new->flags = $modifiers;
-                        $new->stmts = null;                        
+                                $modifiers = Class_::MODIFIER_STATIC;
+                            }
+                            
+                            if($old->name == "privateStaticMethod") {
+                                
+                                //var_dump($old);
+                                //var_Dump($old->isPublic());
+                                $this->remove = true;
+                                
+                            }
 
-                        return;
-                    });
+                            $new->flags = $modifiers;
+                            $new->stmts = null;                        
+
+                            return;
+                        },
+                        $node);
                 }                                
 
+                if ($this->remove === true) {
+
+                    $this->remove = false;
+                    return NodeTraverser::REMOVE_NODE;
+                }
+                
                 return null;
             }      
 
             public function leaveNode(Node $node) {
 
+                var_dump($node);
+//                            if($node->name == "privateStaticMethod") {
+//                                
+//                                //var_dump($old);
+//                                var_Dump($node->isPublic());
+//                                //$this->remove = true;
+//                                
+//                            }                
+                
                 if ($this->remove === true) {
 
-                    $this->remove = false;                    
+                    $this->remove = false;
                     return NodeTraverser::REMOVE_NODE;
                 }
 
