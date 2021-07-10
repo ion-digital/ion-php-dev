@@ -438,7 +438,7 @@ class InterfacesTool extends Tool {
 
             public function leaveNode(Node $node) {
 
-                var_dump($node);
+//                var_dump($node);
 //                            if($node->name == "privateStaticMethod") {
 //                                
 //                                //var_dump($old);
