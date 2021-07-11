@@ -16,6 +16,8 @@ use \PhpParser\Node\Stmt\ClassMethod;
 use \PhpParser\Node\Stmt\Class_;
 use \PhpParser\Node\Stmt\Interface_;
 use \PhpParser\Node\Stmt\Namespace_;
+use \PhpParser\Node\Stmt\Use_;
+use \PhpParser\Node\Stmt\UseUse;
 use \PhpParser\Node\Name\FullyQualified;
 use \PhpParser\Node\Name\Relative;
 use \PhpParser\Comment;
@@ -28,32 +30,85 @@ class PrettyPrinter extends Standard {
 //        return 'namespace \\' . implode('\\', $node->parts);
 //    }
     
-    protected function p(Node $node) {
+    private $interfaceName;
+    private $fnTemplate;
     
-        // Classes / Interfaces
+    public function __construct(string $interfaceName, string $fnTemplate) {
+               
+        $this->interfaceName = $interfaceName;
+        $this->fnTemplate = $fnTemplate;
+    }
+    
+    protected function p($node) {                   
+
+        if($node instanceof Namespace_) {
+
+            $php = "namespace {$node->name};\n\n";
+            
+            foreach($node->stmts as $stmt) {
+                
+                $php .= $this->p($stmt);
+            }
+            
+            return $php;
+        }     
         
-        if($node instanceof Class_ || $node instanceof Interface_) {
-            return "\n" . parent::p($node);
+        if($node instanceof Use_) {
+            
+            $php = "use ";
+            
+            foreach($node->uses as $use) {
+                
+                $php .= $use->name;
+            }
+            
+            return "$php;\n";                        
         }
         
-        // Namespaces
-        
-        if($node instanceof Namespace_ || $node instanceof FullyQualified || $node instanceof Relative) {
-            //return "\n" . parent::p($node);
-        }        
-        
-        // Functions / Methods
-        
-        if($node instanceof Function_ || $node instanceof ClassMethod) {
-            return ( $node->getDocComment() === null ? parent::p($node) . "\n" : "\n" . parent::p($node) . "\n");
-        }           
-        
-        // Comments
-        
-        if($node instanceof Comment || $node instanceof Doc) {
-            return parent::p($node) . "\n";
+        if($node instanceof Class_) {
+            
+            $tmp = str_replace("*", $node->name, $this->fnTemplate);
+            
+            $php = "{$node->getDocComment()}\n";
+            
+            $php = "\ninterface {$tmp}";
+            
+            if(is_countable($node->extends) && count($node->extends) > 0) {
+                
+                foreach($node->extends as $extends) {
+
+                    $php .= "$extends";
+                }
+                
+                $php .= " ";
+            }
+            
+            $php .= "{\n\n";
+            
+            foreach($node->stmts as $stmt) {
+                
+                $php .= $this->p($stmt);
+            }
+            
+            $php .= "}\n";
+                
+            return $php;
         }
         
-        return parent::p($node);
+        if($node instanceof ClassMethod) {
+            
+            if(!$node->isPublic()) {
+                
+                return "";
+            }
+            
+            $php = "{$node->getDocComment()}\n";
+            
+            $php .= "// $node->name\n";
+            
+            return $php;
+        }
+        
+        return "";
     }
 }
