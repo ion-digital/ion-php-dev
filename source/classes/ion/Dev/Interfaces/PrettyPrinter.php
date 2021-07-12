@@ -229,16 +229,21 @@ class PrettyPrinter extends Standard {
         
         if($node instanceof Param) {
 
-            $php = "";
-          
+            $php = "";                      
+            
             if($node->type !== null) {
                 
                 $php .= "{$node->type} ";
             }
             
+            if($node->variadic) {
+                
+                $php .= "...";
+            }
+            
             $php .= ($node->byRef === true ? "&" : "") . "\${$node->name}";
             
-            if(!empty($node->default)) {
+            if(!empty($node->default) && !$node->variadic) {
             
                 $php .= " = ";
                 
