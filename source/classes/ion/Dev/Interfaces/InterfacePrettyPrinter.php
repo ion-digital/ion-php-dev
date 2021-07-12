@@ -50,8 +50,21 @@ class InterfacePrettyPrinter extends Standard {
         'Error',
         'Throwable',
         'ParseError',
-        'TypeError' 
+        'TypeError',
+        'Traversable',
+        'Iterator',
+        'IteratorAggregate',
+        'Throwable',
+        'ArrayAccess',
+        'Serializable',
+        'WeakReference',
+        'WeakMap',
+        'Stringable',
+        'DateTime',
+        'DateInterval'        
     ];
+    
+    private static $uses = [];
     
     private static function indent(string $s, bool $tabs = false, int $indents = 4): string {
         
@@ -82,9 +95,9 @@ class InterfacePrettyPrinter extends Standard {
         return str_replace("*", $name, $template);
     }
     
-    private static function isPhpClass(string $className, string $namespace = null) {
+    private static function isPhpClass(string $className) {
         
-        if(in_array($className, self::PHP_CLASSES) || empty($namespace)) {
+        if(in_array($className, self::PHP_CLASSES) || (array_key_exists($className, static::$uses) && count(static::$uses[$className]->parts) <= 1)) {
             
             return true;
         }
@@ -138,6 +151,8 @@ class InterfacePrettyPrinter extends Standard {
             foreach($node->uses as $use) {
                 
                 $php .= $use->name;
+                
+                static::$uses[$use->name->getLast()] = $use->name;
             }
             
             return "$php;\n";
