@@ -32,9 +32,26 @@ use \PhpParser\Node\Expr\ClassConstFetch;
 use \PhpParser\Node\Stmt\ClassConst;
 use \PhpParser\Node\Stmt\Const_;
 
-class PrettyPrinter extends Standard {
+class InterfacePrettyPrinter extends Standard {
             
-
+    private const PHP_CLASSES = [
+      
+        'Directory',
+        'stdClass',
+        '__PHP_Incomplete_Class',
+        'Exception',
+        'ErrorException',
+        'php_user_filter',
+        'Closure',
+        'Generator',
+        'ArithmeticError',
+        'AssertionError',
+        'DivisionByZeroError',
+        'Error',
+        'Throwable',
+        'ParseError',
+        'TypeError' 
+    ];
     
     private static function indent(string $s, bool $tabs = false, int $indents = 4): string {
         
@@ -63,6 +80,16 @@ class PrettyPrinter extends Standard {
     private static function applyTemplate(string $name, string $template): string {
         
         return str_replace("*", $name, $template);
+    }
+    
+    private static function isPhpClass(string $className, string $namespace = null) {
+        
+        if(in_array($className, self::PHP_CLASSES) || empty($namespace)) {
+            
+            return true;
+        }
+        
+        return false;
     }
     
     private $fnTemplate;
@@ -140,7 +167,10 @@ class PrettyPrinter extends Standard {
 
                 if(!empty($node->extends)) {
 
-                    $extends[] = static::applyTemplate($node->extends->toString(), $this->fnTemplate);
+                    if(!static::isPhpClass($node->extends->toString())) {
+                        
+                        $extends[] = static::applyTemplate($node->extends->toString(), $this->fnTemplate);
+                    }
                 }
 
                 if(is_countable($node->implements) && count($node->implements) > 0) {
@@ -152,7 +182,10 @@ class PrettyPrinter extends Standard {
                             continue;
                         }
 
-                        $extends[] = $implements->toString();
+                        if(!static::isPhpClass($implements->toString())) {
+                            
+                            $extends[] = $implements->toString();
+                        }
                     }
                 }
                 

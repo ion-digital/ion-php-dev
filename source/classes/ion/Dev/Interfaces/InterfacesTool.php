@@ -287,7 +287,7 @@ class InterfacesTool extends Tool {
 
         $result = $traverser->traverse($ast);
 
-        return "<?php\n" . (new PrettyPrinter($fnTemplate, $primary, $firstFnTemplate))->prettyPrint($result);
+        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $firstFnTemplate))->prettyPrint($result);
     }
 }
 
