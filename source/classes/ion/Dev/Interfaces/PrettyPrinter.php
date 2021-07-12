@@ -22,21 +22,65 @@ use \PhpParser\Node\Name\FullyQualified;
 use \PhpParser\Node\Name\Relative;
 use \PhpParser\Comment;
 use \PhpParser\Comment\Doc;
+use \PhpParser\Node\NullableType;
+use \PhpParser\Node\Param;
+use \PhpParser\Node\Expr\ConstFetch;
+use \PhpParser\Node\Expr\Array_;
 
 class PrettyPrinter extends Standard {
+            
+
     
-//    protected function pName_Relative(Relative $node) {
-//        
-//        return 'namespace \\' . implode('\\', $node->parts);
-//    }
+    private static function indent(string $s, bool $tabs = false, int $indents = 4): string {
+        
+        $lines = explode("\n", $s);
+        
+        $result = [];
+        
+        foreach($lines as $line) {
+            
+            $tmp = "";
+            
+            if(strlen($line) > 0) {
+
+                for($cnt = 0; $cnt < $indents; $cnt++) {
+
+                    $tmp .= $tabs ? "\t" : " ";
+                }
+            }
+            
+            $result[] = $tmp . trim($line);
+        }
+        
+        return implode("\n", $result);
+    }
     
-    private $interfaceName;
+    private static function applyTemplate(string $name, string $template): string {
+        
+        return str_replace("*", $name, $template);
+    }
+    
     private $fnTemplate;
+    private $firstFnTemplate;
+    private $primary;
+    private $indents;
+    private $tabs;    
     
-    public function __construct(string $interfaceName, string $fnTemplate) {
+    public function __construct(
+            
+        string $fnTemplate, 
+        bool $primary,
+        string $firstFnTemplate,
+        bool $tabs = false, 
+        int $indents = 4
+            
+    ) {
                
-        $this->interfaceName = $interfaceName;
         $this->fnTemplate = $fnTemplate;
+        $this->firstFnTemplate = $firstFnTemplate;
+        $this->primary = $primary;
+        $this->tabs = $tabs;
+        $this->indents = $indents;
     }
     
     protected function p($node) {                   
@@ -62,32 +106,66 @@ class PrettyPrinter extends Standard {
                 $php .= $use->name;
             }
             
-            return "$php;\n";                        
+            return "$php;\n";
         }
         
         if($node instanceof Class_) {
             
-            $tmp = str_replace("*", $node->name, $this->fnTemplate);
+            $interfaceName = static::applyTemplate($node->name, $this->fnTemplate);
             
-            $php = "{$node->getDocComment()}\n";
+            $php = "\n";
             
-            $php = "\ninterface {$tmp}";
-            
-            if(is_countable($node->extends) && count($node->extends) > 0) {
+            if($this->isPrimary()) {
+                            
+                $php .= "{$node->getDocComment()}\n";
+            }
+            else {
                 
-                foreach($node->extends as $extends) {
-
-                    $php .= "$extends";
-                }
-                
-                $php .= " ";
+                $php .= "/**\n *\n * This interface is an alias for " . static::applyTemplate($node->name, $this->firstFnTemplate) . ".\n *\n */\n";
             }
             
-            $php .= "{\n\n";
+            $php .= "\ninterface {$interfaceName}";
             
-            foreach($node->stmts as $stmt) {
+            $extends = [];        
+
+            if($this->isPrimary()) {
+
+
+                if(!empty($node->extends)) {
+
+                    $extends[] = static::applyTemplate($node->extends->toString(), $this->fnTemplate);
+                }
+
+                if(is_countable($node->implements) && count($node->implements) > 0) {
+
+                    foreach($node->implements as $implements) {
+
+                        if($implements->toString() == $interfaceName) {
+
+                            continue;
+                        }
+
+                        $extends[] = $implements->toString();
+                    }
+                }
                 
-                $php .= $this->p($stmt);
+            } else {
+                
+                $extends[] = static::applyTemplate($node->name, $this->firstFnTemplate);
+            }
+            
+            $php .= (count($extends) > 0 ? " extends " . implode(", ", $extends) : "") . " {\n\n";
+
+            if($this->isPrimary()) {
+                
+                foreach($node->stmts as $stmt) {
+
+                    $php .= $this->p($stmt);
+                }
+                
+            } else {
+                
+                $php .= static::indent("// No method definitions! Please see: " . static::applyTemplate($node->name, $this->firstFnTemplate) . ".\n\n");
             }
             
             $php .= "}\n";
@@ -97,18 +175,101 @@ class PrettyPrinter extends Standard {
         
         if($node instanceof ClassMethod) {
             
+            $php = "";
+            
             if(!$node->isPublic()) {
                 
-                return "";
+                return $php;
+            }
+
+            if(!empty($node->getDocComment())) {
+            
+                $php .= "{$node->getDocComment()}\n\n";
             }
             
-            $php = "{$node->getDocComment()}\n";
+            if($node->isStatic()) {
+                
+                $php .= "static ";
+            }
+
+            $php .= "function {$node->name}(";
+
+            $params = [];
             
-            $php .= "// $node->name\n";
+            foreach($node->getParams() as $param) {
+                
+                $params[] = $this->p($param);        
+            }
+
+            if(!empty($params)) {
+                
+                $php .= implode(", ", $params);
+            }
+            
+            $php .= ")";
+            
+            if(!empty($node->getReturnType())) {
+                
+                $php .= ": ";
+                
+                if($node->getReturnType() instanceof NullableType) {
+                    
+                    $php .= "?{$node->getReturnType()->type}";
+                    
+                } else if(is_string($node->getReturnType())) {
+                    
+                    $php .= $node->getReturnType();
+                }
+            }
+            
+            $php .= ";\n\n";
+            
+            return static::indent($php, $this->tabs, $this->indents);
+        }
+        
+        if($node instanceof Param) {
+
+            $php = "";
+          
+            if($node->type !== null) {
+                
+                $php .= "{$node->type} ";
+            }
+            
+            $php .= ($node->byRef === true ? "&" : "") . "\${$node->name}";
+            
+            if(!empty($node->default)) {
+            
+                $php .= " = ";
+                
+                if($node->default instanceof ConstFetch) {
+
+                    $php .= "{$node->default->name}";
+
+                }
+
+                else if($node->default instanceof Array_) {
+
+                    $php .= "[" . implode(", ", $node->default->items) . "]";
+
+                }
+                
+                else {
+
+                    $php .= "null";                
+                }
+            }             
             
             return $php;
         }
         
+
+        
         return "";
+    }
+    
+    protected function isPrimary(): bool {
+        
+        return $this->primary;
     }
 }
