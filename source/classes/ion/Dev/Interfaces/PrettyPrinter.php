@@ -26,6 +26,11 @@ use \PhpParser\Node\NullableType;
 use \PhpParser\Node\Param;
 use \PhpParser\Node\Expr\ConstFetch;
 use \PhpParser\Node\Expr\Array_;
+use \PhpParser\Node\Scalar\String_;
+use \PhpParser\Node\Scalar;
+use \PhpParser\Node\Expr\ClassConstFetch;
+use \PhpParser\Node\Stmt\ClassConst;
+use \PhpParser\Node\Stmt\Const_;
 
 class PrettyPrinter extends Standard {
             
@@ -85,9 +90,11 @@ class PrettyPrinter extends Standard {
     
     protected function p($node) {                   
 
+        $php = "";
+        
         if($node instanceof Namespace_) {
 
-            $php = "namespace {$node->name};\n\n";
+            $php .= "namespace {$node->name};\n\n";
             
             foreach($node->stmts as $stmt) {
                 
@@ -99,7 +106,7 @@ class PrettyPrinter extends Standard {
         
         if($node instanceof Use_) {
             
-            $php = "use ";
+            $php .= "use ";
             
             foreach($node->uses as $use) {
                 
@@ -113,7 +120,7 @@ class PrettyPrinter extends Standard {
             
             $interfaceName = static::applyTemplate($node->name, $this->fnTemplate);
             
-            $php = "\n";
+            $php .= "\n";
             
             if($this->isPrimary()) {
                             
@@ -174,9 +181,7 @@ class PrettyPrinter extends Standard {
         }
         
         if($node instanceof ClassMethod) {
-            
-            $php = "";
-            
+
             if(!$node->isPublic()) {
                 
                 return $php;
@@ -184,8 +189,10 @@ class PrettyPrinter extends Standard {
 
             if(!empty($node->getDocComment())) {
             
-                $php .= "{$node->getDocComment()}\n\n";
+                $php .= "\n{$node->getDocComment()}\n";
             }
+            
+            $php .= "\n";
             
             if($node->isStatic()) {
                 
@@ -222,14 +229,12 @@ class PrettyPrinter extends Standard {
                 }
             }
             
-            $php .= ";\n\n";
+            $php .= ";\n";
             
             return static::indent($php, $this->tabs, $this->indents);
         }
         
-        if($node instanceof Param) {
-
-            $php = "";                      
+        if($node instanceof Param) {              
             
             if($node->type !== null) {
                 
@@ -259,16 +264,55 @@ class PrettyPrinter extends Standard {
 
                 }
                 
-                else {
+                else if($node->default instanceof Scalar) {
+                    
+                    if($node->default instanceof String_) {
 
+                        $php .= "\"{$node->default->value}\"";
+                    }
+                    else {
+
+                        $php .= $node->default->value;
+                    }                    
+                }
+                
+                else if ($node->default instanceof ClassConstFetch) {
+
+                    if(!empty($node->default->class)) {
+                    
+                        $php .= $node->default->class . "::";
+                    }
+                    
+                    $php .= $node->default->name;
+                }
+                
+                else {
+                    
                     $php .= "null";                
                 }
             }             
             
             return $php;
-        }
+        }      
         
+        if($node instanceof ClassConst) {
+            
+            $php = "";
+            
+            foreach($node->consts as $const) {
 
+                if($const->value instanceof String_) {
+                    
+                    $php .= "const {$const->name} = \"{$const->value->value}\";\n";
+                    continue;
+                }
+                
+                $php .= "const {$const->name} = {$const->value->name};\n";
+            }
+            
+            return static::indent($php, $this->tabs, $this->indents);
+            
+        }
         
         return "";
     }
