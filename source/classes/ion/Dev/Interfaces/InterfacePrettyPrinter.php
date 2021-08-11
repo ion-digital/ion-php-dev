@@ -109,7 +109,7 @@ class InterfacePrettyPrinter extends Standard {
     }
     
     private $fnTemplate;
-    private $firstFnTemplate;
+    private $fnTemplates;
     private $primary;
     private $indents;
     private $tabs;    
@@ -118,14 +118,14 @@ class InterfacePrettyPrinter extends Standard {
             
         string $fnTemplate, 
         bool $primary,
-        string $firstFnTemplate,
+        array $fnTemplates,
         bool $tabs = false, 
         int $indents = 4
             
     ) {
                
         $this->fnTemplate = $fnTemplate;
-        $this->firstFnTemplate = $firstFnTemplate;
+        $this->fnTemplates = $fnTemplates;
         $this->primary = $primary;
         $this->tabs = $tabs;
         $this->indents = $indents;
@@ -173,7 +173,7 @@ class InterfacePrettyPrinter extends Standard {
             }
             else {
                 
-                $php .= "/**\n *\n * This interface is an alias for " . static::applyTemplate($node->name, $this->firstFnTemplate) . ".\n *\n */\n";
+                $php .= "/**\n *\n * This interface is an alias for " . static::applyTemplate($node->name, $this->fnTemplates[0]) . ".\n *\n */\n";
             }
             
             $php .= "\ninterface {$interfaceName}";
@@ -207,9 +207,24 @@ class InterfacePrettyPrinter extends Standard {
                     }
                 }
                 
+                if(count($this->fnTemplates) > 1) {
+                                        
+                    foreach(array_slice($this->fnTemplates, 1) as $fnTemplate) {
+                        
+                        $tmp = static::applyTemplate($node->name, $fnTemplate);
+                        
+                        if(in_array($tmp, $extends)) {
+                            
+                            continue;
+                        }
+                        
+                        $extends[] = $tmp;
+                    }
+                }
+                
             } else {
                 
-                $extends[] = static::applyTemplate($node->name, $this->firstFnTemplate);
+                //$extends[] = static::applyTemplate($node->name, $this->firstFnTemplate);
             }
             
             $php .= (count($extends) > 0 ? " extends " . implode(", ", $extends) : "") . " {\n\n";
@@ -223,7 +238,7 @@ class InterfacePrettyPrinter extends Standard {
                 
             } else {
                 
-                $php .= static::indent("// No method definitions! Please see: " . static::applyTemplate($node->name, $this->firstFnTemplate) . ".\n\n");
+                $php .= static::indent("// No method definitions! Please see: " . static::applyTemplate($node->name, $this->fnTemplates[0]) . ".\n\n");
             }
             
             $php .= "}\n";

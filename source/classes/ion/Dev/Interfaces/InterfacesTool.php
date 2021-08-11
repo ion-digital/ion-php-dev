@@ -164,9 +164,14 @@ class InterfacesTool extends Tool {
             }
             
             foreach($fnTemplates as $index => &$fnTemplate) {
-                
-                
+                                
                 $fnTemplate = str_replace(".php", "", $fnTemplate);
+            }
+            
+            foreach($fnTemplates as $index => &$fnTemplate) {
+                
+                
+                //$fnTemplate = str_replace(".php", "", $fnTemplate);
                 
                 $interfaceName = pathinfo(str_replace('*', $classFn, $fnTemplate))['filename'];
                 
@@ -235,7 +240,7 @@ class InterfacesTool extends Tool {
                             $fnTemplate,                                
                             file_get_contents($path), 
                             $index === 0,
-                            $firstFnTemplate
+                            $fnTemplates
                         );           
                         
                         if($tmp === null) {
@@ -294,7 +299,7 @@ class InterfacesTool extends Tool {
             string $fnTemplate, 
             string $data, 
             bool $primary,
-            string $firstFnTemplate
+            array $fnTemplates
             
     ): ?string {
         
@@ -312,7 +317,7 @@ class InterfacesTool extends Tool {
 
         $result = $traverser->traverse($ast);
 
-        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $firstFnTemplate))->prettyPrint($result);
+        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates))->prettyPrint($result);
     }
 }
 
