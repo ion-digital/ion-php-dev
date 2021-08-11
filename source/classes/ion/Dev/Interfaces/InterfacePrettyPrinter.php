@@ -32,6 +32,8 @@ use \PhpParser\Node\Expr\ClassConstFetch;
 use \PhpParser\Node\Stmt\ClassConst;
 use \PhpParser\Node\Stmt\Const_;
 use \PhpParser\Node\Name;
+use \PhpParser\Node\Scalar\DNumber;
+use \PhpParser\Node\Scalar\LNumber;
     
 class InterfacePrettyPrinter extends Standard {
             
@@ -307,8 +309,7 @@ class InterfacePrettyPrinter extends Standard {
                 
                 if($node->default instanceof ConstFetch) {
 
-                    $php .= "{$node->default->name}";
-
+                    $php .= "{$node->default->name}";                    
                 }
 
                 else if($node->default instanceof Array_) {
@@ -348,19 +349,33 @@ class InterfacePrettyPrinter extends Standard {
             return $php;
         }      
         
+        //TODO: Decide how to handle constants... but remove them for now.
+        //return "";
+        
         if($node instanceof ClassConst) {
             
             $php = "";
             
             foreach($node->consts as $const) {
 
-                if($const->value instanceof String_) {
+                if($const->value === null) {
                     
-                    $php .= "const {$const->name} = \"{$const->value->value}\";\n";
                     continue;
                 }
                 
-                $php .= "const {$const->name} = {$const->value->name};\n";
+                if($const->value instanceof String_) {
+                    
+                    $php .= "const {$const->name} = '{$const->value->value}';\n";
+                    continue;
+                }
+                
+                if($const->value instanceof DNumber || $const->value instanceof LNumber) {
+                    
+                    $php .= "const {$const->name} = {$const->value->value};\n";
+                    continue;
+                }                
+    
+                //$php .= "const {$const->name} = {$const->value->name};\n";
             }
             
             return static::indent($php, $this->tabs, $this->indents);
