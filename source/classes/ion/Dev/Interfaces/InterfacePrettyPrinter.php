@@ -31,7 +31,8 @@ use \PhpParser\Node\Scalar;
 use \PhpParser\Node\Expr\ClassConstFetch;
 use \PhpParser\Node\Stmt\ClassConst;
 use \PhpParser\Node\Stmt\Const_;
-
+use \PhpParser\Node\Name;
+    
 class InterfacePrettyPrinter extends Standard {
             
     private const PHP_CLASSES = [
@@ -274,6 +275,10 @@ class InterfacePrettyPrinter extends Standard {
                 } else if(is_string($node->getReturnType())) {
                     
                     $php .= $node->getReturnType();
+                    
+                } else if($node->getReturnType() instanceof Name) {
+                    
+                    $php .= implode("\\", $node->getReturnType()->parts);
                 }
             }
             
