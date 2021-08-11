@@ -347,40 +347,37 @@ class InterfacePrettyPrinter extends Standard {
             }             
             
             return $php;
-        }      
+        }             
         
-        //TODO: Decide how to handle constants... but remove them for now.
-        //return "";
-        
-        if($node instanceof ClassConst) {
-            
-            $php = "";
-            
-            foreach($node->consts as $const) {
-
-                if($const->value === null) {
-                    
-                    continue;
-                }
-                
-                if($const->value instanceof String_) {
-                    
-                    $php .= "const {$const->name} = '{$const->value->value}';\n";
-                    continue;
-                }
-                
-                if($const->value instanceof DNumber || $const->value instanceof LNumber) {
-                    
-                    $php .= "const {$const->name} = {$const->value->value};\n";
-                    continue;
-                }                
-    
-                //$php .= "const {$const->name} = {$const->value->name};\n";
-            }
-            
-            return static::indent($php, $this->tabs, $this->indents);
-            
-        }
+//        if($node instanceof ClassConst) {
+//            
+//            $php = "";
+//            
+//            foreach($node->consts as $const) {
+//
+//                if($const->value === null) {
+//                    
+//                    continue;
+//                }
+//                
+//                if($const->value instanceof String_) {
+//                    
+//                    $php .= "const {$const->name} = '{$const->value->value}';\n";
+//                    continue;
+//                }
+//                
+//                if($const->value instanceof DNumber || $const->value instanceof LNumber) {
+//                    
+//                    $php .= "const {$const->name} = {$const->value->value};\n";
+//                    continue;
+//                }                
+//    
+//                //$php .= "const {$const->name} = {$const->value->name};\n";
+//            }
+//            
+//            return static::indent($php, $this->tabs, $this->indents);
+//            
+//        }
         
         return "";
     }
