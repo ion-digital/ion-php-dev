@@ -4,7 +4,7 @@
  * See license information at the package root in LICENSE.md
  */
 
-namespace ion\Dev\Templates;
+namespace ion\Dev\Macros;
 
 /**
  * Description of Tag

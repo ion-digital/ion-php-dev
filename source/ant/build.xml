@@ -83,23 +83,23 @@
      
     
     <!-- ===========================================
-        Target: templates
+        Target: macros
     ============================================ -->     
     
-    <target name="templates" depends="init">        
+    <target name="macros" depends="init">        
         <if>
-            <equals arg1="${state.pkg.source.templates.exists}" arg2="1"/>
+            <equals arg1="${state.pkg.source.macros.exists}" arg2="1"/>
             <then>
         
-                <echo msg="Validating templates." />
-                <exec command="composer templates validate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />
+                <echo msg="Validating macros." />
+                <exec command="composer macros validate ${state.pkg.source.macros.dir}macros.xml" checkreturn="true" passthru="true" />
 
-                <echo msg="Generating templates." />
-                <exec command="composer templates generate ${state.pkg.source.templates.dir}templates.xml" checkreturn="true" passthru="true" />  
+                <echo msg="Generating macros." />
+                <exec command="composer macros generate ${state.pkg.source.macros.dir}macros.xml" checkreturn="true" passthru="true" />  
 
             </then>
             <else>
-                <echo msg="No templates are available - continuing." />
+                <echo msg="No macros are available - continuing." />
             </else>
         </if>                                
     </target>    
@@ -117,7 +117,7 @@
         Target: builds
     ============================================ -->     
     
-    <target name="builds" depends="init, clean-builds, clean-cache, templates, interfaces">
+    <target name="builds" depends="init, clean-builds, clean-cache, macros, interfaces">
                      
         <if>
             <or>

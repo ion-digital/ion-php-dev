@@ -11,18 +11,18 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Command\BaseCommand;
-use \ion\Dev\Templates\TransformTool;
+use \ion\Dev\Macros\TransformTool;
 
-class TemplatesCommand extends BaseCommand {
+class MacrosCommand extends BaseCommand {
 
     protected function configure() {
         
         $this
-            ->setName('templates')
-            ->setDescription("Generate templates from a template definition.")
-            ->setHelp("Recursively generates templates defined in XML fixtures. Templates and import and inherit other templates.")
+            ->setName('macros')
+            ->setDescription("Generate macros from a macro definition.")
+            ->setHelp("Recursively generates macros defined in XML fixtures. Macros and import and inherit other macros.")
             ->addArgument('operation', InputArgument::REQUIRED, "Either 'validate' or 'generate' - to validate or generate files respectively.")
-            ->addArgument('fixtures', InputArgument::REQUIRED, "The XML template fixtures file.")            
+            ->addArgument('fixtures', InputArgument::REQUIRED, "The XML macro fixtures file.")            
         ;
     }
 

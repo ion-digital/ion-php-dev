@@ -4,10 +4,10 @@
  * See license information at the package root in LICENSE.md
  */
 
-namespace ion\Dev\Templates;
+namespace ion\Dev\Macros;
 
 /**
- * Description of TemplateFixture
+ * Description of MacroFixture
  *
  * @author Justus.Meyer
  */
@@ -53,12 +53,12 @@ class Fixture {
             string $output = null, 
             string $working = null,
             bool $suppressOutput = false,
-            array $templates = [], 
+            array $macros = [], 
             array $defaults = [], 
             string $prefixPattern = null, 
             string $suffixPattern = null): self {
         
-        return new static($name, $tags, $method, $inherits, $base, $output, $working, $suppressOutput, $templates, $defaults, $prefixPattern, $suffixPattern);
+        return new static($name, $tags, $method, $inherits, $base, $output, $working, $suppressOutput, $macros, $defaults, $prefixPattern, $suffixPattern);
     }
     
     public static function load(string $path, callable $onSuccess, callable $onFailure = null, bool $suppressOutput = false): void {
@@ -308,87 +308,87 @@ class Fixture {
                     $method = $fixtureAttr['method'];
                 }                
                 
-                // template
+                // macro
                 
-                $templates = [];
+                $macros = [];
                 $filters = [];
                 
-                $templateNodes = $fixtureNode->getElementsByTagName('template');
+                $macroNodes = $fixtureNode->getElementsByTagName('macro');
                 
-                foreach($templateNodes as $templateNode) {
+                foreach($macroNodes as $macroNode) {
                     
-                    $templateAttr = []; 
-                    $templateMethod = 'append';
+                    $macroAttr = []; 
+                    $macroMethod = 'append';
                     
-                    $content = $templateNode->textContent;
+                    $content = $macroNode->textContent;
                     
-                    foreach ($templateNode->attributes as $domAttr) {
+                    foreach ($macroNode->attributes as $domAttr) {
 
-                        $templateAttr[$domAttr->localName] = $domAttr->nodeValue;
+                        $macroAttr[$domAttr->localName] = $domAttr->nodeValue;
                     }                       
 
-                    $template = [
+                    $macro = [
                         'content' => [],
                         'filters' => []
                     ];
                     
-                    if(array_key_exists('method', $templateAttr)) {
+                    if(array_key_exists('method', $macroAttr)) {
                         
-                        $templateMethod = $templateAttr['method'];
+                        $macroMethod = $macroAttr['method'];
                     }                    
                     
-                    if(array_key_exists('path', $templateAttr)) {
+                    if(array_key_exists('path', $macroAttr)) {
                         
-                        $tmpPath = realpath($templateAttr['path']);
+                        $tmpPath = realpath($macroAttr['path']);
                         
                         if(!file_exists($tmpPath)) {
                             
-                            throw new Exception("Could not find template '{$tmpPath}' in template '{$path}.'");
+                            throw new Exception("Could not find macro '{$tmpPath}' in macro '{$path}.'");
                         }
                         
                         $f = file_get_contents($tmpPath);
                         
-                        switch($templateMethod) {
+                        switch($macroMethod) {
                             
                             case 'prepend': {
                                 
-                                $template['content'][] = $f;
-                                $template['content'][] = $content;
+                                $macro['content'][] = $f;
+                                $macro['content'][] = $content;
                                 break;
                             }
                             
                             case 'replace': {
                                
-                                $template['content'] = [ $f ];
+                                $macro['content'] = [ $f ];
                                 break;
                             }     
                             
                             case 'append':                                     
                             default: {
                              
-                                $template['content'][] = $content;
-                                $template['content'][] = $f;
+                                $macro['content'][] = $content;
+                                $macro['content'][] = $f;
                                 break;
                             }                          
                         }
                     } else {
                         
-                        $template['content'] = [ $content ];
+                        $macro['content'] = [ $content ];
                     }
 
-                    if(array_key_exists('filters', $templateAttr)) {
+                    if(array_key_exists('filters', $macroAttr)) {
                         
-                        $filters = explode(' ', strtolower($templateAttr['filters']));
+                        $filters = explode(' ', strtolower($macroAttr['filters']));
                         
                         foreach($filters as &$filter) {
                             
                             $filter = trim($filter);
                         }
                         
-                        $template['filters'] = $filters;
+                        $macro['filters'] = $filters;
                     }                           
                     
-                    $templates[] = $template;
+                    $macros[] = $macro;
                     
                     break; // break to stop the loop and only process the first entry                    
                 }
@@ -457,7 +457,7 @@ class Fixture {
                         $output, 
                         $nwd,
                         $suppressOutput,
-                        $templates, 
+                        $macros, 
                         $defaults, 
                         $prefixPattern, 
                         $suffixPattern);
@@ -648,7 +648,7 @@ class Fixture {
     private $tagFilters;
     private $name;
     private $inherits;
-    private $templates;
+    private $macros;
     private $base;
     private $output;
     private $working;
@@ -666,7 +666,7 @@ class Fixture {
             string $output = null,  
             string $working = null,
             bool $suppressOutput = false,
-            array $templates = [], 
+            array $macros = [], 
             array $defaults = [], 
             string $prefixPattern = null, 
             string $suffixPattern = null) {
@@ -678,7 +678,7 @@ class Fixture {
         $this->output = $output;
         $this->working = $working;
         $this->suppressOutput = $suppressOutput;
-        $this->templates = $templates;
+        $this->macros = $macros;
         $this->defaults = $defaults;
         $this->prefixPattern = ($prefixPattern !== null ? $prefixPattern : static::getDefaultPrefixPattern());
         $this->suffixPattern = ($suffixPattern !== null ? $suffixPattern : static::getDefaultSuffixPattern());
@@ -734,9 +734,9 @@ class Fixture {
         return null;
     }
     
-    public function getTemplates(): ?array {
+    public function getMacros(): ?array {
         
-        return $this->templates;
+        return $this->macros;
     }    
     
     public function getDefaults(): ?array {
@@ -768,11 +768,11 @@ class Fixture {
         $tags = array_merge($this->getDefaults(), $this->getTags());
        
         
-        $templates = [];
+        $macros = [];
         
         if($this->getParent() === null || $this->getMethod() !== 'append') {
             
-            $templates = $this->getTemplates();
+            $macros = $this->getMacros();
         }
   
         if($this->getParent() !== null && $this->getMethod() !== 'replace') {
@@ -896,16 +896,16 @@ class Fixture {
     //                    }
             }
             
-            foreach($parent->getTemplates() as $parentTemplate) {
+            foreach($parent->getMacros() as $parentMacro) {
 
-                $templates[] = $parentTemplate;
+                $macros[] = $parentMacro;
             }                
             
             if($this->getMethod() === 'append') {
 
-                foreach($this->getTemplates() as $thisTemplate) {
+                foreach($this->getMacros() as $thisMacro) {
 
-                    $templates[] = $thisTemplate;
+                    $macros[] = $thisMacro;
                 }
             }
             
@@ -931,7 +931,7 @@ class Fixture {
 //        
 //    var_dump($this->inherits);
 //    var_dump($this->getParent());
-//    var_dump($templates);
+//    var_dump($macros);
 //
 //    exit;
 //}             
@@ -946,7 +946,7 @@ class Fixture {
                 $this->getOutput(),
                 $this->getWorking(),
                 $this->getSuppressOutput(),
-                $templates,
+                $macros,
                 $this->getDefaults(),
                 $this->getPrefixPattern(),
                 $this->getSuffixPattern()
@@ -975,7 +975,7 @@ class Fixture {
 //
 //    echo "\n\n";
 //        
-//    var_dump($fixture->getTemplates());
+//    var_dump($fixture->getMacros());
 //
 //    exit;
 //}                    
@@ -983,7 +983,7 @@ class Fixture {
 //
 //    echo "\n\n";
 //        
-//    var_dump($fixture->getTemplates());
+//    var_dump($fixture->getMacros());
 //
 //    exit;
 //}            
@@ -991,7 +991,7 @@ class Fixture {
 //
 //    echo "\n\n";
 //        
-//    var_dump($fixture->getTemplates());
+//    var_dump($fixture->getMacros());
 //
 //    exit;
 //}          
@@ -1001,18 +1001,18 @@ class Fixture {
         
 //        if($this->getName() == 'IXmlDocumentNodeVectorBase') {
 //            
-//            var_dump($fixture->getTemplates());
+//            var_dump($fixture->getMacros());
 //            var_dump($this);
 //            die(' -- IXmlDocumentNodeVectorBase --');
 //        }
         
-        foreach($fixture->getTemplates() as $template) {
+        foreach($fixture->getMacros() as $macro) {
             
-            foreach($template['content'] as $content) {
+            foreach($macro['content'] as $content) {
                 
                 $content = static::applyTags($content, $fixture->getTags(), $fixture->getDefaults(), $this->getPrefixPattern(), $this->getSuffixPattern(), $this);
                 
-                $output .= static::applyFilters($content, $template['filters']);
+                $output .= static::applyFilters($content, $macro['filters']);
 
             }
         }
@@ -1056,23 +1056,23 @@ class Fixture {
         
         if(strpos($this->output, $commonDir) !== 0) {
             
-            $result[] = "Skipped (template is not within a common input/base path: {$commonDir}).";
+            $result[] = "Skipped (macro is not within a common input/base path: {$commonDir}).";
             return $result;            
         }           
         
         if(empty(trim($output)) && $this->getOutput() !== null) {
             
-            $result[] = "Template '{$this->getName()}' output is empty? (output length: " . strlen($output) . "; " . count($this->getTemplates()) . " templates).";
+            $result[] = "Macro '{$this->getName()}' output is empty? (output length: " . strlen($output) . "; " . count($this->getMacros()) . " macros).";
             
-            if(count($this->getTemplates()) === 0) {
+            if(count($this->getMacros()) === 0) {
                 
-                $result[] = "'{$this->getName()}' contains no templates (inherited or otherwise).";
+                $result[] = "'{$this->getName()}' contains no macros (inherited or otherwise).";
             }
         }            
 
         if($this->output === null) {
             
-            $result[] = "Cannot write template '{$this->getName()}' - no output path specified.";
+            $result[] = "Cannot write macro '{$this->getName()}' - no output path specified.";
             return $result;
         }        
         
@@ -1088,7 +1088,7 @@ class Fixture {
             
             if(!mkdir($commonDir, null, true)) {
             
-                throw new Exception("Cannot create output directory for template '{$this->getName()}'");
+                throw new Exception("Cannot create output directory for macro '{$this->getName()}'");
             }
         }        
         

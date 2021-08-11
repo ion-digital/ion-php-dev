@@ -8,7 +8,7 @@ namespace ion\Dev\Composer;
 
 use Composer\Plugin\Capability\CommandProvider;
 use ion\Dev\Composer\Commands\VcsCommand;
-use ion\Dev\Composer\Commands\TemplatesCommand;
+use ion\Dev\Composer\Commands\MacrosCommand;
 use ion\Dev\Composer\Commands\RegexCommand;
 use ion\Dev\Composer\Commands\VersionCommand;
 use ion\Dev\Composer\Commands\BuildCommand;
@@ -23,7 +23,7 @@ class DevCommandProvider implements CommandProvider {
         return [
             
             new VcsCommand(),
-            new TemplatesCommand(),
+            new MacrosCommand(),
             new RegexCommand(),
             new VersionCommand(),
             new BuildCommand(),

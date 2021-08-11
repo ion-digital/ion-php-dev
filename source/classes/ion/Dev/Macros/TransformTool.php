@@ -4,7 +4,7 @@
  * See license information at the package root in LICENSE.md
  */
 
-namespace ion\Dev\Templates;
+namespace ion\Dev\Macros;
 
 /**
  * Description of Transformation
@@ -13,7 +13,7 @@ namespace ion\Dev\Templates;
  */
 use \ion\Dev\Tool;
 use \Exception;
-//use \ion\Dev\Templates\Fixture;
+//use \ion\Dev\Macros\Fixture;
 use \Symfony\Component\Console\Input\InputInterface;
 use \Symfony\Component\Console\Output\OutputInterface;
 
@@ -76,7 +76,7 @@ class TransformTool extends Tool {
 
                 if(!$fixture->getSuppressOutput()) {
 
-                    $this->write("Processing template '$name' ... ");
+                    $this->write("Processing macro '$name' ... ");
 
                     $result = $fixture->generate();
 

@@ -7,10 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacesTool.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/PrettyPrinter.php</file>
-        </group>
+        <group name="ION"/>
     </open-files>
 </project-private>

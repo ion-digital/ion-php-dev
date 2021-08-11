@@ -97,7 +97,7 @@
                 </replaceregexp>            
             </filterchain>            
         </property>                    
-        <property name="state.pkg.source.templates.dir" value="${state.pkg.source.dir}/templates/" override="true">
+        <property name="state.pkg.source.macros.dir" value="${state.pkg.source.dir}/macros/" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="/+" replace="/" ignoreCase="true" />
@@ -405,8 +405,8 @@
         <property name="state.pkg.archives.filename" value="${state.pkg.vendor}-${state.pkg.project}--${state.vcs.branches.current.name.dashed}--${state.pkg.archives.version}.zip" override="true" />        
         <property name="state.pkg.archives.path" value="${state.pkg.archives.dir}${state.pkg.archives.filename}" override="true" />    
     
-        <property name="state.pkg.source.templates.exists" value="false" override="true" />
-        <available property="state.pkg.source.templates.exists" value="true" file="${state.pkg.source.templates.dir}" />
+        <property name="state.pkg.source.macros.exists" value="false" override="true" />
+        <available property="state.pkg.source.macros.exists" value="true" file="${state.pkg.source.macros.dir}" />
         <!-- devops -->
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
@@ -509,7 +509,7 @@
         <echo msg=" state.pkg.source.classes.dir  :  ${state.pkg.source.classes.dir} " />
         <echo msg=" state.pkg.source.interfaces.dir  :  ${state.pkg.source.interfaces.dir} " />
         <echo msg=" state.pkg.source.traits.dir  :  ${state.pkg.source.traits.dir} " />
-        <echo msg=" state.pkg.source.templates.dir  :  ${state.pkg.source.templates.dir} " />
+        <echo msg=" state.pkg.source.macros.dir  :  ${state.pkg.source.macros.dir} " />
         <echo msg=" state.pkg.builds.dir  :  ${state.pkg.builds.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
         <echo msg=" state.pkg.tests.dir  :  ${state.pkg.tests.dir} " />
@@ -530,7 +530,7 @@
         <echo msg=" state.pkg.archives.dir.package  :  ${state.pkg.archives.dir.package} " />
         <echo msg=" state.pkg.archives.path  :  ${state.pkg.archives.path} " />
         
-        <echo msg=" state.pkg.source.templates.exists  :  ${state.pkg.source.templates.exists} " />
+        <echo msg=" state.pkg.source.macros.exists  :  ${state.pkg.source.macros.exists} " />
         
         <echo msg=" state.pkg.tests.cmd  :  ${state.pkg.tests.cmd} " />
         
