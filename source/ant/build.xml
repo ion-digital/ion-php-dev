@@ -201,6 +201,9 @@
         <mkdir dir="${state.pkg.builds.dir}${tmp.build-target-version}" />        
         
         <!-- classes -->
+        
+        <mkdir dir="${state.pkg.source.classes.dir}" /> 
+        
         <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
             <arg value="--source-version" />
             <arg value="${state.pkg.builds.source.version}" />
@@ -213,6 +216,9 @@
         </exec>      
         
         <!-- interfaces -->
+        
+        <mkdir dir="${state.pkg.source.interfaces.dir}" /> 
+        
         <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
             <arg value="--source-version" />
             <arg value="${state.pkg.builds.source.version}" />
@@ -225,6 +231,9 @@
         </exec>   
         
         <!-- traits -->
+        
+        <mkdir dir="${state.pkg.source.traits.dir}" /> 
+        
         <exec executable="${state.pkg.builds.cmd}" dir="." checkreturn="true" passthru="true">
             <arg value="--source-version" />
             <arg value="${state.pkg.builds.source.version}" />
