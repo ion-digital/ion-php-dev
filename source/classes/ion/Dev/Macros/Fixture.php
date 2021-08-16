@@ -106,7 +106,7 @@ class Fixture {
             
             
         }
-        
+                
         if(static::$inputDir === null) {
             
             static::$inputDir = realpath('.') . DIRECTORY_SEPARATOR;
@@ -239,8 +239,7 @@ class Fixture {
                 
                 }
             }            
-            
-            
+
             // Handle the fixtures
             
             $fixtureNodes = $fixturesNode->getElementsByTagName('fixture');
@@ -313,7 +312,7 @@ class Fixture {
                 $macros = [];
                 $filters = [];
                 
-                $macroNodes = $fixtureNode->getElementsByTagName('macro');
+                $macroNodes = $fixtureNode->getElementsByTagName('template');
                 
                 foreach($macroNodes as $macroNode) {
                     
@@ -763,7 +762,12 @@ class Fixture {
                 
         //$tags = $this->getTags();
 
-
+//        if($this->getName() == 'ObjectVector') {
+//            
+//            var_dump($fixture->getMacros());
+//            var_dump($this);
+//            die(' -- ObjectVector --');
+//        }
         
         $tags = array_merge($this->getDefaults(), $this->getTags());
        
@@ -999,13 +1003,7 @@ class Fixture {
         
         $output = '';
         
-//        if($this->getName() == 'IXmlDocumentNodeVectorBase') {
-//            
-//            var_dump($fixture->getMacros());
-//            var_dump($this);
-//            die(' -- IXmlDocumentNodeVectorBase --');
-//        }
-        
+       
         foreach($fixture->getMacros() as $macro) {
             
             foreach($macro['content'] as $content) {
