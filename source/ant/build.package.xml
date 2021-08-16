@@ -98,18 +98,20 @@
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="false" passthru="true">
             <arg line="${state.vcs.cmd.commit} &quot;${state.vcs.commit.message}.&quot;" />
         </exec>
+        
+        <echo msg="No version tag updated for the current GIT branch '${state.vcs.branches.current.name}'." />   
 
-        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.current.name}'." />
+<!--        <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.current.name}'." /> -->
         
         <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
             <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.current.name}" />
-        </exec>  
+        </exec>   
         
 <!--        <fail msg="DEBUG:[${state.vcs.cmd} ${state.vcs.cmd.tag.set} v${tmp}]" />-->
         
-        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
+<!--        <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
             <arg line="${state.vcs.cmd.tag.set} v${tmp}" />
-        </exec> 
+        </exec> -->
 
         <echo msg="Pushing to remote upstream." />
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">
