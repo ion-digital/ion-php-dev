@@ -28,7 +28,10 @@ class InterfacesCommand extends BaseCommand {
             ->addOption('output', 'o', InputOption::VALUE_OPTIONAL, "The output directory (relative to the current working directory).", 'source/interfaces/')
             ->addOption('overwrite', 'ow', InputOption::VALUE_NONE, "Overwrite output files.")
             ->addOption('filenames', null, InputOption::VALUE_OPTIONAL, "Masks, seperated by commas, to use when naming output files (where * is the input file basename). The first will contain the interface code, the rest will be derived from the first.", '*Interface.php')
-                
+            
+            ->addOption('strip-prefixes', 'sp', InputOption::VALUE_OPTIONAL, "Regex patterns to strip, seperated by commas, from class- and trait names, from the beginning of the string. I'll strip only the first occurrence found.", "")
+            ->addOption('strip-suffixes', 'ss', InputOption::VALUE_OPTIONAL, "Regex patterns to strip, seperated by commas, from class- and trait names, from the end of the string. I'll strip only the first occurrence found.", "")
+            
         ;              
     }
 
@@ -40,7 +43,9 @@ class InterfacesCommand extends BaseCommand {
             $input->getOption('input'),
             $input->getOption('output'),
             $input->getOption('overwrite'),
-            explode(",", $input->getOption('filenames')),    
+            explode(",", $input->getOption('filenames')),
+            explode(",", $input->getOption('strip-prefixes')),
+            explode(",", $input->getOption('strip-suffixes')),
             $input,
             $output
                 
