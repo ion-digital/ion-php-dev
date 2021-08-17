@@ -58,7 +58,8 @@
        
         <property name="state.pkg.tests.cmd" value="${config.pkg.tests.cmd}" />
         
-        <property name="state.pkg.cmd.generate.interfaces" value="${config.pkg.cmd.generate.interfaces}" />
+        <property name="state.pkg.cmd.generate.interfaces.classes" value="${config.pkg.cmd.generate.interfaces.classes}" />
+        <property name="state.pkg.cmd.generate.interfaces.traits" value="${config.pkg.cmd.generate.interfaces.traits}" />
         <property name="state.pkg.cmd.generate.documentation" value="${config.pkg.cmd.generate.documentation}" />
         
         <property name="state.pkg.cache.glob" value="${config.pkg.cache.glob}" />
@@ -493,7 +494,8 @@
         <echo msg=" state.pkg.cmd.version.set  :  ${state.pkg.cmd.version.set}" />        
         <echo msg=" state.pkg.cmd.version.check  :  ${state.pkg.cmd.version.check}" />    
             
-        <echo msg=" state.pkg.cmd.generate.interfaces  :  ${state.pkg.cmd.generate.interfaces}" />
+        <echo msg=" state.pkg.cmd.generate.interfaces.classes  :  ${state.pkg.cmd.generate.interfaces.classes}" />
+        <echo msg=" state.pkg.cmd.generate.interfaces.traits  :  ${state.pkg.cmd.generate.interfaces.traits}" />
         <echo msg=" state.pkg.cmd.generate.documentation  :  ${state.pkg.cmd.generate.documentation}" />
         
         <echo msg=" state.ant.version  :  ${state.ant.version} " />

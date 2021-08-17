@@ -14,6 +14,7 @@ use \PhpParser\Node;
 use PhpParser\Node\Stmt\Function_;
 use \PhpParser\Node\Stmt\ClassMethod;
 use \PhpParser\Node\Stmt\Class_;
+use \PhpParser\Node\Stmt\Trait_;
 use \PhpParser\Node\Stmt\Interface_;
 use \PhpParser\Node\Stmt\Namespace_;
 use \PhpParser\Node\Stmt\Use_;
@@ -113,12 +114,16 @@ class InterfacePrettyPrinter extends Standard {
     private $primary;
     private $indents;
     private $tabs;    
+    private $prefixesToStrip;
+    private $suffixesToStrip;
     
     public function __construct(
             
         string $fnTemplate, 
         bool $primary,
         array $fnTemplates,
+        array $prefixesToStrip,
+        array $suffixesToStrip,
         bool $tabs = false, 
         int $indents = 4
             
@@ -129,6 +134,8 @@ class InterfacePrettyPrinter extends Standard {
         $this->primary = $primary;
         $this->tabs = $tabs;
         $this->indents = $indents;
+        $this->prefixesToStrip = $prefixesToStrip;
+        $this->suffixesToStrip = $suffixesToStrip;
     }
     
     protected function p($node) {                   
@@ -161,10 +168,34 @@ class InterfacePrettyPrinter extends Standard {
             return "$php;\n";
         }
         
-        if($node instanceof Class_) {
+        if($node instanceof Class_ || $node instanceof Trait_) {
             
-            $interfaceName = static::applyTemplate($node->name, $this->fnTemplate);
+            $tmpName = $node->name;
             
+            foreach($this->prefixesToStrip as $prefix) {
+                
+                if(!preg_match("/^({$prefix})/", $tmpName)) {
+                    
+                    continue;
+                }
+                
+                $tmpName = preg_replace("/^({$prefix})/", '', $tmpName, 1);                
+                break;
+            }
+            
+            foreach($this->suffixesToStrip as $suffix) {
+                
+                if(!preg_match("/({$suffix})\$/", $tmpName)) {
+                    
+                    continue;
+                }
+                
+                $tmpName = preg_replace("/({$suffix})\$/", '', $tmpName, 1);
+                break;
+            }            
+            
+            $interfaceName = static::applyTemplate($tmpName, $this->fnTemplate);
+
             $php .= "\n";
             
             if($this->isPrimary()) {
@@ -173,7 +204,7 @@ class InterfacePrettyPrinter extends Standard {
             }
             else {
                 
-                $php .= "/**\n *\n * This interface is an alias for " . static::applyTemplate($node->name, $this->fnTemplates[0]) . ".\n *\n */\n";
+                $php .= "/**\n *\n * This interface is an alias for " . static::applyTemplate($tmpName, $this->fnTemplates[0]) . ".\n *\n */\n";
             }
             
             $php .= "\ninterface {$interfaceName}";
@@ -183,7 +214,7 @@ class InterfacePrettyPrinter extends Standard {
             if($this->isPrimary()) {
 
 
-                if(!empty($node->extends)) {
+                if($node instanceof Class_ && !empty($node->extends)) {
 
                     if(!static::isPhpClass($node->extends->toString())) {
                         
@@ -191,7 +222,7 @@ class InterfacePrettyPrinter extends Standard {
                     }
                 }
 
-                if(is_countable($node->implements) && count($node->implements) > 0) {
+                if($node instanceof Class_ && is_countable($node->implements) && count($node->implements) > 0) {
 
                     foreach($node->implements as $implements) {
 
@@ -211,7 +242,7 @@ class InterfacePrettyPrinter extends Standard {
                                         
                     foreach(array_slice($this->fnTemplates, 1) as $fnTemplate) {
                         
-                        $tmp = static::applyTemplate($node->name, $fnTemplate);
+                        $tmp = static::applyTemplate($tmpName, $fnTemplate);
                         
                         if(in_array($tmp, $extends)) {
                             
@@ -222,12 +253,9 @@ class InterfacePrettyPrinter extends Standard {
                     }
                 }
                 
-            } else {
-                
-                //$extends[] = static::applyTemplate($node->name, $this->firstFnTemplate);
             }
             
-            $php .= (count($extends) > 0 ? " extends " . implode(", ", $extends) : "") . " {\n\n";
+            $php .= (count($extends) > 0 ? " extends " . implode(", ", $extends) : "") . " {\n";
 
             if($this->isPrimary()) {
                 
@@ -238,7 +266,7 @@ class InterfacePrettyPrinter extends Standard {
                 
             } else {
                 
-                $php .= static::indent("// No method definitions! Please see: " . static::applyTemplate($node->name, $this->fnTemplates[0]) . ".\n\n");
+                $php .= "\n" . static::indent("// No method definitions! Please see: " . static::applyTemplate($tmpName, $this->fnTemplates[0]) . ".\n\n");
             }
             
             $php .= "}\n";

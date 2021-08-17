@@ -364,8 +364,12 @@
 <!--        <echo msg="${state.pkg.cmd} ${state.pkg.cmd.generate.interfaces}" />-->
         
         <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
-            <arg line="${state.pkg.cmd.generate.interfaces}" />
+            <arg line="${state.pkg.cmd.generate.interfaces.classes}" />
         </exec>
+        
+        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
+            <arg line="${state.pkg.cmd.generate.interfaces.traits}" />
+        </exec>        
     </target>    
     
     <!-- ===========================================

@@ -22,6 +22,7 @@ use \PhpParser\Node\Stmt\ClassMethod;
 use \PhpParser\Node\Stmt\Return_;
 use \PhpParser\Node\Stmt\Class_;
 use \PhpParser\Node\Stmt\Interface_;
+use \PhpParser\Node\Stmt\Trait_;
 use \PhpParser\Node\Scalar;
 use \PhpParser\Node\NullableType;
 
@@ -48,6 +49,8 @@ class InterfacesTool extends Tool {
     private $outputDir;
     private $overwrite;
     private $filenames;
+    private $prefixesToStrip;
+    private $suffixesToStrip;
     private $input;
     private $output;
 
@@ -58,8 +61,10 @@ class InterfacesTool extends Tool {
         string $outputDir,
         bool $overwrite,
         array $filenames = [],
+        array $prefixesToStrip = [],
+        array $suffixesToStrip = [],
         InputInterface $input = null,
-        OutputInterface $output = null
+        OutputInterface $output = null       
             
     ) {
         
@@ -68,6 +73,8 @@ class InterfacesTool extends Tool {
         $this->outputDir = $outputDir;
         $this->overwrite = $overwrite;
         $this->filenames = $filenames;
+        $this->prefixesToStrip = $prefixesToStrip;
+        $this->suffixesToStrip = $suffixesToStrip;
         $this->input = $input;
         $this->output = $output;
     }
@@ -94,7 +101,9 @@ class InterfacesTool extends Tool {
             $inputDir, 
             realpath($inputDir) . DIRECTORY_SEPARATOR, 
             $outputDir, 
-            $this->filenames, 
+            $this->filenames,
+            $this->prefixesToStrip,
+            $this->suffixesToStrip,
             $this->overwrite
         );
 
@@ -109,6 +118,8 @@ class InterfacesTool extends Tool {
             string $baseInputDir,
             string $outputDir, 
             array $fnTemplates = [], 
+            array $prefixesToStrip = [],
+            array $suffixesToStrip = [],
             bool $overwrite = false            
             
     ): void {
@@ -139,6 +150,8 @@ class InterfacesTool extends Tool {
                     $baseInputDir,
                     $outputDir,
                     $fnTemplates,
+                    $prefixesToStrip,
+                    $suffixesToStrip,
                     $overwrite
                         
                 );
@@ -173,7 +186,7 @@ class InterfacesTool extends Tool {
                 
                 //$fnTemplate = str_replace(".php", "", $fnTemplate);
                 
-                $interfaceName = pathinfo(str_replace('*', $classFn, $fnTemplate))['filename'];
+                $tmpFn = $classFn;
                 
                 $tmp = '';
                 
@@ -186,9 +199,41 @@ class InterfacesTool extends Tool {
                 
                 $cwd = realpath(getcwd());
                 $tmp = str_replace($baseInputDir, "", $inputDir);
+
+                foreach($prefixesToStrip as $prefix) {
+
+                    if(!preg_match("/^([{$prefix}])/", $tmpFn)) {
+
+                        continue;
+                    }
+
+                    $tmpFn = preg_replace("/^([{$prefix}])/", '', $tmpFn, 1);  
+                    break;
+                }
                 
+//                var_dump($classFn);
+
+                foreach($suffixesToStrip as $suffix) {
+
+                    if(!preg_match("/({$suffix})\$/", $tmpFn)) {
+
+                        continue;
+                    }
+
+                    $tmpFn = preg_replace("/({$suffix})\$/", '', $tmpFn, 1);
+                    break;
+                }   
+                
+                //var_dump($classFn);
+                
+                
+                
+                $interfaceName = pathinfo(str_replace('*', $tmpFn, $fnTemplate))['filename'];
                 $interfaceFn = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}{$tmp}" . $interfaceName . ".php");
                 
+                //var_dump($interfaceName);
+//                var_dump($interfaceFn);
+//                
 //                echo "\n\$path:\t\t\t {$path}\n\$baseInputDir:\t\t {$baseInputDir}\n\$inputDir:\t\t {$inputDir}\n\$cwd:\t\t\t {$cwd}\n\$interfaceName:\t\t {$interfaceName}\n\$tmp:\t\t {$tmp}\n\$interfaceFn:\t\t {$interfaceFn}\n\n";                
 //                continue;
                 
@@ -221,6 +266,8 @@ class InterfacesTool extends Tool {
                     
                     $output->write("Generating '{$interfaceFn}' ({$interfaceName}) from '{$from}' ... ");
                     
+                    
+                    
                     try {
                         
                         if(!$overwrite && file_exists($path)) {
@@ -240,7 +287,9 @@ class InterfacesTool extends Tool {
                             $fnTemplate,                                
                             file_get_contents($path), 
                             $index === 0,
-                            $fnTemplates
+                            $fnTemplates,
+                            $prefixesToStrip,
+                            $suffixesToStrip
                         );           
                         
                         if($tmp === null) {
@@ -299,7 +348,9 @@ class InterfacesTool extends Tool {
             string $fnTemplate, 
             string $data, 
             bool $primary,
-            array $fnTemplates
+            array $fnTemplates,
+            array $prefixesToStrip,
+            array $suffixesToStrip
             
     ): ?string {
         
@@ -317,7 +368,7 @@ class InterfacesTool extends Tool {
 
         $result = $traverser->traverse($ast);
 
-        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates))->prettyPrint($result);
+        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates, $prefixesToStrip, $suffixesToStrip))->prettyPrint($result);
     }
 }
 
