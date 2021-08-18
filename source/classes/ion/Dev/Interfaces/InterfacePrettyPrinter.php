@@ -280,6 +280,11 @@ class InterfacePrettyPrinter extends Standard {
                 
                 return $php;
             }
+            
+            if($node->name == '__construct') {
+                
+                return $php;
+            }
 
             if(!empty($node->getDocComment())) {
             
