@@ -9,6 +9,14 @@
         <group name="PHP"/>
         <group name="ION">
             <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.release.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacePrettyPrinter.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/config.properties</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.staging.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/Commands/InterfacesCommand.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacesTool.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.package.xml</file>
+            <file>file:/D:/prj/dev/ion/php/dev/version.json</file>
         </group>
     </open-files>
 </project-private>

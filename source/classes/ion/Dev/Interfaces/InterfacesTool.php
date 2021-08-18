@@ -202,12 +202,12 @@ class InterfacesTool extends Tool {
 
                 foreach($prefixesToStrip as $prefix) {
 
-                    if(!preg_match("/^([{$prefix}])/", $tmpFn)) {
+                    if(!preg_match("/^({$prefix})/", $tmpFn)) {
 
                         continue;
                     }
 
-                    $tmpFn = preg_replace("/^([{$prefix}])/", '', $tmpFn, 1);  
+                    $tmpFn = preg_replace("/^({$prefix})/", '', $tmpFn, 1);  
                     break;
                 }
                 
