@@ -109,6 +109,14 @@ class InterfacePrettyPrinter extends Standard {
         return false;
     }
     
+    private const RESERVED = [
+      
+        "string",
+        "float",
+        "int",
+        "bool"
+    ];
+    
     private $fnTemplate;
     private $fnTemplates;
     private $primary;
@@ -156,16 +164,73 @@ class InterfacePrettyPrinter extends Standard {
         
         if($node instanceof Use_) {
             
-            $php .= "use ";
-            
             foreach($node->uses as $use) {
+                              
+                $ns = "";                
                 
-                $php .= $use->name;
+                if(is_countable($use->name->parts)) {
+                    
+                    $ns = "\\" . implode("\\", array_splice($use->name->parts, 0, count($use->name->parts) - 1)) . "\\";
+                }
+                
+                $tmpBase = [ $use->name->getLast() ];
+                
+                foreach($this->fnTemplates as $index => $fnTemplate) {
+                    
+                    $pattern = "/^" . implode('([A-Za-z_]+)', explode("*", $fnTemplate)) . "\$/";
+                    
+                    $matches = [];
+                    
+                    if(!preg_match($pattern, $use->name->getLast(), $matches)) {
+                        
+                        continue;
+                    }
+                    
+                    if(!in_array($matches[1], $tmpBase)) {
+                        
+                        $tmpBase[] = $matches[1];
+                    }                        
+                }
+                
+                foreach($this->fnTemplates as $index => $fnTemplate) {
+                    
+                    $pattern = "/^" . implode('([A-Za-z_]+)', explode("*", $fnTemplate)) . "\$/";
+                    
+                    $matches = [];
+                    
+                    $tmp = str_replace("*", $use->name->getLast(), $fnTemplate);
+                    
+                    if(preg_match($pattern, $use->name->getLast(), $matches)) {
+                        
+                        $tmp = str_replace("*", $matches[1], $fnTemplate);
+                    }
+
+                    if(!in_array($tmp, $tmpBase)) {
+                        
+                        $tmpBase[] = $tmp;
+                    }                    
+
+                }                                
+                
+                $tmpBase = array_filter($tmpBase, function($val) {
+                    
+                    if(in_array(strtolower($val), self::RESERVED)) {
+                        
+                        return false;
+                    }
+                    
+                    return true;
+                });
+                
+                foreach($tmpBase as $tmp) {
+                    
+                    $php .= "use {$ns}{$tmp};\n";
+                }
                 
                 static::$uses[$use->name->getLast()] = $use->name;
             }
             
-            return "$php;\n";
+            return "$php";
         }
         
         if($node instanceof Class_ || $node instanceof Trait_) {
@@ -192,7 +257,7 @@ class InterfacePrettyPrinter extends Standard {
                 
                 $tmpName = preg_replace("/({$suffix})\$/", '', $tmpName, 1);
                 break;
-            }            
+            }
             
             $interfaceName = static::applyTemplate($tmpName, $this->fnTemplate);
 
