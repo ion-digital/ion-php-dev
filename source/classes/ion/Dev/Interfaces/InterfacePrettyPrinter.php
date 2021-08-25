@@ -68,7 +68,16 @@ class InterfacePrettyPrinter extends Standard {
         'DateInterval'        
     ];
     
+    private const RESERVED = [
+      
+        "string",
+        "float",
+        "int",
+        "bool"
+    ];    
+    
     private static $uses = [];
+    private static $containers = [];
     
     private static function indent(string $s, bool $tabs = false, int $indents = 4): string {
         
@@ -109,13 +118,7 @@ class InterfacePrettyPrinter extends Standard {
         return false;
     }
     
-    private const RESERVED = [
-      
-        "string",
-        "float",
-        "int",
-        "bool"
-    ];
+
     
     private $fnTemplate;
     private $fnTemplates;
@@ -170,10 +173,17 @@ class InterfacePrettyPrinter extends Standard {
                 
                 if(is_countable($use->name->parts)) {
                     
-                    $ns = "\\" . implode("\\", array_splice($use->name->parts, 0, count($use->name->parts) - 1)) . "\\";
+                    if(count($use->name->parts) > 1) {
+                        
+                        $ns = "\\";
+                    }
+                    
+                    $ns = implode("\\", array_splice($use->name->parts, 0, count($use->name->parts) - 1)) . "\\";
                 }
                 
                 $tmpBase = [ $use->name->getLast() ];
+                
+                
                 
                 foreach($this->fnTemplates as $index => $fnTemplate) {
                     
@@ -184,7 +194,7 @@ class InterfacePrettyPrinter extends Standard {
                     if(!preg_match($pattern, $use->name->getLast(), $matches)) {
                         
                         continue;
-                    }
+                    }                   
                     
                     if(!in_array($matches[1], $tmpBase)) {
                         
@@ -200,11 +210,18 @@ class InterfacePrettyPrinter extends Standard {
                     
                     $tmp = str_replace("*", $use->name->getLast(), $fnTemplate);
                     
+                    //$tmp = null;
+                    
                     if(preg_match($pattern, $use->name->getLast(), $matches)) {
-                        
+                                                
                         $tmp = str_replace("*", $matches[1], $fnTemplate);
                     }
 
+                    if($tmp === null) {
+                        
+                        continue;
+                    }            
+                    
                     if(!in_array($tmp, $tmpBase)) {
                         
                         $tmpBase[] = $tmp;
@@ -214,7 +231,24 @@ class InterfacePrettyPrinter extends Standard {
                 
                 $tmpBase = array_filter($tmpBase, function($val) {
                     
-                    if(in_array(strtolower($val), self::RESERVED)) {
+                    $matchCnt = 0;
+                    
+                    foreach($this->fnTemplates as $fnTemplate) {
+                        
+                        $pattern = "/^" . implode('([A-Za-z_]+)', explode("*", $fnTemplate)) . "\$/";
+                        
+                        if(preg_match($pattern, $val)) {
+                            
+                            $matchCnt++;
+                        }
+                    }
+                    
+                    if($matchCnt > 1) {
+                        
+                        return false;
+                    }
+                    
+                    if(in_array(strtolower($val), self::RESERVED) || in_array($val, self::PHP_CLASSES)) {
                         
                         return false;
                     }
@@ -224,7 +258,9 @@ class InterfacePrettyPrinter extends Standard {
                 
                 foreach($tmpBase as $tmp) {
                     
-                    $php .= "use {$ns}{$tmp};\n";
+                    //$php .= "use {$ns}{$tmp};\n";
+                    
+                    static::$containers[] = "{$ns}{$tmp}";
                 }
                 
                 static::$uses[$use->name->getLast()] = $use->name;
@@ -236,6 +272,11 @@ class InterfacePrettyPrinter extends Standard {
         if($node instanceof Class_ || $node instanceof Trait_) {
             
             $tmpName = $node->name;
+            
+            foreach(array_unique(static::$containers) as $use) {
+                
+                $php .= "use {$use};\n";
+            }
             
             foreach($this->prefixesToStrip as $prefix) {
                 
