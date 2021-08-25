@@ -73,7 +73,9 @@ class InterfacePrettyPrinter extends Standard {
         "string",
         "float",
         "int",
-        "bool"
+        "bool",
+        "callable",
+        "array"
     ];    
     
     private static $uses = [];
