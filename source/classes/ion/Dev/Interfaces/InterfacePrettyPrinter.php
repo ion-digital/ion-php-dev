@@ -35,6 +35,7 @@ use \PhpParser\Node\Stmt\Const_;
 use \PhpParser\Node\Name;
 use \PhpParser\Node\Scalar\DNumber;
 use \PhpParser\Node\Scalar\LNumber;
+use \PhpParser\Node\Stmt\TraitUse;
     
 class InterfacePrettyPrinter extends Standard {
             
@@ -80,6 +81,7 @@ class InterfacePrettyPrinter extends Standard {
     
     private static $uses = [];
     private static $containers = [];
+    private static $traits = [];
     
     private static function indent(string $s, bool $tabs = false, int $indents = 4): string {
         
@@ -271,6 +273,64 @@ class InterfacePrettyPrinter extends Standard {
             return "$php";
         }
         
+        if($node instanceof TraitUse) {            
+            
+            if(count($node->traits) === 0) {
+                
+                return $php;
+            }
+            
+            foreach($node->traits as $trait) {
+                
+                
+                if(count($trait->parts) === 0) {
+                    
+                    continue;
+                }
+                
+                $tmpNs = implode("\\", array_splice($trait->parts, 0, count($trait->parts) - 1));
+                $tmpName = $trait->parts[count($trait->parts) - 1];
+                
+                $tmpBase = $tmpName;
+                
+                foreach($this->prefixesToStrip as $prefix) {
+
+                    if(!preg_match("/^({$prefix})/", $tmpName)) {
+
+                        continue;
+                    }
+
+                    $tmpBase = preg_replace("/^({$prefix})/", '', $tmpName, 1);                
+                    break;
+                }
+
+                foreach($this->suffixesToStrip as $suffix) {
+
+                    if(!preg_match("/({$suffix})\$/", $tmpName)) {
+
+                        continue;
+                    }
+
+                    $tmpBase = preg_replace("/({$suffix})\$/", '', $tmpName, 1);
+                    break;
+                }                
+                
+                $tmpInterface = static::applyTemplate($tmpBase, $this->fnTemplates[0]);
+                
+                static::$traits[] = "{$tmpInterface}";
+                
+                if(count($trait->parts) > 1) {
+                    
+                    static::$containers[] = "{$tmpNs}\\{$tmpInterface}";
+                    return "$php";
+                }
+                
+                static::$containers[] = "{$tmpNs}\\{$tmpInterface}";
+            }
+
+            return "$php";
+        }
+        
         if($node instanceof Class_ || $node instanceof Trait_) {
             
             $tmpName = $node->name;
@@ -344,6 +404,21 @@ class InterfacePrettyPrinter extends Standard {
                             $extends[] = $implements->toString();
                         }
                     }
+                }
+                
+                if(count(static::$traits) > 0) {
+                    
+                    foreach(static::$traits as $trait) {
+                        
+                        if($trait === $interfaceName) {
+                            
+                            continue;
+                        }
+                        
+                        $extends[] = $trait;
+                    }
+                    
+                    //static::$traits = [];
                 }
                 
                 if(count($this->fnTemplates) > 1) {
