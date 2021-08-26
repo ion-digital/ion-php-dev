@@ -264,7 +264,7 @@ class InterfacePrettyPrinter extends Standard {
                     
                     //$php .= "use {$ns}{$tmp};\n";
                     
-                    static::$containers[] = "{$ns}{$tmp}";
+                    static::$containers[$tmp] = "{$ns}";
                 }
                 
                 static::$uses[$use->name->getLast()] = $use->name;
@@ -317,15 +317,18 @@ class InterfacePrettyPrinter extends Standard {
                 
                 $tmpInterface = static::applyTemplate($tmpBase, $this->fnTemplates[0]);
                 
-                static::$traits[] = "{$tmpInterface}";
+                static::$traits[$tmpInterface] = "{$tmpNs}";
                 
-                if(count($trait->parts) > 1) {
-                    
-                    static::$containers[] = "{$tmpNs}\\{$tmpInterface}";
-                    return "$php";
-                }
+                static::$containers[$tmpInterface] = "{$tmpNs}\\";
+                return "$php";                
                 
-                static::$containers[] = "{$tmpNs}\\{$tmpInterface}";
+//                if(count($trait->parts) > 1) {
+//                    
+//                    static::$containers[$tmpInterface] = "{$tmpNs}";
+//                    return "$php";
+//                }
+//                
+//                static::$containers[] = "{$tmpNs}\\{$tmpInterface}";
             }
 
             return "$php";
@@ -335,9 +338,18 @@ class InterfacePrettyPrinter extends Standard {
             
             $tmpName = $node->name;
             
-            foreach(array_unique(static::$containers) as $use) {
+            if($this->isPrimary()) {
                 
-                $php .= "use {$use};\n";
+                foreach(static::$containers as $use => $ns) {
+
+                    if(empty($ns)) {
+                        
+                        $php .= "use {$use};\n";
+                        continue;
+                    }
+                    
+                    $php .= "use {$ns}{$use};\n";
+                }
             }
             
             foreach($this->prefixesToStrip as $prefix) {
@@ -408,7 +420,7 @@ class InterfacePrettyPrinter extends Standard {
                 
                 if(count(static::$traits) > 0) {
                     
-                    foreach(static::$traits as $trait) {
+                    foreach(static::$traits as $trait => $ns) {
                         
                         if($trait === $interfaceName) {
                             
