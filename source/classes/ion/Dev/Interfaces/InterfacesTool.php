@@ -366,9 +366,14 @@ class InterfacesTool extends Tool {
         
         $traverser = new NodeTraverser();
 
-        $result = $traverser->traverse($ast);
+        $interface = new InterfaceModel();
+        
+        $traverser->addVisitor(new NodeVisitor($interface));
+        
+        $ast = $traverser->traverse($ast);
 
-        return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates, $prefixesToStrip, $suffixesToStrip))->prettyPrint($result);
+        return $interface->toString();
+       // return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates, $prefixesToStrip, $suffixesToStrip))->prettyPrint($result);
     }
 }
 
