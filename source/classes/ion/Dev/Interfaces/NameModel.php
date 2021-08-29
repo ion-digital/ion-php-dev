@@ -56,8 +56,9 @@ class NameModel {
     
     private $namespace = null;
     private $name = null;
+    private $absolute = true;
     
-    public function __construct(array $namespace = null, string $name = null) {
+    public function __construct(array $namespace = null, string $name = null, bool $absolute = true) {
         
         $this->namespace = $namespace;
         
@@ -76,6 +77,22 @@ class NameModel {
     public function getName(): string {
         
         return $this->name;
+    }
+    
+    public function setAbsolute(bool $absolute = true): self {
+        
+        $this->absolute = $absolute;
+        return $this;
+    }
+    
+    public function getAbsolute(): bool {
+        
+        return $this->absolute;
+    }
+    
+    public function isAbsolute(): bool {
+        
+        return $this->getAbsolute();
     }
     
     public function setNamespaceParts(array $namespace = null): self {
@@ -100,22 +117,41 @@ class NameModel {
         return implode("\\", $this->namespace);
     }
     
-    public function getAsBasename(array $templates = null, array $prefixes = null, array $suffixes = null): string {
+    public function hasNamespace(): bool {
         
-        
+        return (!empty($this->getNameSpace(true)));
     }
     
-    public function getAsTraitName(bool $full = true): string {
+    //FIXME
+    public function asInterfaceName(string $template = null): string {
         
+        return $this->getName();
     }
     
-    public function getAsInterfaceName(bool $full = true): string {
+    //FIXME
+    public function getClassInterfaceVariations(array $templates = null): array {
         
+        return [ $this ];
     }
     
+    //FIXME
+    public function getTraitInterfaceVariations(array $prefixes = null, array $suffixes = null): array {
+        
+        return [ $this ];
+    }
     
     public function toString(): string {
         
-        return "";
+        if($this->hasNamespace()) {
+        
+            return ($this->isAbsolute() ? "\\" : "") . "{$this->getNamespace()}\\{$this->getName()}";
+        }
+        
+        return ($this->isAbsolute() ? "\\" : "") . $this->getName();
+    }
+    
+    public function __toString() {
+        
+        return $this->toString();
     }
 }

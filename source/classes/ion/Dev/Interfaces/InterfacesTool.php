@@ -305,7 +305,7 @@ class InterfacesTool extends Tool {
                         
                         $output->writeln("Done.");
                     }
-                    catch(Exception $ex) {
+                    catch(Throwable $ex) {
                         
                         $output->writeln("Error: {$ex->getMessage()}");
                                                    
@@ -316,14 +316,12 @@ class InterfacesTool extends Tool {
                             $output->writeln("");
                             
                             foreach([$trace[0]] as $index => $item) {
+
+                                if(!array_key_exists("file", $item) || !array_key_exists("line", $item)) {
+                                    
+                                    continue;
+                                }
                                 
-//["file"]=>  string(54) "/....../test.php"
-//["line"]=>  int(37)
-//["function"]=>  string(11) "__construct"
-//["class"]=>  string(4) "Test"
-//["type"]=>  string(2) "->"
-//["args"]=>  array(0) { }                                
-                          
                                 $output->writeln("Stack trace: {$item['file']} @ line {$item['line']}");
                                 
                             }

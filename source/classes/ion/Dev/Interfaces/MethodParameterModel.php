@@ -70,6 +70,11 @@ class MethodParameterModel extends NodeModel {
         return $this->type;
     }    
     
+    public function hasType(): bool {
+        
+        return ($this->getType() !== null);
+    }
+    
     public function setDefault(string $default = null, string $defaultType = null): self {
         
         $this->default = $default;
@@ -112,7 +117,7 @@ class MethodParameterModel extends NodeModel {
         return ($this->getDefaultType() === static::DEFAULT_TYPE_NULL);
     }        
     
-    public function setByReference(bool $byReference = null): self {
+    public function setByReference(string $byReference = null): self {
         
         $this->byReference = $byReference;
         return $this;
@@ -125,10 +130,11 @@ class MethodParameterModel extends NodeModel {
     
     public function isByReference(): bool {
         
-        return ($this->getVariadic() === true);
+        return ($this->getByReference() === true);
     }        
     
-    public function setVariadic(bool $variadic = null): self {
+    
+    public function setVariadic(string $variadic = null): self {
         
         $this->variadic = $variadic;
         return $this;
@@ -146,6 +152,51 @@ class MethodParameterModel extends NodeModel {
     
     public function toString(): string {
         
-        return "";
+        $php = "";
+        
+        if($this->hasType()) {
+            
+            $php .= "{$this->getType()->toString()} ";
+        }
+        
+        if($this->isByReference()) {
+            
+            $php .= "&";
+        }
+
+        if($this->isVariadic()) {
+            
+            $php .= "...";        
+        }
+        
+        $php .= "\${$this->getName()}";
+        
+        if($this->hasDefault()) {
+            
+            $php .= " = ";
+            
+            if($this->isDefaultAString()) {
+                            
+                $php .= "\"{$this->getDefault()}\"";
+            }
+            else if($this->isDefaultAnArray()) {
+            
+                $php .= "[{$this->getDefault()}]";            
+            }
+            else if($this->isDefaultAConstant()) {
+            
+                $php .= "{$this->getDefault()}";            
+            }
+            else if($this->isDefaultNull()) {
+                            
+                $php .= "null";
+                
+            } else {
+                
+                $php .= "{$this->getDefault()}";
+            }
+        }
+        
+        return $php;
     }    
 }

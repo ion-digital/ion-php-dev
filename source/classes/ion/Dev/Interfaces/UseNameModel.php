@@ -37,8 +37,13 @@ class UseNameModel extends NameModel {
         return ($this->references > 0);
     }
     
-    public function toString(): string {
-        
-        return "";
-    }
+//    public function toString(): string {
+//        
+//        return $this->getName()->toString();
+//    }
+//    
+//    public function __toString() {
+//        
+//        return $this->toString();
+//    }
 }

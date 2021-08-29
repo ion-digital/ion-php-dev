@@ -13,6 +13,13 @@ namespace ion\Dev\Interfaces;
  */
 class TypeModel {
         
+    public const TYPE_STRING = "string";
+    public const TYPE_CONST = "const";
+    public const TYPE_NULL = "null";
+    public const TYPE_ARRAY = "array";
+    public const TYPE_SCALAR = "scalar";
+    public const TYPE_CLASS = "class";    
+    
     private $name;
     private $nullable;
     
@@ -62,6 +69,16 @@ class TypeModel {
     
     public function toString(): string {
         
-        return "";
+        if($this->isNullable()) {
+            
+            return "?{$this->getName()->getName()}";
+        }
+        
+        return $this->getName()->getName();
     }    
+    
+    public function __toString(): string {
+        
+        return $this->toString();
+    }
 }

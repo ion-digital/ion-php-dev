@@ -116,7 +116,7 @@ class NodeVisitor extends NodeVisitorAbstract {
         
         if($node instanceof TraitUse) { 
             
-            foreach($node->traits as $trait) {               
+            foreach($node->traits as $trait) {                              
                 
                 if(!is_countable($trait->parts)) {
 
@@ -128,7 +128,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                     continue;
                 }
                 
-                $this->model->addReference(NameModel::getFromParts($trait->parts, true));
+                $this->model->addTrait(NameModel::getFromParts($trait->parts, true));
             }
             
             return null;
@@ -139,7 +139,7 @@ class NodeVisitor extends NodeVisitorAbstract {
             if(!$node->isPublic() || $node->name == '__construct') {
                 
                 return null;
-            }      
+            }
             
             $method = new MethodModel($node->name);
             
@@ -153,6 +153,11 @@ class NodeVisitor extends NodeVisitorAbstract {
             if($node->isStatic()) {
                 
                 $method->setStatic(true);
+            }
+            
+            if($node->returnsByRef()) {
+                
+                $method->setReturnsByReference(true);
             }
             
             foreach($node->getParams() as $nodeParam) {
