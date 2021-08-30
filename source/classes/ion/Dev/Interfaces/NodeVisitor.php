@@ -51,7 +51,7 @@ class NodeVisitor extends NodeVisitorAbstract {
     
     public function leaveNode(Node $node) {
         
-        $modelName = $this->model->getName();
+        $modelName = $this->model->getStructName();
 
         if($modelName === null) {
 
@@ -62,7 +62,7 @@ class NodeVisitor extends NodeVisitorAbstract {
             
             $modelName->setNamespaceParts(explode("\\", $node->name));
             
-            $this->model->setName($modelName);
+            $this->model->setStructName($modelName);
             
             return null;
         }
@@ -71,7 +71,7 @@ class NodeVisitor extends NodeVisitorAbstract {
             
             $modelName->setName($node->name);
         
-            $this->model->setName($modelName);
+            $this->model->setStructName($modelName);
             
             if(!empty($node->getDocComment())) {
                 

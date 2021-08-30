@@ -6,6 +6,9 @@
 
 namespace ion\Dev\Interfaces;
 
+use \PhpParser\ParserFactory;
+use \PhpParser\NodeTraverser;
+
 /**
  * Description of InterfaceModel
  *
@@ -16,12 +19,41 @@ class InterfaceModel extends NodeModel {
     
     private const EMPTY_METHODS_COMMENT = "// No methods found!";
 
+    public static function parseData(
+            
+        string $data,
+        array $templates,
+        array $prefixesToStrip = [],
+        array $suffixesToStrip = []
+            
+    ): self {
+        
+        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+
+        $ast = $parser->parse($data);
+        
+        if($ast === null) {
+            
+            throw new Exception("Could not create PHP parser object.");
+        }
+        
+        $traverser = new NodeTraverser();
+
+        $model = new InterfaceModel($templates, $prefixesToStrip, $suffixesToStrip);
+        
+        $traverser->addVisitor(new NodeVisitor($model));
+        
+        $ast = $traverser->traverse($ast);
+
+        return $model;        
+    }
+    
     private $references = [];
     private $traits = [];
     private $interfaces = [];
     private $methods = [];
     private $parent = null;
-    private $name = null;
+    private $structName = null;
     
     private $templates = [];
     private $prefixes = [];
@@ -30,33 +62,34 @@ class InterfaceModel extends NodeModel {
     public function __construct(
      
         array $templates,
-        array $prefixes = [],
-        array $suffixes = [],
+        array $prefixesToStrip = [],
+        array $suffixesToStrip = [],
         string $doc = null
             
     ) {
 
         parent::__construct($doc);
         
+
         $this->templates = $templates;
-        $this->prefixes = $prefixes;
-        $this->suffixes = $suffixes;
+        $this->prefixes = $prefixesToStrip;
+        $this->suffixes = $suffixesToStrip;
     }
 
-    public function setName(NameModel $name): self {
+    public function setStructName(NameModel $name): self {
         
-        $this->name = $name;
+        $this->structName = $name;
         return $this;
     }
     
-    public function getName(): ?NameModel {
+    public function getStructName(): ?NameModel {
         
-        return $this->name;
+        return $this->structName;
     }
     
-    public function hasName(): bool {
+    public function hasStructName(): bool {
         
-        return ($this->getName() !== null);
+        return ($this->getStructName() !== null);
     }
     
     public function setParent(NameModel $parent = null): self {
@@ -146,20 +179,23 @@ class InterfaceModel extends NodeModel {
         return $this;
     }
     
-
-    
     public function toString(): string {
         
-        if(!$this->hasName()) {
+        return $this->generate($this->getName()->asInterfaceName());
+    }
+    
+    public function generate(string $interfaceName, bool $primary = true): string {
+        
+        if(!$this->hasStructName()) {
             
             return "";
         }
         
         $php = "<?php\n\n";
         
-        if($this->getName()->hasNamespace()) {
+        if($this->getStructName()->hasNamespace()) {
             
-            $php .= "namespace {$this->getName()->getNamespace()};\n\n";
+            $php .= "namespace {$this->getStructName()->getNamespace()};\n\n";
         }
         
         foreach($this->getReferences() as $key => $reference) {
@@ -172,7 +208,7 @@ class InterfaceModel extends NodeModel {
             $php .= "\n{$this->getDoc()}\n";
         }
         
-        $php .= "\ninterface {$this->getName()->asInterfaceName()}";
+        $php .= "\ninterface {$interfaceName}";
         
         $extends = [];
         

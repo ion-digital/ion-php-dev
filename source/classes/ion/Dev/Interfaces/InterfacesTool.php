@@ -27,7 +27,7 @@ use \PhpParser\Node\Scalar;
 use \PhpParser\Node\NullableType;
 
 use \PhpParser\Comment\Doc;
-use \PhpParser\NodeTraverser;
+
 use \PhpParser\NodeVisitorAbstract;
 use \PhpParser\Comment;
 use \PhpParser\Node\Stmt\Use_;
@@ -38,7 +38,7 @@ use \PhpParser\Node\Expr\Closure;
 use \PhpParser\Node\Expr\Cast\Object_;
 use \PhpParser\Node\Const_;
 use \PhpParser\Node\Stmt\ClassConst;
-use \PhpParser\ParserFactory;
+
 use \PhpParser\BuilderFactory;
 
 
@@ -110,6 +110,8 @@ class InterfacesTool extends Tool {
         return 0;
     }
     
+
+    
     private function processDirectory(
             
             OutputInterface $output, 
@@ -117,7 +119,7 @@ class InterfacesTool extends Tool {
             string $inputDir, 
             string $baseInputDir,
             string $outputDir, 
-            array $fnTemplates = [], 
+            array $templates = [], 
             array $prefixesToStrip = [],
             array $suffixesToStrip = [],
             bool $overwrite = false            
@@ -149,7 +151,7 @@ class InterfacesTool extends Tool {
                     $path . DIRECTORY_SEPARATOR,
                     $baseInputDir,
                     $outputDir,
-                    $fnTemplates,
+                    $templates,
                     $prefixesToStrip,
                     $suffixesToStrip,
                     $overwrite
@@ -164,214 +166,129 @@ class InterfacesTool extends Tool {
                 continue;
             }
             
-            $pi = pathinfo($path); 
-            $classFn = $pi['filename'];  
-            $classBn = $pi['basename'];
-            
-            $firstFnTemplate = null;
-            
-            if(count($fnTemplates) > 0) {
-                
-                $firstFnTemplate = $fnTemplates[0];
-                $firstFnTemplate = str_replace(".php", "", $firstFnTemplate);
-            }
-            
-            foreach($fnTemplates as $index => &$fnTemplate) {
-                                
-                $fnTemplate = str_replace(".php", "", $fnTemplate);
-            }
-            
-            foreach($fnTemplates as $index => &$fnTemplate) {
-                
-                
-                //$fnTemplate = str_replace(".php", "", $fnTemplate);
-                
-                $tmpFn = $classFn;
-                
-                $tmp = '';
-                
-                if($baseInputDir === null) {
-
-                    $baseInputDir = realpath($inputDir);
-                }                
-                
-                //$baseInputDir .= DIRECTORY_SEPARATOR;
-                
-                $cwd = realpath(getcwd());
-                $tmp = str_replace($baseInputDir, "", $inputDir);
-
-                foreach($prefixesToStrip as $prefix) {
-
-                    if(!preg_match("/^({$prefix})/", $tmpFn)) {
-
-                        continue;
-                    }
-
-                    $tmpFn = preg_replace("/^({$prefix})/", '', $tmpFn, 1);  
-                    break;
-                }
-                
-//                var_dump($classFn);
-
-                foreach($suffixesToStrip as $suffix) {
-
-                    if(!preg_match("/({$suffix})\$/", $tmpFn)) {
-
-                        continue;
-                    }
-
-                    $tmpFn = preg_replace("/({$suffix})\$/", '', $tmpFn, 1);
-                    break;
-                }   
-                
-                //var_dump($classFn);
-                
-                
-                
-                $interfaceName = pathinfo(str_replace('*', $tmpFn, $fnTemplate))['filename'];
-                $interfaceFn = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}{$tmp}" . $interfaceName . ".php");
-                
-                //var_dump($interfaceName);
-//                var_dump($interfaceFn);
-//                
-//                echo "\n\$path:\t\t\t {$path}\n\$baseInputDir:\t\t {$baseInputDir}\n\$inputDir:\t\t {$inputDir}\n\$cwd:\t\t\t {$cwd}\n\$interfaceName:\t\t {$interfaceName}\n\$tmp:\t\t {$tmp}\n\$interfaceFn:\t\t {$interfaceFn}\n\n";                
-//                continue;
-                
-                if($action === 'clean') {
+            $this->processFile(
                     
-                    $inputFn = "{$inputDir}" . $interfaceName . ".php";
-                    
-                    $output->write("Cleaning '{$inputFn}' ... ");                                        
-                    
-                    if(!file_exists($inputFn)) {
-                        
-                        $output->writeln("Done (file did not exist!).");
-                        continue;
-                    }
-                    
-                    if(unlink($inputFn)) {
-                        
-                        $output->writeln("Done.");
-                        continue;
-                    }
-                    
-                    $output->writeln("Error: Could not delete file!");
-                    
-                    continue;
-                }
-                
-                if($action === 'generate') {                                   
-                
-                    $from = str_replace(getcwd() . DIRECTORY_SEPARATOR, '', "{$inputDir}{$classBn}");
-                    
-                    $output->write("Generating '{$interfaceFn}' ({$interfaceName}) from '{$from}' ... ");
-                    
-                    
-                    
-                    try {
-                        
-                        if(!$overwrite && file_exists($path)) {
-                            
-                            throw new Exception("File already exists - specify --overwrite to override.");
-                        }                                                
-                        
-                        if(!is_dir(dirname($interfaceFn))) {
-                            
-                            mkdir(dirname($interfaceFn), 0777, true);
-                        }
-                        
-                        $tmp = $this->processFile(
-                                
-                            $interfaceName, 
-                            $output, 
-                            $fnTemplate,                                
-                            file_get_contents($path), 
-                            $index === 0,
-                            $fnTemplates,
-                            $prefixesToStrip,
-                            $suffixesToStrip
-                        );           
-                        
-                        if($tmp === null) {
-                            
-                            $output->writeln("No class definitions found - skipping.");
-                            continue;
-                        }
-                        
-                        file_put_contents(
-                            $interfaceFn, 
-                            $tmp
-                        );  
-                        
-                        $output->writeln("Done.");
-                    }
-                    catch(Throwable $ex) {
-                        
-                        $output->writeln("Error: {$ex->getMessage()}");
-                                                   
-                        $trace = $ex->getTrace();
-                        
-                        if(is_countable($trace) && count($trace) > 0) {
-                            
-                            $output->writeln("");
-                            
-                            foreach([$trace[0]] as $index => $item) {
-
-                                if(!array_key_exists("file", $item) || !array_key_exists("line", $item)) {
-                                    
-                                    continue;
-                                }
-                                
-                                $output->writeln("Stack trace: {$item['file']} @ line {$item['line']}");
-                                
-                            }
-
-                            $output->writeln("");                            
-                        }
-                        
-
-
-                    }
-                    
-                    continue;
-                }
-            }
-        }
+                $output, 
+                $action, 
+                $inputDir, 
+                $baseInputDir, 
+                $outputDir, 
+                $path,
+                $overwrite, 
+                $templates, 
+                $prefixesToStrip, 
+                $suffixesToStrip
+            );
+        }  
     }
     
     private function processFile(
             
-            string $interfaceName, 
-            OutputInterface $output, 
-            string $fnTemplate, 
-            string $data, 
-            bool $primary,
-            array $fnTemplates,
+            OutputInterface $output,              
+            string $action,
+            string $inputDir, 
+            string $baseInputDir,
+            string $outputDir, 
+            string $path,
+            bool $overwrite,
+            array $templates,
             array $prefixesToStrip,
             array $suffixesToStrip
             
-    ): ?string {
-        
-        
-        $parser = (new ParserFactory)->create(ParserFactory::PREFER_PHP7);
+    ): void {
 
-        $ast = $parser->parse($data);
+        $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip);
         
-        if($ast === null) {
+        foreach($model->getStructName()->getClassInterfaceVariations($templates) as $cnt => $interfaceName) {
+        
+            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
+                        . str_replace($baseInputDir, "", $inputDir))
+                        . "{$interfaceName->getName()}.php";
+
+            if($action === 'generate') { 
+                
+                $output->write("Generating '{$interfaceName}' ('{$outputPath}') from '{$model->getStructName()}' ... ");
+
+                try {
+
+                    if(!$overwrite && file_exists($outputPath)) {
+
+                        throw new Exception("File already exists - specify --overwrite to override.");
+                    }                                                
+
+                    if(!is_dir(dirname($outputPath))) {
+
+                        mkdir(dirname($outputPath), 0777, true);
+                    }    
+
+                    $tmp = $model->generate($interfaceName->getName(), $cnt === 0);
+                    
+                    if(empty($tmp)) {
+
+                        $output->writeln("No class definitions found - skipping.");
+                        continue;
+                    }
+
+                    file_put_contents(
+                            
+                        $outputPath, 
+                        $tmp
+                    );  
+
+                    $output->writeln("Done.");
+
+                }
+                catch(Throwable $ex) {
+
+                    $output->writeln("Error: {$ex->getMessage()}");
+
+                    $trace = $ex->getTrace();
+
+                    if(is_countable($trace) && count($trace) > 0) {
+
+                        $output->writeln("");
+
+                        foreach([$trace[0]] as $index => $item) {
+
+                            if(!array_key_exists("file", $item) || !array_key_exists("line", $item)) {
+
+                                continue;
+                            }
+
+                            $output->writeln("Stack trace: {$item['file']} @ line {$item['line']}");
+
+                        }
+
+                        $output->writeln("");                            
+                    }
+                }                
+                
+                continue;
+            }
             
-            throw new Exception("Could not create PHP parser object.");
+            if($action === 'clean') {
+                
+                $output->write("Cleaning '" . pathinfo($path, PATHINFO_BASENAME) . "' ... ");                                        
+
+                if(!file_exists($path)) {
+
+                    $output->writeln("Done (file did not exist!).");
+                    continue;
+                }
+
+                if(unlink($path)) {
+
+                    $output->writeln("Done.");
+                    continue;
+                }
+
+                $output->writeln("Error: Could not delete file!");
+                
+                continue;
+            }                        
         }
         
-        $traverser = new NodeTraverser();
-
-        $interface = new InterfaceModel();
-        
-        $traverser->addVisitor(new NodeVisitor($interface));
-        
-        $ast = $traverser->traverse($ast);
-
-        return $interface->toString();
-       // return "<?php\n" . (new InterfacePrettyPrinter($fnTemplate, $primary, $fnTemplates, $prefixesToStrip, $suffixesToStrip))->prettyPrint($result);
-    }
+        return;        
+    }            
 }
 

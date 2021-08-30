@@ -125,6 +125,30 @@ class NameModel {
     //FIXME
     public function asInterfaceName(string $template = null): string {
         
+//                foreach($prefixesToStrip as $prefix) {
+//
+//                    if(!preg_match("/^({$prefix})/", $tmpFn)) {
+//
+//                        continue;
+//                    }
+//
+//                    $tmpFn = preg_replace("/^({$prefix})/", '', $tmpFn, 1);  
+//                    break;
+//                }
+//                
+////                var_dump($classFn);
+//
+//                foreach($suffixesToStrip as $suffix) {
+//
+//                    if(!preg_match("/({$suffix})\$/", $tmpFn)) {
+//
+//                        continue;
+//                    }
+//
+//                    $tmpFn = preg_replace("/({$suffix})\$/", '', $tmpFn, 1);
+//                    break;
+//                }           
+        
         return $this->getName();
     }
     
