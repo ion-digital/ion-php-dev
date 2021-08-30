@@ -141,8 +141,30 @@ class NameModel {
         return $obj;
     }
     
+    public function asInterfaceName(string $template): self {
+
+        return static::createNew(static::applyTemplate($this->getName(), $template));
+    }
+    
+    private static function applyTemplate(string $structName, string $template): string {
+        
+        return str_replace("*", $structName, $template);
+    }
+    
+    public function getClassInterfaceVariations(array $templates): array {
+        
+        $result = [];
+        
+        foreach($templates as $template) {
+            
+            $result[] = static::createNew(static::applyTemplate($this->getName(), $template));
+        }
+        
+        return $result;
+    }
+    
     //FIXME
-    public function asInterfaceName(string $template = null): string {
+    public function getTraitInterfaceVariations(array $prefixes = null, array $suffixes = null): array {
         
 //                foreach($prefixesToStrip as $prefix) {
 //
@@ -168,29 +190,6 @@ class NameModel {
 //                    break;
 //                }           
         
-        return $this->getName();
-    }
-    
-    private static function applyTemplate(string $structName, string $template): string {
-        
-        return str_replace("*", $structName, $template);
-    }
-    
-    //FIXME
-    public function getClassInterfaceVariations(array $templates = null): array {
-        
-        $result = [];
-        
-        foreach($templates as $template) {
-            
-            $result[] = static::createNew(static::applyTemplate($this->getName(), $template));
-        }
-        
-        return $result;
-    }
-    
-    //FIXME
-    public function getTraitInterfaceVariations(array $prefixes = null, array $suffixes = null): array {
         
         return [ $this->createNew($this->getName()) ];
     }

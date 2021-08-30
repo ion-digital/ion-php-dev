@@ -225,10 +225,12 @@ class InterfaceModel extends NodeModel {
         
         if($this->hasParent()) {
             
-            foreach($this->getParent()->getClassInterfaceVariations($this->templates) as $parentInterfaceName) {
-                
-                $extends[] = $parentInterfaceName->getName();
-            }
+//            foreach($this->getParent()->getClassInterfaceVariations($this->templates) as $parentInterfaceName) {
+//                
+//                $extends[] = $parentInterfaceName->getName();
+//            }
+            
+            $extends[] = $this->getParent()->asInterfaceName($this->templates[0])->getName();
         }
         
         foreach($this->getTraits() as $key => $trait) {
@@ -242,6 +244,19 @@ class InterfaceModel extends NodeModel {
         foreach($this->getInterfaces() as $key => $interface) {
             
             $extends[] = $interface->getName();
+        }                
+        
+        if(count($this->templates) > 0) {
+        
+            foreach($this->getStructName()->getClassInterfaceVariations($this->templates) as $variationInterfaceName) {
+
+                if($this->getStructName()->asInterfaceName($this->templates[0])->getName() === $variationInterfaceName->getName()) {
+
+                    continue;
+                }
+
+                $extends[] = $variationInterfaceName->getName();
+            }        
         }        
         
         $methods = "";
