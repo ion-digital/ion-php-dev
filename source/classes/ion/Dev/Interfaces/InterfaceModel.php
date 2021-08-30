@@ -181,7 +181,7 @@ class InterfaceModel extends NodeModel {
     
     public function toString(): string {
         
-        return $this->generate($this->getName()->asInterfaceName());
+        return $this->generate($this->getStructName()->asInterfaceName());
     }
     
     public function generate(string $interfaceName, bool $primary = true): string {
