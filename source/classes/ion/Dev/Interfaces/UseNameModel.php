@@ -27,7 +27,7 @@ class UseNameModel extends NameModel {
         return $this;
     }
     
-    public function getReferences(): int {
+    public function getReferenceCount(): int {
         
         return $this->references;
     }
@@ -37,10 +37,10 @@ class UseNameModel extends NameModel {
         return ($this->references > 0);
     }
     
-//    public function toString(): string {
-//        
-//        return $this->getName()->toString();
-//    }
+    public function toString(): string {
+        
+        return "use " . parent::toString() . ";"; // {$this->getReferenceCount()}";
+    }
 //    
 //    public function __toString() {
 //        

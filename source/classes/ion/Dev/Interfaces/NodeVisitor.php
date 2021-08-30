@@ -106,7 +106,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                     continue;
                 } 
                 
-                $this->model->addReference(NameModel::getFromParts($use->name->parts, true));
+                $this->model->addReference(NameModel::getFromParts($use->name->parts, true), false);
             }
             
             return null;
@@ -181,8 +181,10 @@ class NodeVisitor extends NodeVisitorAbstract {
                         $param->setType(new TypeModel(new NameModel(null, $type), $nullable));
 
                     } else if($type instanceof Name) {
-
-                        $param->setType(new TypeModel(NameModel::getFromParts($type->parts, true), $nullable));
+                        
+                        $tmp = NameModel::getFromParts($type->parts, true);
+                        $param->setType(new TypeModel($tmp, $nullable));                        
+                        $this->model->addReference($tmp, true);
                     }
                 }
                 
@@ -264,7 +266,11 @@ class NodeVisitor extends NodeVisitorAbstract {
                     
                 } else if($returnType instanceof Name) {
 
-                    $method->setReturnType(new TypeModel(NameModel::getFromParts($returnType->parts, true), $nullable));
+                    $tmp = NameModel::getFromParts($returnType->parts, true);
+                    
+                    $method->setReturnType(new TypeModel($tmp, $nullable));
+                    
+                    $this->model->addReference($tmp, true);
                 }
             }            
                                

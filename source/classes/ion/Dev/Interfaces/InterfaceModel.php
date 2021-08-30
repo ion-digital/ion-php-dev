@@ -18,6 +18,7 @@ use \PhpParser\NodeTraverser;
 class InterfaceModel extends NodeModel {
     
     private const EMPTY_METHODS_COMMENT = "// No methods found!";
+    private const EXTENDS_WRAP_THRESHOLD = 3;
 
     public static function parseData(
             
@@ -128,14 +129,17 @@ class InterfaceModel extends NodeModel {
         return $this->methods;
     }
     
-    public function addReference(NameModel $name): self {
-        
-        if(array_key_exists($name->getName(), $this->references)) {
+    public function addReference(NameModel $name, bool $increaseCount = false): self {
+  
+        if(!array_key_exists($name->getName(), $this->references)) {
 
-            return $this;
+            $this->references[$name->getName()] = new UseNameModel($name);            
         }
-
-        $this->references[$name->getName()] = new UseNameModel($name);
+        
+        if($increaseCount) {
+            
+            $this->references[$name->getName()]->increaseReferences();
+        }
         
         return $this;
     }
@@ -149,7 +153,7 @@ class InterfaceModel extends NodeModel {
                 return $this;
             }
 
-            $this->addReference($ref);
+            $this->addReference($ref, true);
 
             $this->traits[$ref->getName()] = $ref;
         }
@@ -158,14 +162,16 @@ class InterfaceModel extends NodeModel {
     
     public function addInterface(NameModel $name): self {
         
-        foreach(array_merge([ $name ], $name->getClassInterfaceVariations($this->templates)) as $ref) {        
+        //foreach(array_merge([ $name ], $name->getClassInterfaceVariations($this->templates)) as $ref) {        
+        
+        foreach(array_merge([ $name ]) as $ref) {        
             
             if(array_key_exists($ref->getName(), $this->interfaces)) {
 
                 return $this;
             }
 
-            $this->addReference($ref);
+            $this->addReference($ref, true);
 
             $this->interfaces[$ref->getName()] = $ref;
         }
@@ -184,11 +190,11 @@ class InterfaceModel extends NodeModel {
         return $this->generate($this->getStructName()->asInterfaceName());
     }
     
-    public function generate(string $interfaceName, bool $primary = true): string {
+    public function generate(string $interfaceName, bool $primary = true): ?string {
         
         if(!$this->hasStructName()) {
             
-            return "";
+            return null;
         }
         
         $php = "<?php\n\n";
@@ -199,8 +205,13 @@ class InterfaceModel extends NodeModel {
         }
         
         foreach($this->getReferences() as $key => $reference) {
+
+            if(!$reference->hasReferences()) {
+                
+                continue;
+            }
             
-            $php .= "use {$reference};\n";
+            $php .= "{$reference}\n";
         }
         
         if($this->hasDoc()) {
@@ -214,24 +225,30 @@ class InterfaceModel extends NodeModel {
         
         if($this->hasParent()) {
             
-            $extends[] = $this->getParent()->asInterfaceName();
-        }
-        
-        foreach($this->getInterfaces() as $key => $interface) {
-            
-            $extends[] = $interface->getName();
+            foreach($this->getParent()->getClassInterfaceVariations($this->templates) as $parentInterfaceName) {
+                
+                $extends[] = $parentInterfaceName->getName();
+            }
         }
         
         foreach($this->getTraits() as $key => $trait) {
             
-            $extends[] = $trait->asInterfaceName();
+            foreach($trait->getTraitInterfaceVariations($this->templates) as $traitInterfaceName) {
+                
+                $extends[] = $traitInterfaceName->getName();
+            }            
+        }     
+        
+        foreach($this->getInterfaces() as $key => $interface) {
+            
+            $extends[] = $interface->getName();
         }        
         
         $methods = "";
         
         //$php .= "\n\n\n" . var_Export($this->getMethods(), true);
         
-        foreach($this->getMethods() as $name => $method) {
+        foreach($this->getMethods() as $key => $method) {
             
             $methods .= "{$method->toString()}\n\n";
         }
@@ -246,7 +263,18 @@ class InterfaceModel extends NodeModel {
             $methods = static::indent(static::EMPTY_METHODS_COMMENT);
         }
         
-        $php .= (empty($extends) ? "" : " extends " . implode(", ", $extends)) . " {\n\n{$methods}}\n";
+        $php .= (empty($extends) ? "" : " extends ");
+        
+        if(count($extends) > self::EXTENDS_WRAP_THRESHOLD) {
+            
+            $php .= "\n\n" . static::indent(implode(",\n", $extends)) . "\n\n";
+            
+        } else {
+        
+            $php .= implode(", ", $extends);
+        }
+        
+        $php .= " {\n\n{$methods}}\n";
         
         //$php .= "\n\n\n" . var_Export($this, true);
         

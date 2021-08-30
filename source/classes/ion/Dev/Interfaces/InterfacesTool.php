@@ -197,6 +197,18 @@ class InterfacesTool extends Tool {
             
     ): void {
 
+        // Remove .php extension from templates
+
+        foreach($templates as &$template) {
+
+            if(!str_ends_with($template, ".php")) {
+                
+                continue;
+            }
+            
+            $template = substr($template, 0, strlen($template) - 4);
+        }        
+        
         $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip);
         
         foreach($model->getStructName()->getClassInterfaceVariations($templates) as $cnt => $interfaceName) {
@@ -204,7 +216,7 @@ class InterfacesTool extends Tool {
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
                         . str_replace($baseInputDir, "", $inputDir))
                         . "{$interfaceName->getName()}.php";
-
+                        
             if($action === 'generate') { 
                 
                 $output->write("Generating '{$interfaceName}' ('{$outputPath}') from '{$model->getStructName()}' ... ");
@@ -268,19 +280,23 @@ class InterfacesTool extends Tool {
             
             if($action === 'clean') {
                 
-                $output->write("Cleaning '" . pathinfo($path, PATHINFO_BASENAME) . "' ... ");                                        
+                $inputPath = $inputDir . "{$interfaceName->getName()}.php";                
+                
+                echo "FIXME: $inputPath\n";
+                
+                $output->write("Cleaning '" . pathinfo($inputPath, PATHINFO_BASENAME) . "' ... ");                                        
 
-                if(!file_exists($path)) {
+                if(!file_exists($inputPath)) {
 
                     $output->writeln("Done (file did not exist!).");
                     continue;
                 }
 
-                if(unlink($path)) {
-
-                    $output->writeln("Done.");
-                    continue;
-                }
+//                if(unlink($inputPath)) {
+//
+//                    $output->writeln("Done.");
+//                    continue;
+//                }
 
                 $output->writeln("Error: Could not delete file!");
                 

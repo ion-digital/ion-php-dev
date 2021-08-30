@@ -79,6 +79,16 @@ class NameModel {
         return $this->name;
     }
     
+    public function getFullName(): string {
+        
+        if($this->hasNamespace()) {
+        
+            return ($this->isAbsolute() ? "\\" : "") . "{$this->getNamespace()}\\{$this->getName()}";
+        }
+        
+        return ($this->isAbsolute() ? "\\" : "") . $this->getName();        
+    }
+    
     public function setAbsolute(bool $absolute = true): self {
         
         $this->absolute = $absolute;
@@ -122,6 +132,15 @@ class NameModel {
         return (!empty($this->getNameSpace(true)));
     }
     
+    protected function createNew(string $structName): self {
+        
+        $obj = clone $this;
+        
+        $obj->setName($structName);
+        
+        return $obj;
+    }
+    
     //FIXME
     public function asInterfaceName(string $template = null): string {
         
@@ -152,26 +171,33 @@ class NameModel {
         return $this->getName();
     }
     
+    private static function applyTemplate(string $structName, string $template): string {
+        
+        return str_replace("*", $structName, $template);
+    }
+    
     //FIXME
     public function getClassInterfaceVariations(array $templates = null): array {
         
-        return [ $this ];
+        $result = [];
+        
+        foreach($templates as $template) {
+            
+            $result[] = static::createNew(static::applyTemplate($this->getName(), $template));
+        }
+        
+        return $result;
     }
     
     //FIXME
     public function getTraitInterfaceVariations(array $prefixes = null, array $suffixes = null): array {
         
-        return [ $this ];
+        return [ $this->createNew($this->getName()) ];
     }
     
     public function toString(): string {
         
-        if($this->hasNamespace()) {
-        
-            return ($this->isAbsolute() ? "\\" : "") . "{$this->getNamespace()}\\{$this->getName()}";
-        }
-        
-        return ($this->isAbsolute() ? "\\" : "") . $this->getName();
+        return $this->getFullName();
     }
     
     public function __toString() {
