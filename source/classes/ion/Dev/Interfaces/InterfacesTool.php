@@ -211,11 +211,11 @@ class InterfacesTool extends Tool {
         
         $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip);
         
-        foreach($model->getStructName()->getClassInterfaceVariations($templates) as $cnt => $interfaceName) {
+        foreach($model->getStructName()->getInterfaceVariations($templates, $prefixesToStrip, $suffixesToStrip) as $cnt => $interfaceName) {
         
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
                         . str_replace($baseInputDir, "", $inputDir))
-                        . "{$interfaceName->getName()}.php";
+                        . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip)}.php";
                         
             if($action === 'generate') { 
                 
