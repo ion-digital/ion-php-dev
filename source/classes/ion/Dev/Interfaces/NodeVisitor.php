@@ -33,6 +33,8 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\DNumber;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Stmt\TraitUse;
+
+
 /**
  * Description of NodeVisitor
  *
@@ -49,26 +51,26 @@ class NodeVisitor extends NodeVisitorAbstract {
         $this->model = $model;
     }
     
-    public function leaveNode(Node $node) {
+    public function enterNode(Node $node) {
         
         $modelName = $this->model->getStructName();
 
         if($modelName === null) {
 
             $modelName = new NameModel();
-        }            
+        }           
         
         if($node instanceof Namespace_) {
             
-            $modelName->setNamespaceParts(explode("\\", $node->name));
+            $modelName->setNamespaceParts($node->name->parts);
             
             $this->model->setStructName($modelName);
-            
+
             return null;
         }
 
         if($node instanceof Class_ || $node instanceof Trait_) {
-            
+
             $modelName->setName($node->name);
         
             $this->model->setStructName($modelName);
@@ -82,6 +84,11 @@ class NodeVisitor extends NodeVisitorAbstract {
                 
                 if(!empty($node->extends)) {
 
+//                    if($node->name == "HttpVerbs") {
+//                        
+//                        var_dump($node->extends);
+//                    }
+                    
                     $this->model->setParent(NameModel::getFromParts($node->extends->parts, true));                
                 }       
             
@@ -98,7 +105,7 @@ class NodeVisitor extends NodeVisitorAbstract {
         }
         
         if($node instanceof Use_) {
-            
+                
             foreach($node->uses as $use) {                                
                 
                 if(!is_countable($use->name->parts)) {
@@ -111,6 +118,22 @@ class NodeVisitor extends NodeVisitorAbstract {
             
             return null;
         }
+        
+        if($node instanceof UseUse) {
+                
+            if(is_countable($node->name->parts)) {
+
+//                if(in_array("EnumObject", $node->name->parts)) {
+//                    
+//                    var_dump(NameModel::getFromParts($node->name->parts, true));
+//                    exit;
+//                }
+                
+                $this->model->addReference(NameModel::getFromParts($node->name->parts, true), false);
+            } 
+
+            return null;
+        }        
         
 
         

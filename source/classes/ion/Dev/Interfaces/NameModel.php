@@ -132,18 +132,19 @@ class NameModel {
         return (!empty($this->getNameSpace(true)));
     }
     
-    protected function createNew(string $structName): self {
+    public function createNew(string $structName, array $namespace = null ): self {
         
         $obj = clone $this;
         
         $obj->setName($structName);
+        $obj->setNamespaceParts($namespace);
         
         return $obj;
     }
     
-    public function asInterfaceName(string $template, array $prefixesToStrip = [], array $suffixesToStrip = []): self {
+    public function asInterfaceName(string $template, array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): self {
 
-        return static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip), $template));
+        return static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore), $template), $this->getNamespaceParts());
     }
     
     private static function applyTemplate(string $structName, string $template): string {
@@ -151,30 +152,34 @@ class NameModel {
         return str_replace("*", $structName, $template);
     }
     
-    public function getInterfaceVariations(array $templates, array $prefixesToStrip = [], array $suffixesToStrip = []): array {
+    public function getInterfaceVariations(array $templates, array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): array {
         
         $result = [];
         
         foreach($templates as $template) {
             
-            $result[] = static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip), $template));
-        }
-        
+            $result[] = static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore), $template), $this->getNamespaceParts());
+        }        
+
         return $result;
     }
     
-    public function getModifiedName(array $prefixesToStrip = [], array $suffixesToStrip = []): string {
+    public function getModifiedName(array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): string {
+                
+        $tmp = $this->getName();        
         
-        //var_Dump($prefixesToStrip, $suffixesToStrip);
-        
-        $tmp = $this->getName();
-        
-        foreach($prefixesToStrip as $prefix) {
+        foreach($prefixesToStrip as $prefixToStrip) {
 
-            $pattern = "/^(" . str_replace("*", "", $prefix) . ")/";
-            
-            //var_dump(preg_match($pattern, $tmp), $tmp);
-            
+            foreach($prefixesToIgnore as $prefixToIgnore) {
+
+                if(preg_match("/^({$prefixToIgnore})/", $tmp)) {
+
+                    continue 2;
+                }
+            }
+
+            $pattern = "/^({$prefixToStrip})/";
+
             if(!preg_match($pattern, $tmp)) {
 
                 continue;
@@ -184,9 +189,17 @@ class NameModel {
             break;
         }
 
-        foreach($suffixesToStrip as $suffix) {
+        foreach($suffixesToStrip as $suffixToStrip) {
+            
+            foreach($suffixesToIgnore as $suffixToIgnore) {
 
-            $pattern = "/(" . str_replace("*", "", $suffix) . ")\$/";
+                if(preg_match("/^({$suffixToIgnore})/", $tmp)) {
+
+                    continue 2;
+                }
+            }            
+            
+            $pattern = "/({$suffixToStrip})\$/";
             
             if(!preg_match($pattern, $tmp)) {
 
@@ -200,46 +213,7 @@ class NameModel {
         
         return $tmp;
     }
-//    
-//    //FIXME
-//    public function getTraitInterfaceVariations(array $prefixesToStrip = [], array $suffixesToStrip = []): array {
-//        
-//        var_Dump($prefixesToStrip, $suffixesToStrip);
-//        
-//        $tmp = $this->getName();
-//        
-//        foreach($prefixesToStrip as $prefix) {
-//
-//            $pattern = "/^(" . str_replace("*", "", $prefix) . ")/";
-//            
-//            var_dump(preg_match($pattern, $tmp), $tmp);
-//            
-//            if(!preg_match("$pattern", $tmp)) {
-//
-//                continue;
-//            }
-//
-//            $tmp = preg_replace($pattern, '', $tmp, 1);  
-//            break;
-//        }
-//
-//        foreach($suffixesToStrip as $suffix) {
-//
-//            $pattern = "/(" . str_replace("*", "", $suffix) . ")\$/";
-//            
-//            if(!preg_match($pattern, $tmp)) {
-//
-//                continue;
-//            }
-//
-//            $tmp = preg_replace($pattern, '', $tmp, 1);
-//            break;
-//        }           
-//        
-//        
-//        return [ $this->createNew($this->getName()) ];
-//    }
-//    
+
     public function toString(): string {
         
         return $this->getFullName();

@@ -15,10 +15,10 @@ class UseNameModel extends NameModel {
     
     private $references = 0;
 
-    public function __construct(NameModel $name) {
+    public function __construct(NameModel $name, array $namespaceParts = null) {
     
         $this->setName($name->getName());
-        $this->setNamespaceParts($name->getNamespaceParts());
+        $this->setNamespaceParts($namespaceParts ?? $name->getNamespaceParts());
     }
 
     public function increaseReferences(): self {

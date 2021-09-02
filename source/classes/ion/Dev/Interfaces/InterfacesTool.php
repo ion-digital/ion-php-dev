@@ -51,6 +51,8 @@ class InterfacesTool extends Tool {
     private $filenames;
     private $prefixesToStrip;
     private $suffixesToStrip;
+    private $prefixesToIgnore;
+    private $suffixesToIgnore;    
     private $input;
     private $output;
 
@@ -63,6 +65,8 @@ class InterfacesTool extends Tool {
         array $filenames = [],
         array $prefixesToStrip = [],
         array $suffixesToStrip = [],
+        array $prefixesToIgnore = [],
+        array $suffixesToIgnore = [],            
         InputInterface $input = null,
         OutputInterface $output = null       
             
@@ -75,6 +79,8 @@ class InterfacesTool extends Tool {
         $this->filenames = $filenames;
         $this->prefixesToStrip = $prefixesToStrip;
         $this->suffixesToStrip = $suffixesToStrip;
+        $this->prefixesToIgnore = $prefixesToIgnore;
+        $this->suffixesToIgnore = $suffixesToIgnore;        
         $this->input = $input;
         $this->output = $output;
     }
@@ -104,6 +110,8 @@ class InterfacesTool extends Tool {
             $this->filenames,
             $this->prefixesToStrip,
             $this->suffixesToStrip,
+            $this->prefixesToIgnore,
+            $this->suffixesToIgnore,                
             $this->overwrite
         );
 
@@ -122,6 +130,8 @@ class InterfacesTool extends Tool {
             array $templates = [], 
             array $prefixesToStrip = [],
             array $suffixesToStrip = [],
+            array $prefixesToIgnore = [],
+            array $suffixesToIgnore = [],            
             bool $overwrite = false            
             
     ): void {
@@ -154,6 +164,8 @@ class InterfacesTool extends Tool {
                     $templates,
                     $prefixesToStrip,
                     $suffixesToStrip,
+                    $prefixesToIgnore,
+                    $suffixesToIgnore,                        
                     $overwrite
                         
                 );
@@ -177,7 +189,10 @@ class InterfacesTool extends Tool {
                 $overwrite, 
                 $templates, 
                 $prefixesToStrip, 
-                $suffixesToStrip
+                $suffixesToStrip,
+                $prefixesToIgnore, 
+                $suffixesToIgnore
+                    
             );
         }  
     }
@@ -193,7 +208,9 @@ class InterfacesTool extends Tool {
             bool $overwrite,
             array $templates,
             array $prefixesToStrip,
-            array $suffixesToStrip
+            array $suffixesToStrip,
+            array $prefixesToIgnore,
+            array $suffixesToIgnore            
             
     ): void {
 
@@ -209,13 +226,13 @@ class InterfacesTool extends Tool {
             $template = substr($template, 0, strlen($template) - 4);
         }        
         
-        $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip);
+        $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
         
-        foreach($model->getStructName()->getInterfaceVariations($templates, $prefixesToStrip, $suffixesToStrip) as $cnt => $interfaceName) {
+        foreach($model->getStructName()->getInterfaceVariations($templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore) as $cnt => $interfaceName) {
         
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
                         . str_replace($baseInputDir, "", $inputDir))
-                        . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip)}.php";
+                        . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)}.php";
                         
             if($action === 'generate') { 
                 

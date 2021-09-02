@@ -31,7 +31,10 @@ class InterfacesCommand extends BaseCommand {
             
             ->addOption('strip-prefixes', 'sp', InputOption::VALUE_OPTIONAL, "Regex patterns to strip, seperated by commas, from class- and trait names, from the beginning of the string. I'll strip only the first occurrence found.", "")
             ->addOption('strip-suffixes', 'ss', InputOption::VALUE_OPTIONAL, "Regex patterns to strip, seperated by commas, from class- and trait names, from the end of the string. I'll strip only the first occurrence found.", "")
-            
+
+            ->addOption('ignore-prefixes', 'ip', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the beginning of the string. I'll strip only the first occurrence found.", "")
+            ->addOption('ignore-suffixes', 'is', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the end of the string. I'll strip only the first occurrence found.", "")
+                
         ;              
     }
 
@@ -46,6 +49,8 @@ class InterfacesCommand extends BaseCommand {
             explode(",", $input->getOption('filenames')),
             explode(",", $input->getOption('strip-prefixes')),
             explode(",", $input->getOption('strip-suffixes')),
+            explode(",", $input->getOption('ignore-prefixes')),
+            explode(",", $input->getOption('ignore-suffixes')),                
             $input,
             $output
                 
