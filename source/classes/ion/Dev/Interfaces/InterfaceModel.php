@@ -311,7 +311,12 @@ class InterfaceModel extends NodeModel {
                 if(in_array($name, $extends)) {
 
                     continue;
-                }                        
+                }                
+                
+                if($name === $interfaceName) {
+                    
+                    continue;
+                }
 
                 $extends[] = $name;
             }                
