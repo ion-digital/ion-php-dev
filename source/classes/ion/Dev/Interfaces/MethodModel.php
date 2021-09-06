@@ -169,7 +169,6 @@ class MethodModel extends NodeModel {
         if($this->hasReturnType()) {
             
             $php .= ": {$this->getReturnType()}";
-            
         }
         
         return "{$php};";

@@ -62,7 +62,7 @@ class NodeVisitor extends NodeVisitorAbstract {
         
         if($node instanceof Namespace_) {
             
-            $modelName->setNamespaceParts($node->name->parts);
+            $modelName->setNamespaceParts($node->name->parts)->setAbsolute(false);
             
             $this->model->setStructName($modelName);
 
@@ -84,11 +84,6 @@ class NodeVisitor extends NodeVisitorAbstract {
                 
                 if(!empty($node->extends)) {
 
-//                    if($node->name == "HttpVerbs") {
-//                        
-//                        var_dump($node->extends);
-//                    }
-                    
                     $this->model->setParent(NameModel::getFromParts($node->extends->parts, true));                
                 }       
             
@@ -123,12 +118,6 @@ class NodeVisitor extends NodeVisitorAbstract {
                 
             if(is_countable($node->name->parts)) {
 
-//                if(in_array("EnumObject", $node->name->parts)) {
-//                    
-//                    var_dump(NameModel::getFromParts($node->name->parts, true));
-//                    exit;
-//                }
-                
                 $this->model->addReference(NameModel::getFromParts($node->name->parts, true), false);
             } 
 
@@ -203,9 +192,15 @@ class NodeVisitor extends NodeVisitorAbstract {
 
                         $param->setType(new TypeModel(new NameModel(null, $type), $nullable));
 
-                    } else if($type instanceof Name) {
+                    } else if($type instanceof Name || $type instanceof FullyQualified) {
                         
                         $tmp = NameModel::getFromParts($type->parts, true);
+                        
+                        if($type instanceof FullyQualified) {
+                            
+                            $tmp->setAbsolute(true);
+                        }
+                        
                         $param->setType(new TypeModel($tmp, $nullable));                        
                         $this->model->addReference($tmp, true);
                     }
@@ -282,14 +277,32 @@ class NodeVisitor extends NodeVisitorAbstract {
                     
                     $returnType = $returnType->type;
                 }
+                
+
  
                 if(is_string($returnType)) {
                     
                     $method->setReturnType(new TypeModel(new NameModel(null, $returnType), $nullable));
                     
-                } else if($returnType instanceof Name) {
-
+//                    if(strpos($returnType, 'Traversable') !== false) {
+//                        
+//                        var_dump($returnType);                        
+//                    }                    
+                    
+                } else if($returnType instanceof Name || $type instanceof FullyQualified) {
+                    
                     $tmp = NameModel::getFromParts($returnType->parts, true);
+
+                    if($returnType instanceof FullyQualified) {
+
+                        $tmp->setAbsolute(true);
+                    }                    
+
+//                    if(in_array('Traversable', $returnType->parts)) {
+//                        
+//                        var_dump($returnType);
+//                        var_dump(new TypeModel($tmp, $nullable));
+//                    }
                     
                     $method->setReturnType(new TypeModel($tmp, $nullable));
                     

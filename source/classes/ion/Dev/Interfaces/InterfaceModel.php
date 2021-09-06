@@ -20,45 +20,7 @@ class InterfaceModel extends NodeModel {
     private const EMPTY_METHODS_COMMENT = "// No public methods!";
     private const EXTENDS_WRAP_THRESHOLD = 3;
 
-    private const PHP_CLASSES = [
-      
-        'Directory',
-        'stdClass',
-        '__PHP_Incomplete_Class',
-        'Exception',
-        'ErrorException',
-        'php_user_filter',
-        'Closure',
-        'Generator',
-        'ArithmeticError',
-        'AssertionError',
-        'DivisionByZeroError',
-        'Error',
-        'Throwable',
-        'ParseError',
-        'TypeError',
-        'Traversable',
-        'Iterator',
-        'IteratorAggregate',
-        'Throwable',
-        'ArrayAccess',
-        'Serializable',
-        'WeakReference',
-        'WeakMap',
-        'Stringable',
-        'DateTime',
-        'DateInterval'        
-    ];
-    
-    private const PHP_TYPES = [
-      
-        "string",
-        "float",
-        "int",
-        "bool",
-        "callable",
-        "array"
-    ];        
+
     
     public static function parseData(
             
@@ -196,13 +158,13 @@ class InterfaceModel extends NodeModel {
   
         if(!$this->hasReference($name)) {
 
-            if((!$name->hasNamespace() && $this->getStructName() !== null) && (!in_array($name->getName(), static::PHP_CLASSES))) {
+            if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpStruct())) {
                 
-                $this->references[$name->getModifiedName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
+                $this->references[$name->getModifiedName()->getName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
 
             } else {
                 
-                $this->references[$name->getModifiedName()] = new UseNameModel($name);            
+                $this->references[$name->getModifiedName()->getName()] = new UseNameModel($name);            
             }
         }
         
@@ -216,7 +178,7 @@ class InterfaceModel extends NodeModel {
 
     public function hasReference(NameModel $name): bool {
         
-        return (array_key_exists($name->getModifiedName(), $this->references));
+        return (array_key_exists($name->getModifiedName()->getName(), $this->references));
     }
 
     
@@ -227,7 +189,7 @@ class InterfaceModel extends NodeModel {
             return null;
         }
         
-        return $this->references[$name->getModifiedName()];
+        return $this->references[$name->getModifiedName()->getName()];
     }
     
     
@@ -235,14 +197,14 @@ class InterfaceModel extends NodeModel {
         
         foreach($name->getInterfaceVariations($this->templates, $this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore) as $ref) {
         
-            if(array_key_exists($ref->getModifiedName(), $this->traits)) {
+            if(array_key_exists($ref->getModifiedName()->getName(), $this->traits)) {
 
                 return $this;
             }
 
             $this->addReference($ref, true);
 
-            $this->traits[$ref->getModifiedName()] = $ref;
+            $this->traits[$ref->getModifiedName()->getName()] = $ref;
         }
         return $this;        
     }
@@ -253,14 +215,14 @@ class InterfaceModel extends NodeModel {
         
         foreach(array_merge([ $name ]) as $ref) {        
             
-            if(array_key_exists($ref->getModifiedName(), $this->interfaces)) {
+            if(array_key_exists($ref->getModifiedName()->getName(), $this->interfaces)) {
 
                 return $this;
             }
 
             $this->addReference($ref, true);
 
-            $this->interfaces[$ref->getModifiedName()] = $ref;
+            $this->interfaces[$ref->getModifiedName()->getName()] = $ref;
         }
         
         return $this;        
@@ -324,11 +286,19 @@ class InterfaceModel extends NodeModel {
 
             if($this->hasParent()) {
 
-                $name = $this->getParent()->asInterfaceName($this->templates[0])->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
+                $name = $this
+                        ->getParent()
+                        ->asInterfaceName($this->templates[0])
+                        ->getModifiedName(
+                            $this->prefixesToStrip, 
+                            $this->suffixesToStrip, 
+                            $this->prefixesToIgnore, 
+                            $this->suffixesToIgnore
+                        );
 
-                if(!in_array($name, $extends)) {
+                if(!in_array($name->getName(), $extends)) {
 
-                    $extends[] = $name;
+                    $extends[] = $name->getName();
                 }
             }
 
@@ -336,29 +306,29 @@ class InterfaceModel extends NodeModel {
 
                 $name = $trait->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
 
-                if(in_array($name, $extends)) {
+                if(in_array($name->getName(), $extends)) {
 
                     continue;
                 }                        
 
-                $extends[] = $name;
+                $extends[] = $name->getName();
             }     
 
             foreach($this->getInterfaces() as $key => $interface) {
 
                 $name = $interface->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
 
-                if(in_array($name, $extends)) {
+                if(in_array($name->getName(), $extends)) {
 
                     continue;
                 }                
                 
-                if($name === $interfaceName) {
+                if($name->getName() === $interfaceName) {
                     
                     continue;
                 }
 
-                $extends[] = $name;
+                $extends[] = $name->getName();
             }                
 
             if(count($this->templates) > 0) {
@@ -367,20 +337,20 @@ class InterfaceModel extends NodeModel {
 
                     if($this->getStructName()->asInterfaceName($this->templates[0], $this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)
 
-                        ->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore) 
-                            === $variationInterfaceName->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)) {
+                        ->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)->toString()
+                            === $variationInterfaceName->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)->toString()) {
 
                         continue;
                     }
 
                     $name = $variationInterfaceName->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
 
-                    if(in_array($name, $extends)) {
+                    if(in_array($name->getName(), $extends)) {
 
                         continue;
                     }                    
 
-                    $extends[] = $name;
+                    $extends[] = $name->getName();
                 }        
             }        
 

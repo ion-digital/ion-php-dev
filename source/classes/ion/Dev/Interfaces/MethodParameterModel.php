@@ -155,9 +155,9 @@ class MethodParameterModel extends NodeModel {
         $php = "";
         
         if($this->hasType()) {
-            
-            $php .= "{$this->getType()->toString()} ";
-        }
+
+            $php .= "{$this->getType()} ";
+        }     
         
         if($this->isByReference()) {
             
@@ -168,8 +168,8 @@ class MethodParameterModel extends NodeModel {
             
             $php .= "...";        
         }
-        
-        $php .= "\${$this->getName()}";
+ 
+        $php .= "\${$this->getName()}";        
         
         if($this->hasDefault()) {
             

@@ -13,6 +13,48 @@ namespace ion\Dev\Interfaces;
  */
 class NameModel {
     
+    private const PHP_CLASSES = [
+      
+        'Directory',
+        'stdClass',
+        '__PHP_Incomplete_Class',
+        'Exception',
+        'ErrorException',
+        'php_user_filter',
+        'Closure',
+        'Generator',
+        'ArithmeticError',
+        'AssertionError',
+        'DivisionByZeroError',
+        'Error',
+        'Throwable',
+        'ParseError',
+        'TypeError',
+        'Traversable',
+        'Iterator',
+        'IteratorAggregate',
+        'Throwable',
+        'ArrayAccess',
+        'Serializable',
+        'WeakReference',
+        'WeakMap',
+        'Stringable',
+        'DateTime',
+        'DateInterval',
+        'DateTimeImmutable'
+    ];
+    
+    private const PHP_TYPES = [
+      
+        "string",
+        "float",
+        "int",
+        "bool",
+        "callable",
+        "array",
+        "resource"
+    ];            
+    
     public static function getFromParts(array $parts, bool $hasName = true): self {
         
         if(count($parts) <= 1) {
@@ -56,37 +98,39 @@ class NameModel {
     
     private $namespace = null;
     private $name = null;
-    private $absolute = true;
+    private $absolute = false;
     
-    public function __construct(array $namespace = null, string $name = null, bool $absolute = true) {
+    public function __construct(array $namespace = null, string $name = null, bool $absolute = false) {
         
         $this->namespace = $namespace;
-        
-        if(!empty($name)) {
-            
-            $this->setName($name);
-        }
+        $this->absolute = $absolute;
+        $this->setName($name);
     }
     
-    public function setName(string $name): self {
+    public function setName(string $name = null): self {
         
         $this->name = $name;
         return $this;
     }
     
-    public function getName(): string {
+    public function getName(): ?string {
         
         return $this->name;
     }
     
+    public function hasName(): bool {
+     
+        return !empty($this->getName());
+    }
+    
     public function getFullName(): string {
-        
-        if($this->hasNamespace()) {
-        
-            return ($this->isAbsolute() ? "\\" : "") . "{$this->getNamespace()}\\{$this->getModifiedName()}";
+
+        if(!$this->isStruct()) {
+            
+            return $this->getName();
         }
         
-        return ($this->isAbsolute() ? "\\" : "") . $this->getModifiedName();        
+        return $this->getNamespace() . ($this->hasName() ? ($this->hasNamespace() || $this->isAbsolute() ? "\\" : "") . "{$this->getName()}" : "");
     }
     
     public function setAbsolute(bool $absolute = true): self {
@@ -117,14 +161,13 @@ class NameModel {
     }    
     
     public function getNamespace(bool $nullIfEmpty = false): ?string {
-        
-        
+
         if(empty($this->namespace) || (is_countable($this->namespace) && count($this->namespace) < 1)) {
             
             return ($nullIfEmpty ? null : "");
         }
         
-        return implode("\\", $this->namespace);
+        return ($this->isAbsolute() ? "\\" : "") . implode("\\", $this->namespace);
     }
     
     public function hasNamespace(): bool {
@@ -132,19 +175,56 @@ class NameModel {
         return (!empty($this->getNameSpace(true)));
     }
     
-    public function createNew(string $structName, array $namespace = null ): self {
+    public function createNew(string $structName, array $namespace = null, bool $absolute = false): self {
         
         $obj = clone $this;
         
         $obj->setName($structName);
+        $obj->setAbsolute($absolute);
         $obj->setNamespaceParts($namespace);
         
         return $obj;
     }
     
-    public function asInterfaceName(string $template, array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): self {
+    public function isPhpType(): bool {
+        
+        return (in_array($this->getName(), self::PHP_TYPES));
+    }
+    
+    public function isPhpStruct(): bool {
+        
+        return (in_array($this->getName(), self::PHP_CLASSES) && $this->isStruct() && !$this->hasNamespace());
+    }    
+    
+    public function isStruct(): bool {
+        
+        if($this->isPhpType()) {
+            
+            return false;
+        }
+        
+        return true;
+//        return ($this->hasNamespace() || $this->isAbsolute());
+    }
+    
+    public function asInterfaceName(
+            
+            string $template,
+            array $prefixesToStrip = [],
+            array $suffixesToStrip = [],
+            array $prefixesToIgnore = [],
+            array $suffixesToIgnore = []
+            
+        ): self {
 
-        return static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore), $template), $this->getNamespaceParts());
+        return static::createNew(static::applyTemplate($this->getModifiedName(
+                
+                $prefixesToStrip,
+                $suffixesToStrip,
+                $prefixesToIgnore,
+                $suffixesToIgnore
+                
+            )->getName(), $template), $this->getNamespaceParts());
     }
     
     private static function applyTemplate(string $structName, string $template): string {
@@ -158,13 +238,27 @@ class NameModel {
         
         foreach($templates as $template) {
             
-            $result[] = static::createNew(static::applyTemplate($this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore), $template), $this->getNamespaceParts());
+            $result[] = static::createNew(static::applyTemplate($this->getModifiedName(
+                    
+                    $prefixesToStrip,
+                    $suffixesToStrip,
+                    $prefixesToIgnore,
+                    $suffixesToIgnore
+                    
+                )->getName(), $template), $this->getNamespaceParts());
         }        
 
         return $result;
     }
     
-    public function getModifiedName(array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): string {
+    public function getModifiedName(
+            
+            array $prefixesToStrip = [],
+            array $suffixesToStrip = [],
+            array $prefixesToIgnore = [],
+            array $suffixesToIgnore = []
+            
+        ): self {
                 
         $tmp = $this->getName();        
         
@@ -211,7 +305,7 @@ class NameModel {
         }           
         
         
-        return $tmp;
+        return $this->createNew($tmp);
     }
 
     public function toString(): string {

@@ -18,6 +18,7 @@ class UseNameModel extends NameModel {
     public function __construct(NameModel $name, array $namespaceParts = null) {
     
         $this->setName($name->getName());
+        $this->setAbsolute(true);
         $this->setNamespaceParts($namespaceParts ?? $name->getNamespaceParts());
     }
 
@@ -39,7 +40,7 @@ class UseNameModel extends NameModel {
     
     public function toString(): string {
         
-        return "use " . parent::toString() . ";"; // {$this->getReferenceCount()}";
+        return "use " . parent::getFullName() . ";"; // {$this->getReferenceCount()}";
     }
 //    
 //    public function __toString() {

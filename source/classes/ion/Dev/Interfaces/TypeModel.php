@@ -45,6 +45,11 @@ class TypeModel {
         return $this->name;
     }    
     
+    public function hasName(): bool {
+        
+        return ($this->getName() !== null);
+    }
+    
     public function setNullable(bool $nullable = false): self {
         
         $this->nullable = $nullable;
@@ -69,12 +74,26 @@ class TypeModel {
     
     public function toString(): string {
         
-        if($this->isNullable()) {
+        if(!$this->hasName()) {
             
-            return "?{$this->getName()->getName()}";
+            return "";
         }
         
-        return $this->getName()->getName();
+        if($this->getName()->isPhpType()) {
+            
+            $tmp = "{$this->getName()->getName()}";
+            
+        } else {
+            
+            $tmp = "{$this->getName()->getFullName()}";        
+        }
+        
+        if($this->isNullable()) {
+            
+            return "?{$tmp}";
+        }
+        
+        return $tmp;
     }    
     
     public function __toString(): string {
