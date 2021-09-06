@@ -20,6 +20,46 @@ class InterfaceModel extends NodeModel {
     private const EMPTY_METHODS_COMMENT = "// No public methods!";
     private const EXTENDS_WRAP_THRESHOLD = 3;
 
+    private const PHP_CLASSES = [
+      
+        'Directory',
+        'stdClass',
+        '__PHP_Incomplete_Class',
+        'Exception',
+        'ErrorException',
+        'php_user_filter',
+        'Closure',
+        'Generator',
+        'ArithmeticError',
+        'AssertionError',
+        'DivisionByZeroError',
+        'Error',
+        'Throwable',
+        'ParseError',
+        'TypeError',
+        'Traversable',
+        'Iterator',
+        'IteratorAggregate',
+        'Throwable',
+        'ArrayAccess',
+        'Serializable',
+        'WeakReference',
+        'WeakMap',
+        'Stringable',
+        'DateTime',
+        'DateInterval'        
+    ];
+    
+    private const PHP_TYPES = [
+      
+        "string",
+        "float",
+        "int",
+        "bool",
+        "callable",
+        "array"
+    ];        
+    
     public static function parseData(
             
         string $data,
@@ -156,7 +196,7 @@ class InterfaceModel extends NodeModel {
   
         if(!$this->hasReference($name)) {
 
-            if(!$name->hasNamespace() && $this->getStructName() !== null) {
+            if((!$name->hasNamespace() && $this->getStructName() !== null) && (!in_array($name->getName(), static::PHP_CLASSES))) {
                 
                 $this->references[$name->getModifiedName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
 
