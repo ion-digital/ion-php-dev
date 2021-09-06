@@ -30,11 +30,7 @@ class NameModel {
         'Throwable',
         'ParseError',
         'TypeError',
-        'Traversable',
-        'Iterator',
-        'IteratorAggregate',
-        'Throwable',
-        'ArrayAccess',
+        'Throwable',        
         'Serializable',
         'WeakReference',
         'WeakMap',
@@ -42,6 +38,15 @@ class NameModel {
         'DateTime',
         'DateInterval',
         'DateTimeImmutable'
+    ];
+    
+    private const PHP_INTERFACES = [
+      
+        'ArrayAccess',
+        'Countable',
+        'Traversable',
+        'Iterator',
+        'IteratorAggregate'        
     ];
     
     private const PHP_TYPES = [
@@ -191,15 +196,20 @@ class NameModel {
         return (in_array($this->getName(), self::PHP_TYPES));
     }
     
-//    public function isPhpStruct(): bool {
-//        
-//        return ();
-//    }
+    public function isPhpStruct(): bool {
+        
+        return ($this->isPhpClass() || $this->isPhpInterface());
+    }
     
     public function isPhpClass(): bool {
         
         return (in_array($this->getName(), self::PHP_CLASSES) && $this->isStruct() && !$this->hasNamespace());
     }    
+    
+    public function isPhpInterface(): bool {
+        
+        return (in_array($this->getName(), self::PHP_INTERFACES) && $this->isStruct() && !$this->hasNamespace());
+    }        
     
     public function isStruct(): bool {
         
