@@ -191,7 +191,12 @@ class NameModel {
         return (in_array($this->getName(), self::PHP_TYPES));
     }
     
-    public function isPhpStruct(): bool {
+//    public function isPhpStruct(): bool {
+//        
+//        return ();
+//    }
+    
+    public function isPhpClass(): bool {
         
         return (in_array($this->getName(), self::PHP_CLASSES) && $this->isStruct() && !$this->hasNamespace());
     }    

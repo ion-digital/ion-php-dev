@@ -158,7 +158,7 @@ class InterfaceModel extends NodeModel {
   
         if(!$this->hasReference($name)) {
 
-            if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpStruct())) {
+            if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpClass())) {
                 
                 $this->references[$name->getModifiedName()->getName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
 
@@ -284,7 +284,7 @@ class InterfaceModel extends NodeModel {
         
             $extends = [];
 
-            if($this->hasParent()) {
+            if($this->hasParent() && !$this->getParent()->isPhpClass()) {
 
                 $name = $this
                         ->getParent()
