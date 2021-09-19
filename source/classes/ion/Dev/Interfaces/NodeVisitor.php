@@ -202,7 +202,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                         }
                         
                         $param->setType(new TypeModel($tmp, $nullable));                        
-                        $this->model->addReference($tmp, true);
+                        $this->model->addReference($tmp, false);
                     }
                 }
                 
@@ -296,7 +296,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                     if($returnType instanceof FullyQualified) {
 
                         $tmp->setAbsolute(true);
-                    }                    
+                    }
 
 //                    if(in_array('Traversable', $returnType->parts)) {
 //                        
@@ -306,7 +306,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                     
                     $method->setReturnType(new TypeModel($tmp, $nullable));
                     
-                    $this->model->addReference($tmp, true);
+                    $this->model->addReference($tmp, false);
                 }
             }            
                                

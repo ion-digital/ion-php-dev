@@ -44,7 +44,14 @@ class InterfaceModel extends NodeModel {
         
         $traverser = new NodeTraverser();
 
-        $model = new InterfaceModel($templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
+        $model = new InterfaceModel(
+                
+            $templates, 
+            $prefixesToStrip, 
+            $suffixesToStrip, 
+            $prefixesToIgnore, 
+            $suffixesToIgnore
+        );
         
         $traverser->addVisitor(new NodeVisitor($model));
         
@@ -55,6 +62,7 @@ class InterfaceModel extends NodeModel {
     
     private $references = [];
     private $traits = [];
+    private $traitInterfaces = [];
     private $interfaces = [];
     private $methods = [];
     private $parent = null;
@@ -101,33 +109,7 @@ class InterfaceModel extends NodeModel {
     public function hasStructName(): bool {
         
         return ($this->getStructName() !== null);
-    }
-    
-    public function setParent(NameModel $parent = null): self {
-
-        if($parent !== null) {
-            
-            if($this->hasReference($parent)) {
-                
-                $parent = $this->getReference($parent);                
-            }
-            
-            $this->addReference($parent->asInterfaceName($this->templates[0]), true);
-        }
-        
-        $this->parent = $parent;
-        return $this;
-    }
-    
-    public function getParent(): ?NameModel {
-        
-        return $this->parent;
-    }
-    
-    public function hasParent(): bool {
-        
-        return ($this->parent !== null);
-    }
+    }    
     
     public function getReferences(): array {
         
@@ -142,6 +124,11 @@ class InterfaceModel extends NodeModel {
     public function getTraits(): array {
         
         return $this->traits;
+    }
+    
+    public function getTraitInterfaces(): array {
+        
+        return $this->traitInterfaces;
     }
     
     public function getInterfaces(): array {
@@ -160,11 +147,11 @@ class InterfaceModel extends NodeModel {
 
             if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpStruct())) {
                 
-                $this->references[$name->getModifiedName()->getName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
+                $this->references[$name->getName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
 
             } else {
                 
-                $this->references[$name->getModifiedName()->getName()] = new UseNameModel($name);            
+                $this->references[$name->getName()] = new UseNameModel($name);            
             }
         }
         
@@ -174,6 +161,22 @@ class InterfaceModel extends NodeModel {
         }
         
         return $this;
+    }
+    
+    protected function clearReferences(bool $countOnly = false): void {
+        
+        if($countOnly) {
+            
+            foreach($this->references as $key => $ref) {
+                
+                $ref->clearReferencesCount();
+            }
+            
+            return;
+        }
+        
+        $this->references = [];
+        return;
     }
 
     public function hasReference(NameModel $name): bool {
@@ -192,20 +195,74 @@ class InterfaceModel extends NodeModel {
         return $this->references[$name->getModifiedName()->getName()];
     }
     
+    public function setParent(NameModel $parent = null): self {
+
+        if($parent !== null) {
+            
+            if($this->hasReference($parent)) {
+                
+                $parent = $this->getReference($parent);                
+            }
+            
+            $this->addReference($parent, false);
+            
+            foreach($parent->getInterfaceVariations(
+
+                    $this->templates, 
+                    $this->prefixesToStrip, 
+                    $this->suffixesToStrip, 
+                    $this->prefixesToIgnore, 
+                    $this->suffixesToIgnore
+
+            ) as $interface) {
+
+                $this->addReference($interface, false);
+            }             
+        }
+        
+        $this->parent = $parent;
+        return $this;
+    }
+    
+    public function getParent(): ?NameModel {
+        
+        return $this->parent;
+    }
+    
+    public function hasParent(): bool {
+        
+        return ($this->parent !== null);
+    }    
     
     public function addTrait(NameModel $name): self {
         
-        foreach($name->getInterfaceVariations($this->templates, $this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore) as $ref) {
+        if(!array_key_exists($name->getName(), $this->traits)) {
+            
+            $this->traits[$name->getName()] = $name;
+        }
         
-            if(array_key_exists($ref->getModifiedName()->getName(), $this->traits)) {
+        foreach($name->getInterfaceVariations(
+                
+                $this->templates, 
+                $this->prefixesToStrip, 
+                $this->suffixesToStrip, 
+                $this->prefixesToIgnore, 
+                $this->suffixesToIgnore
+                
+        ) as $ref) {
+        
+            $tmp = $ref->getName();
+            
+            if(array_key_exists($tmp, $this->traitInterfaces)) {
 
                 return $this;
             }
+            
+            $this->addReference($ref, false);
 
-            $this->addReference($ref, true);
-
-            $this->traits[$ref->getModifiedName()->getName()] = $ref;
+            $this->traitInterfaces[$tmp] = $ref;
         }
+        
         return $this;        
     }
     
@@ -220,12 +277,12 @@ class InterfaceModel extends NodeModel {
                 return $this;
             }
 
-            $this->addReference($ref, true);
+            $this->addReference($ref, false);
 
             $this->interfaces[$ref->getModifiedName()->getName()] = $ref;
         }
         
-        return $this;        
+        return $this;
     }
     
     public function addMethod(MethodModel $method): self {
@@ -239,125 +296,255 @@ class InterfaceModel extends NodeModel {
         return $this->generate($this->getStructName()->asInterfaceName());
     }
     
-    public function generate(string $interfaceName, bool $primary = true): ?string {
+    protected function modifyInterfaceName(NameModel $name, int $templateIndex = null, array $templates = null): NameModel {
+        
+        if($templates === null) {
+
+            $templates = $this->templates;
+        }
+
+        foreach($this->templates as $tmpIndex => $template) {
+
+            if($templateIndex !== null && $tmpIndex == $templateIndex) {
+
+                continue;
+            }
+
+            $prefixes = [];
+            $suffixes = [];
+
+            $tmp = substr($template, 0, strpos($template, "*"));
+            
+            if(!empty($tmp)) {
+                
+                $prefixes[] = $tmp;
+            }
+            
+            $tmp = substr($template, strpos($template, "*") + 1);
+            
+            if(!empty($tmp)) {
+                    
+                $suffixes[] = $tmp;
+            }
+            
+            $name = $name->getModifiedName(
+                    
+                $prefixes,
+                $suffixes
+            );   
+
+        }
+
+        return $name;     
+    }
+    
+    public function generate(string $interfaceName, array &$memory, int $templateIndex = 0): ?string {
         
         if(!$this->hasStructName()) {
             
             return null;
         }
         
-        $php = "<?php\n\n";
+        $this->clearReferences(true);
         
-        if($this->getStructName()->hasNamespace()) {
-            
-            $php .= "namespace {$this->getStructName()->getNamespace()};\n" . ($primary || !$this->hasReferences() ? "\n" : "");
+        $primary = ($templateIndex === 0);
+        $template = $this->templates[$templateIndex];
+
+        $php = "";
+
+        if($this->hasDoc()) {
+
+            $php .= "\n{$this->getDoc()}\n";
         }
-        
-        if($primary) {
 
-            foreach($this->getReferences() as $key => $reference) {
-
-                if(!$reference->hasReferences()) {
-
-                    continue;
-                }
-
-                if($reference->getName() === $interfaceName) {
-
-                    continue;
-                }
-
-                $php .= "{$reference}\n";
-            }
-
-            if($this->hasDoc()) {
-
-                $php .= "\n{$this->getDoc()}\n";
-            }
-        }
-        
-        $php .= "\ninterface {$interfaceName}";
+        $php .= "interface {$interfaceName}";
 
         $methods = "";
-        
-        if($primary) {
-        
-            $extends = [];
 
-            if($this->hasParent() && !$this->getParent()->isPhpClass()) {
+        $extends = [];
 
-                $name = $this
-                        ->getParent()
-                        ->asInterfaceName($this->templates[0])
-                        ->getModifiedName(
-                            $this->prefixesToStrip, 
-                            $this->suffixesToStrip, 
-                            $this->prefixesToIgnore, 
-                            $this->suffixesToIgnore
-                        );
+        if($this->hasParent() && !$this->getParent()->isPhpClass()) {
 
-                if(!in_array($name->getName(), $extends)) {
-
-                    $extends[] = $name->getName();
-                }
-            }
-
-            foreach($this->getTraits() as $key => $trait) {                
-
-                $name = $trait->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
-
-                if(in_array($name->getName(), $extends)) {
-
-                    continue;
-                }                        
-
-                $extends[] = $name->getName();
-            }     
-
-            foreach($this->getInterfaces() as $key => $interface) {
-
-                $name = $interface->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
-
-                if(in_array($name->getName(), $extends)) {
-
-                    continue;
-                }                
-                
-                if($name->getName() === $interfaceName) {
+            $name = $this
                     
-                    continue;
-                }
+                ->getParent()
+                ->asInterfaceName($template)
+                ->getModifiedName(
+
+                    $this->prefixesToStrip, 
+                    $this->suffixesToStrip, 
+                    $this->prefixesToIgnore, 
+                    $this->suffixesToIgnore
+                );            
+
+            if(!in_array($name->getName(), $extends) && !in_array($name->getName(), $memory)) {
 
                 $extends[] = $name->getName();
+                
+                $this->addReference($name, true);
+            }
+        }
+
+        foreach($this->getTraits() as $trait) {                
+             
+            // First strip the trait prefixes / suffixes
+            
+            $name = $trait->getModifiedName(
+                    
+                $this->prefixesToStrip, 
+                $this->suffixesToStrip, 
+                $this->prefixesToIgnore, 
+                $this->suffixesToIgnore
+            );
+            
+            // Then strip interface template definitions
+            
+            $name = $this->modifyInterfaceName($name, $templateIndex, [ $template ]);
+            
+            $name = $name->getInterfaceVariations([ $template ])[0];
+            
+            if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {
+
+                continue;
+            }                        
+
+            $extends[] = $name->getName();
+            
+            $this->addReference($name, true);
+        }     
+
+        foreach($this->getInterfaces() as $key => $interface) {
+          
+            
+            $name = $interface;
+            
+            if(!$primary) {
+            
+                $name = $this
+                        ->modifyInterfaceName($interface, $templateIndex, null)
+                        ->getInterfaceVariations([ $template ])[0];
+            }
+            
+            if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {
+
+                continue;
             }                
 
-            if(count($this->templates) > 0) {
+            if($name->getName() === $interfaceName) {
 
-                foreach($this->getStructName()->getInterfaceVariations($this->templates, $this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore) as $variationInterfaceName) {                
+                continue;
+            }
 
-                    if($this->getStructName()->asInterfaceName($this->templates[0], $this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)
+//            $this->addReference($name, true);
+            
+//            if($interfaceName == "IClassname") {
+//                
+//                var_Dump($interface);
+//                var_dump($name);
+//                exit;
+//            }
+            
+            $extends[] = $name->getName();
+            
+            $this->addReference($name, true);
+        }                
 
-                        ->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)->toString()
-                            === $variationInterfaceName->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore)->toString()) {
+        $templates = $this->templates;
+        
+        if(!$primary && count($templates) > 1) {
 
-                        continue;
-                    }
+            $templates = array_slice($templates, 1);
+        }        
+        
+        if(count($this->templates) > 0) {
 
-                    $name = $variationInterfaceName->getModifiedName($this->prefixesToStrip, $this->suffixesToStrip, $this->prefixesToIgnore, $this->suffixesToIgnore);
+            $variations = $this->getStructName()->getInterfaceVariations(
 
-                    if(in_array($name->getName(), $extends)) {
+                $templates, 
+                $this->prefixesToStrip, 
+                $this->suffixesToStrip, 
+                $this->prefixesToIgnore, 
+                $this->suffixesToIgnore
+            );
 
-                        continue;
-                    }                    
+            foreach($variations as $variationInterfaceName) {                
+            
+                if(!$primary) {
 
-                    $extends[] = $name->getName();
-                }        
+                    continue;
+                }
+            
+                if($this->getStructName()->asInterfaceName(
+                        
+                        $template, 
+                        $this->prefixesToStrip, 
+                        $this->suffixesToStrip, 
+                        $this->prefixesToIgnore, 
+                        $this->suffixesToIgnore
+                    )
+
+                    ->getModifiedName(
+                            
+                        $this->prefixesToStrip, 
+                        $this->suffixesToStrip, 
+                        $this->prefixesToIgnore, 
+                        $this->suffixesToIgnore
+                            
+                    )
+                    ->toString() === $variationInterfaceName->getModifiedName(
+                            
+                        $this->prefixesToStrip, 
+                        $this->suffixesToStrip, 
+                        $this->prefixesToIgnore, 
+                        $this->suffixesToIgnore
+                            
+                    )->toString()) {
+
+                    continue;
+                }
+
+                $name = $variationInterfaceName->getModifiedName(
+                        
+                    $this->prefixesToStrip, 
+                    $this->suffixesToStrip, 
+                    $this->prefixesToIgnore, 
+                    $this->suffixesToIgnore
+                );
+
+                if(in_array($name->getName(), $extends) || $name->getName() === $interfaceName || in_array($name->getName(), $memory)) {
+
+                    continue;
+                }                    
+
+                $extends[] = $name->getName();
+                
+                $this->addReference($name, true);
             }        
+        }        
 
+        if($primary) {            
+            
             foreach($this->getMethods() as $key => $method) {
 
                 $methods .= "{$method->toString()}\n\n";
-            }
+                
+                foreach($method->getParameters() as $pName => $parameter) {
+                    
+                    $type = $parameter->getType();                                 
+                    
+                    if($type === null || ($type !== null && $type->getName()->isPhpType())) {
+                        
+                        continue;
+                    }
+
+                    $this->addReference($type->getName(), true);
+                }
+                
+                if($method->hasReturnType() && !$method->getReturnType()->getName()->isPhpType()) {
+                    
+                    $this->addReference($method->getReturnType()->getName(), true);
+                }
+            }            
         }        
         
         if(!empty($methods)) {
@@ -368,23 +555,56 @@ class InterfaceModel extends NodeModel {
             
             $methods = static::indent(static::EMPTY_METHODS_COMMENT) . "\n\n";
         }
-        
-        if($primary) {
-        
-            $php .= (empty($extends) ? "" : " extends ");
+ 
+        $php .= (empty($extends) ? "" : " extends ");
 
-            if(count($extends) > self::EXTENDS_WRAP_THRESHOLD) {
+        if(count($extends) > self::EXTENDS_WRAP_THRESHOLD) {
 
-                $php .= "\n\n" . static::indent(implode(",\n", $extends)) . "\n\n";
+            $php .= "\n\n" . static::indent(implode(",\n", $extends)) . "\n\n";
 
-            } else {
+        } else {
 
-                $php .= implode(", ", $extends);
-            }
+            $php .= implode(", ", $extends);
         }
         
-        $php .= " {\n\n{$methods}}\n";
+        // We process the use references last
+        
+        $header = "<?php\n\n";
+        
+        if($this->getStructName()->hasNamespace()) {
+            
+            $header .= "namespace {$this->getStructName()->getNamespace()};\n" . ($this->hasReferences() ? "\n" : "");
+        }
 
+        $refCnt = 0;
+        
+        foreach($this->getReferences() as $key => $reference) {
+
+            if(!$reference->hasReferences()) {
+
+                continue;
+            }
+
+            if($reference->getName() === $interfaceName) {
+
+                continue;
+            }
+
+            $header .= "{$reference}\n";
+            
+            $refCnt++;
+        }        
+        
+        if($refCnt > 0) {
+            
+            $php = "\n{$php}";
+        }
+        
+        $php = "{$header}{$php} {\n\n{$methods}}\n";
+        
+        
+        $memory[] = $interfaceName;        
+        
         return $php;
     }
     

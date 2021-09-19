@@ -228,6 +228,8 @@ class InterfacesTool extends Tool {
         
         $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
         
+        $memory = [];
+        
         foreach($model->getStructName()->getInterfaceVariations($templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore) as $cnt => $interfaceName) {
         
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
@@ -250,7 +252,7 @@ class InterfacesTool extends Tool {
                         mkdir(dirname($outputPath), 0777, true);
                     }    
 
-                    $tmp = $model->generate($interfaceName->getName(), $cnt === 0);
+                    $tmp = $model->generate($interfaceName->getName(), $memory, $cnt);
                     
                     if(empty($tmp)) {
 

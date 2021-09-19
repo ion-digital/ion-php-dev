@@ -57,7 +57,8 @@ class NameModel {
         "bool",
         "callable",
         "array",
-        "resource"
+        "resource",
+        "void"
     ];            
     
     public static function getFromParts(array $parts, bool $hasName = true): self {

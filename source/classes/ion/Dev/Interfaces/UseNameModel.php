@@ -33,6 +33,12 @@ class UseNameModel extends NameModel {
         return $this->references;
     }
     
+    public function clearReferencesCount(): void {
+        
+        $this->references = 0;
+        return;
+    }
+    
     public function hasReferences(): bool {
         
         return ($this->references > 0);
