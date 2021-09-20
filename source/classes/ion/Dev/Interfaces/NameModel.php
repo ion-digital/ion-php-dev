@@ -58,7 +58,8 @@ class NameModel {
         "callable",
         "array",
         "resource",
-        "void"
+        "void",
+        "object"
     ];            
     
     public static function getFromParts(array $parts, bool $hasName = true): self {
@@ -192,6 +193,11 @@ class NameModel {
         return $obj;
     }
     
+    public function copy(): self {
+        
+        return $this->createNew($this->getName(), $this->getNamespaceParts(), $this->getAbsolute());
+    }
+    
     public function isPhpType(): bool {
         
         return (in_array($this->getName(), self::PHP_TYPES));
@@ -223,45 +229,94 @@ class NameModel {
 //        return ($this->hasNamespace() || $this->isAbsolute());
     }
     
-    public function asInterfaceName(
-            
-            string $template,
-            array $prefixesToStrip = [],
-            array $suffixesToStrip = [],
-            array $prefixesToIgnore = [],
-            array $suffixesToIgnore = []
-            
-        ): self {
+//    public function asInterfaceName(
+//            
+//            string $template,
+//            array $prefixesToStrip = [],
+//            array $suffixesToStrip = [],
+//            array $prefixesToIgnore = [],
+//            array $suffixesToIgnore = []
+//            
+//        ): self {
+//
+//        return static::createNew(static::applyTemplate($this->getModifiedName(
+//                
+//                $prefixesToStrip,
+//                $suffixesToStrip,
+//                $prefixesToIgnore,
+//                $suffixesToIgnore
+//                
+//            )->getName(), $template), $this->getNamespaceParts());
+//    }
+    
+    public function asInterfaceName(array $templates = [], int $templateIndex = null): NameModel {
+        
+        $name = $this->copy();
+        
+        foreach($templates as $tmpIndex => $template) {
 
-        return static::createNew(static::applyTemplate($this->getModifiedName(
+            if($templateIndex !== null && $tmpIndex == $templateIndex) {
+
+                continue;
+            }
+
+            $prefixesToStrip = [];
+            $suffixesToStrip = [];
+            $prefixesToIgnore = [];
+            $suffixesToIgnore = [];
+
+            $tmp = substr($template, 0, strpos($template, "*"));
+            
+            if(!empty($tmp)) {
                 
+                $prefixesToStrip[] = "{$tmp}";
+                $prefixesToIgnore[] = "{$tmp}[A-Z]";
+            }
+            
+            $tmp = substr($template, strpos($template, "*") + 1);
+            
+            if(!empty($tmp)) {
+                    
+                $suffixesToStrip[] = "{$tmp}";
+                //$suffixesToIgnore[] = "";
+            }
+            
+            $name = static::createNew(static::applyTemplate($name->getModifiedName(
+                    
                 $prefixesToStrip,
                 $suffixesToStrip,
                 $prefixesToIgnore,
                 $suffixesToIgnore
-                
-            )->getName(), $template), $this->getNamespaceParts());
-    }
+                    
+            )->getName(), $template), $name->getNamespaceParts());  
+
+        }
+
+        return $name;     
+    }    
     
     private static function applyTemplate(string $structName, string $template): string {
         
         return str_replace("*", $structName, $template);
     }
     
-    public function getInterfaceVariations(array $templates, array $prefixesToStrip = [], array $suffixesToStrip = [], array $prefixesToIgnore = [], array $suffixesToIgnore = []): array {
+    public function getInterfaceVariations(
+            
+            array $templates,
+            array $prefixesToStrip = [],
+            array $suffixesToStrip = [],
+            array $prefixesToIgnore = [],
+            array $suffixesToIgnore = []
+            
+        ): array {
         
         $result = [];
         
         foreach($templates as $template) {
             
-            $result[] = static::createNew(static::applyTemplate($this->getModifiedName(
-                    
-                    $prefixesToStrip,
-                    $suffixesToStrip,
-                    $prefixesToIgnore,
-                    $suffixesToIgnore
-                    
-                )->getName(), $template), $this->getNamespaceParts());
+            $result[] = $this
+                ->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)
+                ->asInterfaceName([ $template ]);
         }        
 
         return $result;

@@ -230,7 +230,15 @@ class InterfacesTool extends Tool {
         
         $memory = [];
         
-        foreach($model->getStructName()->getInterfaceVariations($templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore) as $cnt => $interfaceName) {
+        foreach($model->getStructName()->getInterfaceVariations(
+                
+                $templates,
+                $prefixesToStrip,
+                $suffixesToStrip,
+                $prefixesToIgnore,
+                $suffixesToIgnore
+                
+            ) as $cnt => $interfaceName) {
         
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
                         . str_replace($baseInputDir, "", $inputDir))

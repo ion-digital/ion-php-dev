@@ -310,27 +310,33 @@ class InterfaceModel extends NodeModel {
                 continue;
             }
 
-            $prefixes = [];
-            $suffixes = [];
+            $prefixesToStrip = [];
+            $suffixesToStrip = [];
+            $prefixesToIgnore = [];
+            $suffixesToIgnore = [];
 
             $tmp = substr($template, 0, strpos($template, "*"));
             
             if(!empty($tmp)) {
                 
-                $prefixes[] = $tmp;
+                $prefixesToStrip[] = "{$tmp}";
+                $prefixesToIgnore[] = "{$tmp}[A-Z]";
             }
             
             $tmp = substr($template, strpos($template, "*") + 1);
             
             if(!empty($tmp)) {
                     
-                $suffixes[] = $tmp;
+                $suffixesToStrip[] = "{$tmp}";
+                //$suffixesToIgnore[] = "";
             }
             
             $name = $name->getModifiedName(
                     
-                $prefixes,
-                $suffixes
+                $prefixesToStrip,
+                $suffixesToStrip,
+                $prefixesToIgnore,
+                $suffixesToIgnore
             );   
 
         }
@@ -368,14 +374,16 @@ class InterfaceModel extends NodeModel {
             $name = $this
                     
                 ->getParent()
-                ->asInterfaceName($template)
-                ->getModifiedName(
-
-                    $this->prefixesToStrip, 
-                    $this->suffixesToStrip, 
-                    $this->prefixesToIgnore, 
-                    $this->suffixesToIgnore
-                );            
+                ->asInterfaceName([ $template ]);    
+                    
+//                ->asInterfaceName($template)
+//                ->getModifiedName(
+//
+//                    $this->prefixesToStrip, 
+//                    $this->suffixesToStrip, 
+//                    $this->prefixesToIgnore, 
+//                    $this->suffixesToIgnore
+//                );            
 
             if(!in_array($name->getName(), $extends) && !in_array($name->getName(), $memory)) {
 
@@ -414,11 +422,10 @@ class InterfaceModel extends NodeModel {
         }     
 
         foreach($this->getInterfaces() as $key => $interface) {
-          
-            
+                 
             $name = $interface;
             
-            if(!$primary) {
+            if(!$primary && $interface->getName() !== $interfaceName) {
             
                 $name = $this
                         ->modifyInterfaceName($interface, $templateIndex, null)
@@ -458,67 +465,32 @@ class InterfaceModel extends NodeModel {
         
         if(count($this->templates) > 0) {
 
-            $variations = $this->getStructName()->getInterfaceVariations(
+            $variations = $this
+                ->getStructName()
+                ->getInterfaceVariations(
 
-                $templates, 
-                $this->prefixesToStrip, 
-                $this->suffixesToStrip, 
-                $this->prefixesToIgnore, 
-                $this->suffixesToIgnore
-            );
-
-            foreach($variations as $variationInterfaceName) {                
-            
-                if(!$primary) {
-
-                    continue;
-                }
-            
-                if($this->getStructName()->asInterfaceName(
-                        
-                        $template, 
-                        $this->prefixesToStrip, 
-                        $this->suffixesToStrip, 
-                        $this->prefixesToIgnore, 
-                        $this->suffixesToIgnore
-                    )
-
-                    ->getModifiedName(
-                            
-                        $this->prefixesToStrip, 
-                        $this->suffixesToStrip, 
-                        $this->prefixesToIgnore, 
-                        $this->suffixesToIgnore
-                            
-                    )
-                    ->toString() === $variationInterfaceName->getModifiedName(
-                            
-                        $this->prefixesToStrip, 
-                        $this->suffixesToStrip, 
-                        $this->prefixesToIgnore, 
-                        $this->suffixesToIgnore
-                            
-                    )->toString()) {
-
-                    continue;
-                }
-
-                $name = $variationInterfaceName->getModifiedName(
-                        
+                    $templates,
                     $this->prefixesToStrip, 
                     $this->suffixesToStrip, 
                     $this->prefixesToIgnore, 
                     $this->suffixesToIgnore
                 );
+            
+            foreach($variations as $variationInterfaceName) {                
+            
+                if(!$primary) {
 
-                if(in_array($name->getName(), $extends) || $name->getName() === $interfaceName || in_array($name->getName(), $memory)) {
+                    continue;
+                }                
+
+                if(in_array($variationInterfaceName->getName(), $extends) || $variationInterfaceName->getName() === $interfaceName || in_array($variationInterfaceName->getName(), $memory)) {
 
                     continue;
                 }                    
 
-                $extends[] = $name->getName();
+                $extends[] = $variationInterfaceName->getName();
                 
-                $this->addReference($name, true);
+                $this->addReference($variationInterfaceName, true);
             }        
         }        
 
