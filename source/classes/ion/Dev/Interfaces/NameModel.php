@@ -249,48 +249,43 @@ class NameModel {
 //            )->getName(), $template), $this->getNamespaceParts());
 //    }
     
-    public function asInterfaceName(array $templates = [], int $templateIndex = null): NameModel {
+    public function asInterfaceName(string $template): NameModel {
         
         $name = $this->copy();
-        
-        foreach($templates as $tmpIndex => $template) {
 
-            if($templateIndex !== null && $tmpIndex == $templateIndex) {
+        $prefixesToStrip = [];
+        $suffixesToStrip = [];
+        $prefixesToIgnore = [];
+        $suffixesToIgnore = [];
 
-                continue;
-            }
+        $tmp = substr($template, 0, strpos($template, "*"));
 
-            $prefixesToStrip = [];
-            $suffixesToStrip = [];
-            $prefixesToIgnore = [];
-            $suffixesToIgnore = [];
+        if(!empty($tmp)) {
 
-            $tmp = substr($template, 0, strpos($template, "*"));
-            
-            if(!empty($tmp)) {
-                
-                $prefixesToStrip[] = "{$tmp}";
-                $prefixesToIgnore[] = "{$tmp}[A-Z]";
-            }
-            
-            $tmp = substr($template, strpos($template, "*") + 1);
-            
-            if(!empty($tmp)) {
-                    
-                $suffixesToStrip[] = "{$tmp}";
-                //$suffixesToIgnore[] = "";
-            }
-            
-            $name = static::createNew(static::applyTemplate($name->getModifiedName(
-                    
-                $prefixesToStrip,
-                $suffixesToStrip,
-                $prefixesToIgnore,
-                $suffixesToIgnore
-                    
-            )->getName(), $template), $name->getNamespaceParts());  
+            $prefixesToStrip[] = "{$tmp}";
+            $prefixesToIgnore[] = "{$tmp}[A-Z]";
 
         }
+
+        $tmp = substr($template, strpos($template, "*") + 1);
+
+        if(!empty($tmp)) {
+
+            $suffixesToStrip[] = "{$tmp}";
+            //$suffixesToIgnore[] = "";
+        }
+
+//            $name = static::createNew(static::applyTemplate($name->getModifiedName(
+//                    
+//                $prefixesToStrip,
+//                $suffixesToStrip,
+//                $prefixesToIgnore,
+//                $suffixesToIgnore
+//                    
+//            )->getName(), $template), $name->getNamespaceParts());  
+
+        $name = static::createNew(static::applyTemplate($name->getName(), $template), $name->getNamespaceParts());  
+
 
         return $name;     
     }    
@@ -316,7 +311,7 @@ class NameModel {
             
             $result[] = $this
                 ->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)
-                ->asInterfaceName([ $template ]);
+                ->asInterfaceName($template);
         }        
 
         return $result;
@@ -376,7 +371,7 @@ class NameModel {
         }           
         
         
-        return $this->createNew($tmp);
+        return $this->createNew($tmp, $this->getNamespaceParts());
     }
 
     public function toString(): string {

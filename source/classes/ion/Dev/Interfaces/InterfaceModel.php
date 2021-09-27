@@ -296,6 +296,7 @@ class InterfaceModel extends NodeModel {
         return $this->generate($this->getStructName()->asInterfaceName());
     }
     
+    /*
     protected function modifyInterfaceName(NameModel $name, int $templateIndex = null, array $templates = null): NameModel {
         
         if($templates === null) {
@@ -343,6 +344,7 @@ class InterfaceModel extends NodeModel {
 
         return $name;     
     }
+    */
     
     public function generate(string $interfaceName, array &$memory, int $templateIndex = 0): ?string {
         
@@ -374,7 +376,7 @@ class InterfaceModel extends NodeModel {
             $name = $this
                     
                 ->getParent()
-                ->asInterfaceName([ $template ]);    
+                ->asInterfaceName($template);    
                     
 //                ->asInterfaceName($template)
 //                ->getModifiedName(
@@ -404,12 +406,10 @@ class InterfaceModel extends NodeModel {
                 $this->prefixesToIgnore, 
                 $this->suffixesToIgnore
             );
-            
-            // Then strip interface template definitions
-            
-            $name = $this->modifyInterfaceName($name, $templateIndex, [ $template ]);
-            
-            $name = $name->getInterfaceVariations([ $template ])[0];
+                        
+            $name = $name->asInterfaceName($template);
+                        
+            //$name = $name->getInterfaceVariations([ $template ])[0];
             
             if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {
 
@@ -425,11 +425,16 @@ class InterfaceModel extends NodeModel {
                  
             $name = $interface;
             
+            if(!$primary) {
+                
+                continue;
+            }
+            
             if(!$primary && $interface->getName() !== $interfaceName) {
             
-                $name = $this
-                        ->modifyInterfaceName($interface, $templateIndex, null)
-                        ->getInterfaceVariations([ $template ])[0];
+                $name = $name
+                        ->asInterfaceName($template);
+                        //->getInterfaceVariations([ $template ])[0];
             }
             
             if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {

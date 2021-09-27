@@ -64,8 +64,11 @@ class NodeVisitor extends NodeVisitorAbstract {
             
             $modelName->setNamespaceParts($node->name->parts)->setAbsolute(false);
             
-            $this->model->setStructName($modelName);
-
+            if(!$this->model->hasStructName()) {
+                
+                $this->model->setStructName($modelName);
+            }
+            
             return null;
         }
 
@@ -73,7 +76,10 @@ class NodeVisitor extends NodeVisitorAbstract {
 
             $modelName->setName($node->name);
         
-            $this->model->setStructName($modelName);
+            if(!$this->model->hasStructName()) {
+                
+                $this->model->setStructName($modelName);
+            }
             
             if(!empty($node->getDocComment())) {
                 

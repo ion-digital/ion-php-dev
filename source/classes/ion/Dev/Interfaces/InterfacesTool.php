@@ -230,6 +230,12 @@ class InterfacesTool extends Tool {
         
         $memory = [];
         
+        if(!$model->hasStructName()) {
+            
+            $output->writeln("No class or trait found in file '{$path}.'");
+            return;
+        }
+        
         foreach($model->getStructName()->getInterfaceVariations(
                 
                 $templates,
@@ -238,11 +244,20 @@ class InterfacesTool extends Tool {
                 $prefixesToIgnore,
                 $suffixesToIgnore
                 
-            ) as $cnt => $interfaceName) {
-        
-            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
-                        . str_replace($baseInputDir, "", $inputDir))
-                        . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)}.php";
+            ) as $cnt => $interfaceName) {       
+            
+            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" . str_replace($baseInputDir, "", $inputDir))
+                        . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php";
+                        
+//            echo "\n\n=========================\n\n";
+//            var_dump($inputDir);
+//            var_dump($baseInputDir);
+//            var_dump(str_replace($baseInputDir, "", $inputDir));
+//            var_dump(str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" . str_replace($baseInputDir, "", $inputDir)));
+//            var_dump("{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php");
+//            var_Dump($outputPath);
+//            echo "\n\n=========================\n\n";
+//            exit;
                         
             if($action === 'generate') { 
                 
