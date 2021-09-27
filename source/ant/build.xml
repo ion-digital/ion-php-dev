@@ -97,6 +97,15 @@
                 <echo msg="Generating macros." />
                 <exec command="composer macros generate ${state.pkg.source.macros.dir}macros.xml" checkreturn="true" passthru="true" />  
 
+                <echo msg="Copying macros from source to root." />
+                <mkdir dir="${state.pkg.macros.dir}" />
+                
+                <copy todir="${state.pkg.macros.dir}" haltonerror="false" includeemptydirs="false">
+                    <fileset dir="${state.pkg.source.macros.dir}/">        
+                        <include name="**/*" />  
+                    </fileset>
+                </copy>                
+                
             </then>
             <else>
                 <echo msg="No macros are available - continuing." />

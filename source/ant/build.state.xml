@@ -132,6 +132,14 @@
                 </replaceregexp>            
             </filterchain>            
         </property>
+        <property name="state.pkg.macros.dir" value="${config.pkg.macros.dir}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="(.+)" replace="${state.pkg.dir}\1/" ignoreCase="true" />
+                    <regexp pattern="/+" replace="/" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>        
         <property name="state.pkg.archives.dir" value="${config.pkg.archives.dir}" override="true">
             <filterchain>
                 <replaceregexp>
@@ -513,6 +521,7 @@
         <echo msg=" state.pkg.source.traits.dir  :  ${state.pkg.source.traits.dir} " />
         <echo msg=" state.pkg.source.macros.dir  :  ${state.pkg.source.macros.dir} " />
         <echo msg=" state.pkg.builds.dir  :  ${state.pkg.builds.dir} " />
+        <echo msg=" state.pkg.macros.dir  :  ${state.pkg.macros.dir} " />
         <echo msg=" state.pkg.archives.dir  :  ${state.pkg.archives.dir} " />
         <echo msg=" state.pkg.tests.dir  :  ${state.pkg.tests.dir} " />
         <echo msg=" state.pkg.documentation.dir  :  ${state.pkg.documentation.dir} " />

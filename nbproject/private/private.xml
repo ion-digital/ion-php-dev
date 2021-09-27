@@ -7,18 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/UseNameModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/config.properties</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfaceModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/NodeVisitor.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/NameModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.staging.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacesTool.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/composer.json</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/MethodModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/TypeModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/MethodParameterModel.php</file>
-        </group>
+        <group name="ION"/>
     </open-files>
 </project-private>
