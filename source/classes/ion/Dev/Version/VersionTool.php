@@ -15,7 +15,7 @@ use \ion\Dev\Tool;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use \Exception;
-use \ion\ISemVer;
+use \ion\SemVerInterface;
 use \ion\SemVer;
 
 // cls && echo "VERSION" | composer regex match "/x/"
