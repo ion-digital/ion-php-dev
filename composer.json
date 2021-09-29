@@ -39,7 +39,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ion\\": ["source/classes/ion/"]
+            "ion\\": [ "source/classes/ion/", "source/interfaces/ion/", "source/traits/ion/" ]
         }    
     },
     "autoload-dev": {

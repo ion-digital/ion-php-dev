@@ -22,7 +22,7 @@ use \ion\SemVer;
 
 class VersionTool extends Tool {
 
-    use TVersion;
+    use VersionTrait;
     
     private $output = null;
     private $version = null;

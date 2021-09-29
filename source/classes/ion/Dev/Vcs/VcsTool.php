@@ -21,10 +21,11 @@ use \ion\Dev\Vcs\Providers\HgProvider;
 use \ion\Dev\Vcs\Providers\GitProvider;
 use \ion\ISemVer;
 use \ion\SemVer;
+use \ion\Dev\Version\VersionTrait;
 
 class VcsTool extends Tool {
 
-    use TVersion;
+    use VersionTrait;
     
     public function execute(): int {
      

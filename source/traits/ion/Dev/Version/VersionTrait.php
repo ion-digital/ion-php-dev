@@ -13,11 +13,11 @@ namespace ion\Dev\Version;
  */
 
 use \ion\Package;
-use \ion\ISemVer;
+use \ion\SemVerInterface;
 use \ion\SemVer;
 use \Exception;
 
-trait TVersion {
+trait VersionTrait {
 
     protected function saveVersion(SemVerInterface $version, string $optOrCmd, bool $print = true): int {
         
