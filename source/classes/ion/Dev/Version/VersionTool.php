@@ -67,7 +67,7 @@ class VersionTool extends Tool {
         parent::__construct(null, $input, $output);
     }
     
-    private function verToString(ISemVer $semver): string {
+    private function verToString(SemVerInterface $semver): string {
         
         if($semver->getMajor() === 0 && $semver->getMinor() === 0 && $semver->getPatch() === 0) {
             
@@ -245,7 +245,7 @@ class VersionTool extends Tool {
         return $return;
     }
     
-    protected function applyVersion(ISemVer $semVer = null): ?ISemVer {
+    protected function applyVersion(SemVerInterface $semVer = null): ?SemVerInterface {
         
         return $semVer;
     }
@@ -263,7 +263,7 @@ class VersionTool extends Tool {
         
     }
     
-    public function increment(bool $patch = true, bool $minor = false, bool $major = false): ?ISemVer {
+    public function increment(bool $patch = true, bool $minor = false, bool $major = false): ?SemVerInterface {
         
         
     }

@@ -19,7 +19,7 @@ use \Exception;
 
 trait TVersion {
 
-    protected function saveVersion(ISemVer $version, string $optOrCmd, bool $print = true): int {
+    protected function saveVersion(SemVerInterface $version, string $optOrCmd, bool $print = true): int {
         
         $workingDir = getcwd();
         
@@ -29,9 +29,7 @@ trait TVersion {
                 
                 $path = $workingDir . DIRECTORY_SEPARATOR . Package::ION_PACKAGE_VERSION_FILENAME;
 
-                //TODO: Add a JSON output function to \ion\ISemVer
-
-                $jsonObj = new \stdClass();
+                //TODO: Add a JSON output function to \ion\SemVerInterface $jsonObj = new \stdClass();
 
                 $jsonObj->major = $version->getMajor();
                 $jsonObj->minor = $version->getMinor();
@@ -103,7 +101,7 @@ trait TVersion {
         return 0;
     }
     
-    protected function loadVersion(string $option = null): ?ISemVer {
+    protected function loadVersion(string $option = null): ?SemVerInterface {
         
         $version = null;
         

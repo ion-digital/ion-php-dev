@@ -10,7 +10,7 @@ namespace ion\Dev;
  *
  * @author Justus
  */
-interface ITool {
+interface ToolInterface {
     
     static function create(\stdClass $args): self;
     

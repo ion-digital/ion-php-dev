@@ -19,9 +19,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use ion\Composer\Core\FileOutput;
 
-abstract class Tool implements ITool {
+abstract class Tool implements ToolInterface {
     
-    public static function create(\stdClass $args = null, InputInterface $input = null, OutputInterface $output = null): ITool {
+    public static function create(\stdClass $args = null, InputInterface $input = null, OutputInterface $output = null): ToolInterface {
         
         return new static($args, $input, $output);
     }
@@ -55,7 +55,7 @@ abstract class Tool implements ITool {
         return $this->output;
     }    
     
-    protected function write(string $line = null): ITool {
+    protected function write(string $line = null): ToolInterface {
         
         if($this->getOutputInterface() !== null) {
         
@@ -65,7 +65,7 @@ abstract class Tool implements ITool {
         return $this;
     }    
     
-    protected function writeln(string $line = null): ITool {
+    protected function writeln(string $line = null): ToolInterface {
         
         if($this->getOutputInterface() !== null) {
         

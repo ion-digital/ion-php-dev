@@ -10,7 +10,7 @@ namespace ion\Dev\Vcs;
  *
  * @author Justus.Meyer
  */
-interface IVcsProvider {
+interface VcsProviderInterface {
     
     static function check(string $path = null): ?self;
     

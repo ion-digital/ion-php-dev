@@ -208,7 +208,7 @@ class VcsTool extends Tool {
         return 0;
     }
     
-    private function getVersion(string $output = null, ISemVer $version = null): string {
+    private function getVersion(string $output = null, SemVerInterface $version = null): string {
         
         if($version === null) {
             
@@ -238,7 +238,7 @@ class VcsTool extends Tool {
         throw new Exception("Invalid version output option.");
     }
     
-//    protected function updateVersion(ISemVer $newVersion, array $inputs): int {
+//    protected function updateVersion(SemVerInterface $newVersion, array $inputs): int {
 //
 //        //$semVer = SemVer::parse($this->getLatestVersion());
 //
@@ -268,7 +268,7 @@ class VcsTool extends Tool {
 //        return ToolExitCodes::VERSION_NOT_UPDATED;                
 //    }           
 //    
-//    protected function checkToUpdateVersion(ISemVer $version, array $inputs): bool {
+//    protected function checkToUpdateVersion(SemVerInterface $version, array $inputs): bool {
 //        
 //        $current = $this->getLatestVersion($inputs);
 //        
@@ -284,7 +284,7 @@ class VcsTool extends Tool {
 //    }    
 //    
 //
-//   protected function getLatestVersion(array $inputs): ?ISemVer {
+//   protected function getLatestVersion(array $inputs): ?SemVerInterface {
 //
 //        $output = [];
 //        $cmd = null;

@@ -19,7 +19,7 @@ use \Exception;
 
 trait TVersion {
 
-    protected function loadVersion(string $option = null): ?ISemVer {
+    protected function loadVersion(string $option = null): ?SemVerInterface {
         
         $version = null;
         

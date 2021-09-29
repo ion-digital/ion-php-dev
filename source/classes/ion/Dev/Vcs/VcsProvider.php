@@ -14,7 +14,7 @@ namespace ion\Dev\Vcs;
 
 use \Exception;
 
-abstract class VcsProvider implements IVcsProvider {
+abstract class VcsProvider implements VcsProviderInterface {
 
     protected const MAX_CMD_LENGTH = 1500; // https://support.microsoft.com/en-us/help/830473/command-prompt-cmd-exe-command-line-string-limitation
 
@@ -70,7 +70,7 @@ abstract class VcsProvider implements IVcsProvider {
 
         }
         
-        //return ($ret === 0 ? ToolExitCodes::FILES_COMMITTED : ToolExitCodes::FILES_NOT_COMMITTED);        
+        //return ($ret === 0 ? ToolExitCodes::FILES_COMMTTEDInterface : ToolExitCodes::FILES_NOT_COMMITTED);        
         
         return;
     }

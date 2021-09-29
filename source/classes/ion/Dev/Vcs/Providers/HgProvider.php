@@ -27,7 +27,7 @@ class HgProvider extends VcsProvider {
     const TAG_CMD = 'hg tag';
     const STATUS_CMD = 'hg status -A -q -u'; 
     
-    final public static function check(string $path = null): ?IVcsProvider {
+    final public static function check(string $path = null): ?VcsProviderInterface {
         
         if($path === null) {
             

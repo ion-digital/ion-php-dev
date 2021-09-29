@@ -28,7 +28,7 @@ class GitProvider extends VcsProvider {
     const TAG_CMD = 'git tag -a';
     const STATUS_CMD = 'git status -s';    
     
-    final public static function check(string $path = null): ?IVcsProvider {
+    final public static function check(string $path = null): ?VcsProviderInterface {
         
         if($path === null) {
             
