@@ -307,11 +307,36 @@ class NameModel {
         
         $result = [];
         
+//echo "\n\n=========================\n\n";        
+        
+        $tmp = $this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
+        
+//echo "\n\n---\n\n";  
+
+//var_dump($prefixesToStrip);
+//var_dump($suffixesToStrip);
+//var_dump($prefixesToIgnore);
+//var_dump($suffixesToIgnore);
+//var_dump($tmp);   
+
+//echo "\n\n=========================\n\n";         
+        
         foreach($templates as $template) {
             
-            $result[] = $this
-                ->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)
-                ->asInterfaceName($template);
+//            echo "\n\n=========================\n\n";
+//            //var_dump($this);
+//            var_dump($this->getInterfaceVariations(
+//                
+//                $templates,
+//                $prefixesToStrip,
+//                $suffixesToStrip,
+//                $prefixesToIgnore,
+//                $suffixesToIgnore
+//                
+//            ));
+//            echo "\n\n=========================\n\n";             
+            
+            $result[] = $tmp->asInterfaceName($template);
         }        
 
         return $result;
@@ -327,14 +352,22 @@ class NameModel {
         ): self {
                 
         $tmp = $this->getName();        
-        
+
         foreach($prefixesToStrip as $prefixToStrip) {
 
-            foreach($prefixesToIgnore as $prefixToIgnore) {
+            if(count($prefixesToIgnore) > 0) {
+            
+                foreach($prefixesToIgnore as $prefixToIgnore) {
 
-                if(preg_match("/^({$prefixToIgnore})/", $tmp)) {
+                    if(empty($prefixToIgnore)) {
+                        
+                        continue;
+                    }                    
+                    
+                    if(preg_match("/^({$prefixToIgnore})/", $tmp)) {
 
-                    continue 2;
+                        continue 2;
+                    }
                 }
             }
 
@@ -349,17 +382,33 @@ class NameModel {
             break;
         }
 
+//echo "\n\n=========================\n\n";
+////var_dump($suffixesToStrip);
+//var_dump($suffixesToIgnore);
+//echo "\n\n=========================\n\n";        
+        
         foreach($suffixesToStrip as $suffixToStrip) {
-            
-            foreach($suffixesToIgnore as $suffixToIgnore) {
+//echo "A";            
+            if(count($suffixesToIgnore) > 0) {
+                
+                foreach($suffixesToIgnore as $suffixToIgnore) {
 
-                if(preg_match("/^({$suffixToIgnore})/", $tmp)) {
+                    if(empty($suffixToIgnore)) {
+                        
+                        continue;
+                    }
+                    
+                    if(preg_match("/({$suffixToIgnore})\$/", $tmp)) {
 
-                    continue 2;
-                }
-            }            
-            
+                        continue 2;
+                    }
+                }            
+            }
+//echo "B";
+
             $pattern = "/({$suffixToStrip})\$/";
+            
+//            var_dump($pattern);
             
             if(!preg_match($pattern, $tmp)) {
 
@@ -370,6 +419,7 @@ class NameModel {
             break;
         }           
         
+//var_dump($tmp);        
         
         return $this->createNew($tmp, $this->getNamespaceParts());
     }

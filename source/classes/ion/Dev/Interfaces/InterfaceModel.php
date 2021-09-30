@@ -376,7 +376,7 @@ class InterfaceModel extends NodeModel {
             $name = $this
                     
                 ->getParent()
-                ->asInterfaceName($template);    
+                ->asInterfaceName($template);
                     
 //                ->asInterfaceName($template)
 //                ->getModifiedName(

@@ -226,7 +226,15 @@ class InterfacesTool extends Tool {
             $template = substr($template, 0, strlen($template) - 4);
         }        
         
-        $model = InterfaceModel::parseData(file_get_contents($path), $templates, $prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
+        $model = InterfaceModel::parseData(
+                
+            file_get_contents($path), 
+            $templates, 
+            $prefixesToStrip, 
+            $suffixesToStrip, 
+            $prefixesToIgnore, 
+            $suffixesToIgnore
+        );
         
         $memory = [];
         
@@ -235,6 +243,23 @@ class InterfacesTool extends Tool {
             $output->writeln("No class or trait found in file '{$path}.'");
             return;
         }
+        
+//            echo "\n\n=========================\n\n";
+////            var_dump($model->getStructName());
+//            var_dump($model->getStructName()->getInterfaceVariations(
+//                
+//                $templates,
+//                $prefixesToStrip,
+//                $suffixesToStrip,
+//                $prefixesToIgnore,
+//                $suffixesToIgnore
+//                
+//            ));
+//            var_dump($prefixesToStrip);
+//            var_dump($suffixesToStrip);
+//            var_dump($prefixesToIgnore);
+//            var_dump($suffixesToIgnore);
+//            echo "\n\n=========================\n\n";        
         
         foreach($model->getStructName()->getInterfaceVariations(
                 
@@ -246,17 +271,11 @@ class InterfacesTool extends Tool {
                 
             ) as $cnt => $interfaceName) {       
             
-            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" . str_replace($baseInputDir, "", $inputDir))
+            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
+                        . str_replace($baseInputDir, "", $inputDir))
                         . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php";
                         
-//            echo "\n\n=========================\n\n";
-//            var_dump($inputDir);
-//            var_dump($baseInputDir);
-//            var_dump(str_replace($baseInputDir, "", $inputDir));
-//            var_dump(str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" . str_replace($baseInputDir, "", $inputDir)));
-//            var_dump("{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php");
-//            var_Dump($outputPath);
-//            echo "\n\n=========================\n\n";
+
 //            exit;
                         
             if($action === 'generate') { 
