@@ -59,7 +59,9 @@ class NameModel {
         "array",
         "resource",
         "void",
-        "object"
+        "object",
+        "self",
+        "static"
     ];            
     
     public static function getFromParts(array $parts, bool $hasName = true): self {
