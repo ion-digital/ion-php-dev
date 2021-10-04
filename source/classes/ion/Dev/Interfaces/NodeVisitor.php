@@ -24,6 +24,8 @@ use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrayItem;
+use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\Scalar\String_;
 use PhpParser\Node\Scalar;
 use PhpParser\Node\Expr\ClassConstFetch;
@@ -236,7 +238,56 @@ class NodeVisitor extends NodeVisitorAbstract {
 
                     else if($nodeParam->default instanceof Array_) {
 
-                        $param->setDefault("[ " . implode(", ", $nodeParam->default->items) . " ]", MethodParameterModel::DEFAULT_TYPE_ARRAY);
+                        $tmp = [];
+                        
+                        foreach($nodeParam->default->items as $item) {
+                          
+                            $tmpItem = "";
+                            
+                            if($item instanceof ArrayItem) {
+                                
+                                if($item->value instanceof String_) {
+                                    
+                                    $tmpItem .= "\"{$item->value->value}\"";
+                                    
+                                }
+                                
+                                else if($item->value instanceof Variable) {
+                                    
+                                    $tmpItem .= "\"\${$item->value->name}\"";
+                                }
+                                
+                                else {
+                                
+                                    $tmpItem .= "{$item->value}";
+                                }
+                                
+                                if(empty($item->key)) {
+                                    
+                                    continue;
+                                }
+                                
+                                if($item->key instanceof String_) {
+                                
+                                    $tmpItem = "\"{$item->key->value}\" => {$tmpItem}";
+                                    continue;
+                                }
+                                
+                                
+                            }
+                            
+                            if(empty($tmpItem)) {
+                                
+                                continue;
+                            }
+                            
+                            $tmp[] = $tmpItem;
+                        }
+                        
+//                        var_dump("[ " . implode(", ", $tmp) . " ]");
+                        
+                        $param->setDefault(implode(", ", $tmp), MethodParameterModel::DEFAULT_TYPE_ARRAY);
+//                        $param->setDefault("[ " . implode(", ", $nodeParam->default->items) . " ]", MethodParameterModel::DEFAULT_TYPE_ARRAY);
                     }
 
                     else if($nodeParam->default instanceof Scalar) {

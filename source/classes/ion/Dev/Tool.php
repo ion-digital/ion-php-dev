@@ -37,7 +37,12 @@ abstract class Tool implements ToolInterface {
         //$this->output = ($output === null ? new FileOutput('output.log') : $output);
         $this->output = $output;
         
+        if(defined("ION_COMPOSER")) {
+            
+            return;
+        }
         
+        define("ION_COMPOSER", true);
     }        
     
     protected function getArgs(): \stdClass {
