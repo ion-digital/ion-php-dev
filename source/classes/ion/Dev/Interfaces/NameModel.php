@@ -11,6 +11,9 @@ namespace ion\Dev\Interfaces;
  *
  * @author Justus
  */
+
+use \Exception;
+
 class NameModel {
     
     private const PHP_CLASSES = [
@@ -313,6 +316,11 @@ class NameModel {
         
         $tmp = $this->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore);
         
+        if(empty($tmp)) {
+            
+            return [];
+        }
+        
 //echo "\n\n---\n\n";  
 
 //var_dump($prefixesToStrip);
@@ -355,6 +363,11 @@ class NameModel {
                 
         $tmp = $this->getName();        
 
+        if(empty($tmp)) {
+            
+            throw new Exception("Name is empty?");
+        }
+        
         foreach($prefixesToStrip as $prefixToStrip) {
 
             if(count($prefixesToIgnore) > 0) {

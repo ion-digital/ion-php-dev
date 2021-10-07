@@ -261,15 +261,26 @@ class InterfacesTool extends Tool {
 //            var_dump($suffixesToIgnore);
 //            echo "\n\n=========================\n\n";        
         
-        foreach($model->getStructName()->getInterfaceVariations(
+        //echo "\n\n--> {$path} {$model->getStructName()}\n\n";
+        
+        $variations = $model->getStructName()->getInterfaceVariations(
                 
-                $templates,
-                $prefixesToStrip,
-                $suffixesToStrip,
-                $prefixesToIgnore,
-                $suffixesToIgnore
-                
-            ) as $cnt => $interfaceName) {       
+            $templates,
+            $prefixesToStrip,
+            $suffixesToStrip,
+            $prefixesToIgnore,
+            $suffixesToIgnore
+        );
+        
+        if(count($variations) === 0) {
+            
+            $output->writeln("No interface variations generated for file '{$path}.'");
+            return;
+        }        
+        
+        foreach($variations as $cnt => $interfaceName) {       
+            
+            //echo "\n\n--X {$interfaceName}\n\n";
             
             $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
                         . str_replace($baseInputDir, "", $inputDir))
