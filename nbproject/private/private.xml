@@ -8,18 +8,10 @@
         <group name="PHP"/>
         <group name="PHP"/>
         <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.release.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/Commands/BuildCommand.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/config.properties</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Tool.php</file>
             <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfaceModel.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/NodeVisitor.php</file>
             <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/NameModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.staging.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/ant/build.package.xml</file>
-            <file>file:/D:/prj/dev/ion/php/dev/version.json</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Composer/DevCommandProvider.php</file>
+            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfacesTool.php</file>
         </group>
     </open-files>
 </project-private>

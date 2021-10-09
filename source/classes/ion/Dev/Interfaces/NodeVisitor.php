@@ -109,14 +109,25 @@ class NodeVisitor extends NodeVisitorAbstract {
         
         if($node instanceof Use_) {
                 
-            foreach($node->uses as $use) {                                
+            foreach($node->uses as $useUse) {                                
                 
-                if(!is_countable($use->name->parts)) {
+                if(!is_countable($useUse->name->parts)) {
 
                     continue;
                 } 
                 
-                $this->model->addReference(NameModel::getFromParts($use->name->parts, true), false);
+                $tmp = NameModel::getFromParts($useUse->name->parts, true, true);
+                
+                $this->model->addReference($tmp, false);
+                
+//                if($tmp->getName() == 'WP_Post') {
+//                    
+//                    
+//                    var_dump("==== {$this->model->getStructName()} ====");
+//                    var_dump($useUse);
+//                    var_dump($this->model->getReferences());
+//                    exit;
+//                }
             }
             
             return null;
@@ -126,7 +137,9 @@ class NodeVisitor extends NodeVisitorAbstract {
                 
             if(is_countable($node->name->parts)) {
 
-                $this->model->addReference(NameModel::getFromParts($node->name->parts, true), false);
+                $tmp = NameModel::getFromParts($node->name->parts, true, true);
+                
+                $this->model->addReference($tmp, false);
             } 
 
             return null;
@@ -355,6 +368,13 @@ class NodeVisitor extends NodeVisitorAbstract {
                         $tmp->setAbsolute(true);
                     }
 
+//                    if($tmp->getName() == 'WP_Post') {
+//                                                
+//                        var_dump($tmp);
+//                    }
+                    
+                    
+                    
 //                    if(in_array('Traversable', $returnType->parts)) {
 //                        
 //                        var_dump($returnType);

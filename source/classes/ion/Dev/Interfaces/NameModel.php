@@ -67,13 +67,13 @@ class NameModel {
         "static"
     ];            
     
-    public static function getFromParts(array $parts, bool $hasName = true): self {
+    public static function getFromParts(array $parts, bool $hasName = true, bool $absolute = false): self {
         
         if(count($parts) <= 1) {
             
             if(count($parts) === 0) {
 
-                return new static();
+                return new static(null, null, $absolute);
             }            
             
             if($hasName) {
@@ -81,14 +81,16 @@ class NameModel {
                 return new static(
                         
                     null,
-                    $parts[0]
+                    $parts[0],
+                    $absolute
                 );  
             }
             
             return new static(
 
                 $parts,
-                null                    
+                null,
+                $absolute
             );  
         }
         
@@ -97,14 +99,16 @@ class NameModel {
             return new static(
 
                 array_slice($parts, 0, count($parts) - 1),
-                $parts[count($parts) - 1]
+                $parts[count($parts) - 1],
+                $absolute
             );  
         }
 
         return new static(
 
             $parts,
-            null                    
+            null,
+            $absolute
         );     
     }
     

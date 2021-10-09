@@ -147,7 +147,7 @@ class InterfaceModel extends NodeModel {
 
             if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpStruct())) {
                 
-                $this->references[$name->getName()] = new UseNameModel($name, $this->getStructName()->getNamespaceParts());
+                $this->references[$name->getName()] = new UseNameModel($name, []);
 
             } else {
                 
@@ -295,57 +295,7 @@ class InterfaceModel extends NodeModel {
         
         return $this->generate($this->getStructName()->asInterfaceName());
     }
-    
-    /*
-    protected function modifyInterfaceName(NameModel $name, int $templateIndex = null, array $templates = null): NameModel {
-        
-        if($templates === null) {
 
-            $templates = $this->templates;
-        }
-
-        foreach($this->templates as $tmpIndex => $template) {
-
-            if($templateIndex !== null && $tmpIndex == $templateIndex) {
-
-                continue;
-            }
-
-            $prefixesToStrip = [];
-            $suffixesToStrip = [];
-            $prefixesToIgnore = [];
-            $suffixesToIgnore = [];
-
-            $tmp = substr($template, 0, strpos($template, "*"));
-            
-            if(!empty($tmp)) {
-                
-                $prefixesToStrip[] = "{$tmp}";
-                $prefixesToIgnore[] = "{$tmp}[A-Z]";
-            }
-            
-            $tmp = substr($template, strpos($template, "*") + 1);
-            
-            if(!empty($tmp)) {
-                    
-                $suffixesToStrip[] = "{$tmp}";
-                //$suffixesToIgnore[] = "";
-            }
-            
-            $name = $name->getModifiedName(
-                    
-                $prefixesToStrip,
-                $suffixesToStrip,
-                $prefixesToIgnore,
-                $suffixesToIgnore
-            );   
-
-        }
-
-        return $name;     
-    }
-    */
-    
     public function generate(string $interfaceName, array &$memory, int $templateIndex = 0): ?string {
         
         if(!$this->hasStructName()) {
@@ -376,16 +326,7 @@ class InterfaceModel extends NodeModel {
             $name = $this
                     
                 ->getParent()
-                ->asInterfaceName($template);
-                    
-//                ->asInterfaceName($template)
-//                ->getModifiedName(
-//
-//                    $this->prefixesToStrip, 
-//                    $this->suffixesToStrip, 
-//                    $this->prefixesToIgnore, 
-//                    $this->suffixesToIgnore
-//                );            
+                ->asInterfaceName($template);           
 
             if(!in_array($name->getName(), $extends) && !in_array($name->getName(), $memory)) {
 

@@ -19,7 +19,7 @@ class UseNameModel extends NameModel {
     
         $this->setName($name->getName());
         $this->setAbsolute(true);
-        $this->setNamespaceParts($namespaceParts ?? $name->getNamespaceParts());
+        $this->setNamespaceParts($namespaceParts === null ? $name->getNamespaceParts() : []);
     }
 
     public function increaseReferences(): self {
