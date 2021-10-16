@@ -147,7 +147,7 @@ class InterfaceModel extends NodeModel {
 
             if((!$name->hasNamespace() && $this->getStructName() !== null) && (!$name->isPhpStruct())) {
                 
-                $this->references[$name->getName()] = new UseNameModel($name, []);
+                $this->references[$name->getName()] = new UseNameModel($name, ($name->isAbsolute() ? [] : $this->getStructName()->getNamespaceParts()));
 
             } else {
                 
@@ -155,7 +155,7 @@ class InterfaceModel extends NodeModel {
             }
         }
         
-        if($increaseCount) {
+        if($this->hasReference($name) && $increaseCount) {
             
             $this->getReference($name)->increaseReferences();
         }
