@@ -29,7 +29,8 @@ class InterfaceModel extends NodeModel {
         array $prefixesToStrip = [],
         array $suffixesToStrip = [],
         array $prefixesToIgnore = [],
-        array $suffixesToIgnore = []
+        array $suffixesToIgnore = [],
+        array $namespaces = null
             
     ): self {
         
@@ -50,7 +51,8 @@ class InterfaceModel extends NodeModel {
             $prefixesToStrip, 
             $suffixesToStrip, 
             $prefixesToIgnore, 
-            $suffixesToIgnore
+            $suffixesToIgnore,
+            $namespaces
         );
         
         $traverser->addVisitor(new NodeVisitor($model));
@@ -67,12 +69,14 @@ class InterfaceModel extends NodeModel {
     private $methods = [];
     private $parent = null;
     private $structName = null;
+    private $structType = null;
     
     private $templates = [];
     private $prefixesToStrip = [];
     private $suffixesToStrip = [];
     private $prefixesToIgnore = [];
     private $suffixesToIgnore = [];    
+    private $namespaces = null;
 
     public function __construct(
      
@@ -80,19 +84,21 @@ class InterfaceModel extends NodeModel {
         array $prefixesToStrip = [],
         array $suffixesToStrip = [],
         array $prefixesToIgnore = [],
-        array $suffixesToIgnore = [],            
+        array $suffixesToIgnore = [],
+        array $namespaces = null,
         string $doc = null
             
     ) {
 
         parent::__construct($doc);
         
-
+        $this->structType = StructType::UNKNOWN;
         $this->templates = $templates;
         $this->prefixesToStrip = $prefixesToStrip;
         $this->suffixesToStrip = $suffixesToStrip;
         $this->prefixesToIgnore = $prefixesToIgnore;
-        $this->suffixesToIgnore = $suffixesToIgnore;        
+        $this->suffixesToIgnore = $suffixesToIgnore;
+        $this->namespaces = $namespaces;
     }
 
     public function setStructName(NameModel $name): self {
@@ -110,6 +116,27 @@ class InterfaceModel extends NodeModel {
         
         return ($this->getStructName() !== null);
     }    
+    
+    public function setStructType(int $structType): self {
+        
+        $this->structType = $structType;
+        return $this;
+    }
+    
+    public function getStructType(): int {
+        
+        return $this->structType;
+    }
+    
+    public function isStructAClass(): bool {
+        
+        return ($this->getStructType() === StructType::CLASS_);
+    }
+    
+    public function isStructATrait(): bool {
+        
+        return ($this->getStructType() === StructType::TRAIT_);        
+    }
     
     public function getReferences(): array {
         
@@ -139,6 +166,11 @@ class InterfaceModel extends NodeModel {
     public function getMethods(): array {
         
         return $this->methods;
+    }
+    
+    public function getNamespaces(): array {
+        
+        return $this->namespaces;
     }
     
     public function addReference(NameModel $name, bool $increaseCount = false): self {
@@ -308,6 +340,11 @@ class InterfaceModel extends NodeModel {
         $primary = ($templateIndex === 0);
         $template = $this->templates[$templateIndex];
 
+        if($this->isStructAClass() && !array_key_exists($interfaceName, $this->interfaces)) {
+            
+            return null;
+        }
+        
         $php = "";
 
         if($this->hasDoc()) {

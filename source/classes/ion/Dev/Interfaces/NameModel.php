@@ -115,6 +115,7 @@ class NameModel {
     private $namespace = null;
     private $name = null;
     private $absolute = false;
+    private $isClass = false;
     
     public function __construct(array $namespace = null, string $name = null, bool $absolute = false) {
         
@@ -215,7 +216,7 @@ class NameModel {
     public function isPhpStruct(): bool {
         
         return ($this->isPhpClass() || $this->isPhpInterface());
-    }
+    }    
     
     public function isPhpClass(): bool {
         

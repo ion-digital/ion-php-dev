@@ -53,6 +53,7 @@ class InterfacesTool extends Tool {
     private $suffixesToStrip;
     private $prefixesToIgnore;
     private $suffixesToIgnore;    
+    private $namespaces;
     private $input;
     private $output;
 
@@ -66,7 +67,8 @@ class InterfacesTool extends Tool {
         array $prefixesToStrip = [],
         array $suffixesToStrip = [],
         array $prefixesToIgnore = [],
-        array $suffixesToIgnore = [],            
+        array $suffixesToIgnore = [],        
+        array $namespaces = null,
         InputInterface $input = null,
         OutputInterface $output = null       
             
@@ -80,7 +82,8 @@ class InterfacesTool extends Tool {
         $this->prefixesToStrip = $prefixesToStrip;
         $this->suffixesToStrip = $suffixesToStrip;
         $this->prefixesToIgnore = $prefixesToIgnore;
-        $this->suffixesToIgnore = $suffixesToIgnore;        
+        $this->suffixesToIgnore = $suffixesToIgnore;     
+        $this->namespaces = $namespaces;
         $this->input = $input;
         $this->output = $output;
     }
@@ -111,7 +114,8 @@ class InterfacesTool extends Tool {
             $this->prefixesToStrip,
             $this->suffixesToStrip,
             $this->prefixesToIgnore,
-            $this->suffixesToIgnore,                
+            $this->suffixesToIgnore,      
+            $this->namespaces,
             $this->overwrite
         );
 
@@ -131,7 +135,8 @@ class InterfacesTool extends Tool {
             array $prefixesToStrip = [],
             array $suffixesToStrip = [],
             array $prefixesToIgnore = [],
-            array $suffixesToIgnore = [],            
+            array $suffixesToIgnore = [],
+            array $namespaces = null,
             bool $overwrite = false            
             
     ): void {
@@ -165,7 +170,8 @@ class InterfacesTool extends Tool {
                     $prefixesToStrip,
                     $suffixesToStrip,
                     $prefixesToIgnore,
-                    $suffixesToIgnore,                        
+                    $suffixesToIgnore,   
+                    $namespaces,
                     $overwrite
                         
                 );
@@ -191,7 +197,8 @@ class InterfacesTool extends Tool {
                 $prefixesToStrip, 
                 $suffixesToStrip,
                 $prefixesToIgnore, 
-                $suffixesToIgnore
+                $suffixesToIgnore,
+                $namespaces
                     
             );
         }  
@@ -210,7 +217,8 @@ class InterfacesTool extends Tool {
             array $prefixesToStrip,
             array $suffixesToStrip,
             array $prefixesToIgnore,
-            array $suffixesToIgnore            
+            array $suffixesToIgnore,
+            array $namespaces = null
             
     ): void {
 
@@ -233,7 +241,8 @@ class InterfacesTool extends Tool {
             $prefixesToStrip, 
             $suffixesToStrip, 
             $prefixesToIgnore, 
-            $suffixesToIgnore
+            $suffixesToIgnore,
+            $namespaces
         );
         
         $memory = [];
@@ -309,7 +318,7 @@ class InterfacesTool extends Tool {
                     
                     if(empty($tmp)) {
 
-                        $output->writeln("No class definitions found - skipping.");
+                        $output->writeln("No class definitions found to generate - skipping.");
                         continue;
                     }
 

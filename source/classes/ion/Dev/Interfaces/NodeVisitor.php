@@ -88,12 +88,16 @@ class NodeVisitor extends NodeVisitorAbstract {
                 $this->model->setDoc($node->getDocComment());
             }
             
+            $this->model->setStructType(StructType::TRAIT_);
+            
             if($node instanceof Class_) {
+                
+                $this->model->setStructType(StructType::CLASS_);
                 
                 if(!empty($node->extends)) {
 
                     $this->model->setParent(NameModel::getFromParts($node->extends->parts, true));                
-                }       
+                }
             
                 if(is_countable($node->implements) && count($node->implements) > 0) {
 
