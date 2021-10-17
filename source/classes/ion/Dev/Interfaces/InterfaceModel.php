@@ -358,12 +358,23 @@ class InterfaceModel extends NodeModel {
 
         $extends = [];
 
-        if($this->hasParent() && !$this->getParent()->isPhpClass()) {
+ //       var_dump($this->hasParent());
+        
+        if($this->hasParent() && !$this->getParent()->isPhpClass() && ($this->getParent()->getNamespace() === $this->getStructName()->getNamespace())) {
 
+//            if($this->getStructName()->getName() == "AbstractLogger") {
+                
+//                ($this->getParent()->getNamespace() !== $this->getStructName()->getNamespace())
+                
+//                var_dump($this->getParent()->getNamespace());
+//                var_dump($this->getStructName()->getNamespace());
+//                exit;
+//            }
+            
             $name = $this
                     
                 ->getParent()
-                ->asInterfaceName($template);           
+                ->asInterfaceName($template);
 
             if(!in_array($name->getName(), $extends) && !in_array($name->getName(), $memory)) {
 

@@ -35,7 +35,7 @@ class InterfacesCommand extends BaseCommand {
             ->addOption('ignore-prefixes', 'ip', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the beginning of the string. I'll strip only the first occurrence found.", "")
             ->addOption('ignore-suffixes', 'is', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the end of the string. I'll strip only the first occurrence found.", "")
                
-            ->addOption('namespaces', 'ns', InputOption::VALUE_OPTIONAL, "A comma-seperated list of namespaces to process.", "")
+            //->addOption('namespaces', 'ns', InputOption::VALUE_OPTIONAL, "A comma-seperated list of namespaces to process.", "")
         ;              
     }
 
@@ -52,7 +52,7 @@ class InterfacesCommand extends BaseCommand {
             explode(",", $input->getOption('strip-suffixes')),
             explode(",", $input->getOption('ignore-prefixes')),
             explode(",", $input->getOption('ignore-suffixes')),                
-            explode(",", $input->getOption('namespaces')),                
+            null, //explode(",", $input->getOption('namespaces')),                
             $input,
             $output
                 
