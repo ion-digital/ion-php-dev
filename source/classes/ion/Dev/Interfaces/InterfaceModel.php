@@ -327,6 +327,11 @@ class InterfaceModel extends NodeModel {
         
         return $this->generate($this->getStructName()->asInterfaceName());
     }
+    
+    private static function matchNamespaces(NameModel $a, NameModel $b, array $namespaces = null): bool {
+        
+        
+    }
 
     public function generate(string $interfaceName, array &$memory, int $templateIndex = 0): ?string {
         
@@ -359,8 +364,8 @@ class InterfaceModel extends NodeModel {
         $extends = [];
 
  //       var_dump($this->hasParent());
-        
-        if($this->hasParent() && !$this->getParent()->isPhpClass() && ($this->getParent()->getNamespace() === $this->getStructName()->getNamespace())) {
+
+        if($this->hasParent() && !$this->getParent()->isPhpClass() && static::matchNamespaces($this->getParent(), $this->getStructName(), $this->namespaces)) {
 
 //            if($this->getStructName()->getName() == "AbstractLogger") {
                 
