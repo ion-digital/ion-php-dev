@@ -328,8 +328,25 @@ class InterfaceModel extends NodeModel {
         return $this->generate($this->getStructName()->asInterfaceName());
     }
     
-    private static function matchNamespaces(NameModel $a, NameModel $b, array $namespaces = null): bool {
+    private static function matchNamespaces(NameModel $parent, NameModel $struct, array $namespaces = null): bool {
         
+        if(empty($namespaces)) {
+            
+            return true;
+        }
+        
+        if($parent->hasNamespace() && $struct->hasNamespace()) {
+        
+            foreach($namespaces as $namespace) {
+                
+                if($parent->getNamespaceParts()[0] === $namespace && $struct->getNamespaceParts()[0] === $namespace) {
+                 
+                    return true;
+                }                
+            }
+        }
+                
+        return false;
         
     }
 

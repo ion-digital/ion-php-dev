@@ -35,7 +35,10 @@ class InterfacesCommand extends BaseCommand {
             ->addOption('ignore-prefixes', 'ip', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the beginning of the string. I'll strip only the first occurrence found.", "")
             ->addOption('ignore-suffixes', 'is', InputOption::VALUE_OPTIONAL, "Regex patterns to ignore, seperated by commas, from class- and trait names, from the end of the string. I'll strip only the first occurrence found.", "")
                
-            //->addOption('namespaces', 'ns', InputOption::VALUE_OPTIONAL, "A comma-seperated list of namespaces to process.", "")
+//            ->addOption('namespaces', 'ns', InputOption::VALUE_OPTIONAL, "A comma-seperated list of namespaces to process.", "")
+                
+            ->addOption('vendor-only', 'vo', InputOption::VALUE_NONE, "Only generate interfaces for the specified vendor.", null)
+            ->addOption('vendor', 'vd', InputOption::VALUE_REQUIRED, "Specifies the Vendor - will try to load from composer.json, if not supplied.", null)    
         ;              
     }
 
@@ -52,7 +55,8 @@ class InterfacesCommand extends BaseCommand {
             explode(",", $input->getOption('strip-suffixes')),
             explode(",", $input->getOption('ignore-prefixes')),
             explode(",", $input->getOption('ignore-suffixes')),                
-            null, //explode(",", $input->getOption('namespaces')),                
+            $input->getOption('vendor-only'),
+            $input->getOption('vendor'),
             $input,
             $output
                 

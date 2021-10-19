@@ -42,8 +42,42 @@ use \PhpParser\Node\Stmt\ClassConst;
 use \PhpParser\BuilderFactory;
 
 
-class InterfacesTool extends Tool {
-
+class InterfacesTool extends Tool {    
+    
+    private static function loadVendorFromComposer(): ?string {
+        
+        $path = getcwd() . DIRECTORY_SEPARATOR . "composer.json";
+        $data = file_get_contents($path);
+        
+        if($data === false) {
+            
+            throw new Exception("I could not load composer.json - please specify a vendor.");
+        }
+        
+        $json = json_decode($data);
+        
+        if(empty($json)) {
+            
+            throw new Exception("I could not parse composer.json - please specify a vendor.");
+        }
+        
+        $name = $json->name;
+        
+        if(empty($name)) {
+            
+            throw new Exception("The name field in composer.json is empty - please specify a vendor.");
+        }
+        
+        $segments = explode("/", $name);
+        
+        if(count($segments) === 0) {
+            
+            throw new Exception("The name field in composer.json does not contain a vendor (\"vendor/package\") - please specify a vendor.");
+        }                
+        
+        return $segments[0];
+    }
+    
     private $action;
     private $inputDir;
     private $outputDir;
@@ -68,7 +102,8 @@ class InterfacesTool extends Tool {
         array $suffixesToStrip = [],
         array $prefixesToIgnore = [],
         array $suffixesToIgnore = [],        
-        array $namespaces = null,
+        bool $vendorOnly = null,
+        string $vendor = null,
         InputInterface $input = null,
         OutputInterface $output = null       
             
@@ -82,10 +117,10 @@ class InterfacesTool extends Tool {
         $this->prefixesToStrip = $prefixesToStrip;
         $this->suffixesToStrip = $suffixesToStrip;
         $this->prefixesToIgnore = $prefixesToIgnore;
-        $this->suffixesToIgnore = $suffixesToIgnore;     
-        $this->namespaces = $namespaces;
+        $this->suffixesToIgnore = $suffixesToIgnore;         
+        $this->namespaces = (!$vendorOnly ? null : (empty($vendor) ? [ static::loadVendorFromComposer() ] : [ $vendor ]));
         $this->input = $input;
-        $this->output = $output;
+        $this->output = $output;        
     }
     
     public function execute(): int {
