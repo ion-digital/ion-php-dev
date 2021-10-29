@@ -432,45 +432,50 @@ class InterfaceModel extends NodeModel {
             $this->addReference($name, true);
         }     
 
-        foreach($this->getInterfaces() as $key => $interface) {
-                 
-            $name = $interface;
-            
-            if(!$primary) {
-                
-                continue;
-            }
-            
-            if(!$primary && $interface->getName() !== $interfaceName) {
-            
-                $name = $name
-                        ->asInterfaceName($template);
-                        //->getInterfaceVariations([ $template ])[0];
-            }
-            
-            if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {
-
-                continue;
-            }                
-
-            if($name->getName() === $interfaceName) {
-
-                continue;
-            }
-
-//            $this->addReference($name, true);
-            
-//            if($interfaceName == "IClassname") {
+// Removed the following block, as its incompatible with PHP 7.0 to add
+// declared interfaces from parents... Although, a class interface would include
+// all public methods for that class right? And the class would implement
+// the correct interfaces anyway...
+// 
+//        foreach($this->getInterfaces() as $key => $interface) {
+//            
+//            $name = $interface;
+//            
+//            if(!$primary) {
 //                
-//                var_Dump($interface);
-//                var_dump($name);
-//                exit;
+//                continue;
 //            }
-            
-            $extends[] = $name->getName();
-            
-            $this->addReference($name, true);
-        }                
+//            
+//            if(!$primary && $interface->getName() !== $interfaceName) {
+//            
+//                $name = $name
+//                        ->asInterfaceName($template);
+//                        //->getInterfaceVariations([ $template ])[0];
+//            }
+//            
+//            if(in_array($name->getName(), $extends) || in_array($name->getName(), $memory)) {
+//
+//                continue;
+//            }                
+//
+//            if($name->getName() === $interfaceName) {
+//
+//                continue;
+//            }
+//
+////            $this->addReference($name, true);
+//            
+////            if($interfaceName == "IClassname") {
+////                
+////                var_Dump($interface);
+////                var_dump($name);
+////                exit;
+////            }
+//            
+//            $extends[] = $name->getName();
+//            
+//            $this->addReference($name, true);
+//        }                
 
         $templates = $this->templates;
         

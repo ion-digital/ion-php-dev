@@ -7,10 +7,6 @@
         </group>
         <group name="PHP"/>
         <group name="PHP"/>
-        <group name="ION">
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/InterfaceModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/source/classes/ion/Dev/Interfaces/NameModel.php</file>
-            <file>file:/D:/prj/dev/ion/php/dev/version.json</file>
-        </group>
+        <group name="ION"/>
     </open-files>
 </project-private>

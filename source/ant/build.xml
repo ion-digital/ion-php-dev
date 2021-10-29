@@ -372,13 +372,24 @@
         
 <!--        <echo msg="${state.pkg.cmd} ${state.pkg.cmd.generate.interfaces}" />-->
         
-        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
-            <arg line="${state.pkg.cmd.generate.interfaces.classes}" />
-        </exec>
+        <if>
+            <available file="${config.pkg.source.dir}/classes/" />
+            <then>        
+                <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
+                    <arg line="${state.pkg.cmd.generate.interfaces.classes}" />
+                </exec>   
+            </then>             
+        </if>      
         
-        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
-            <arg line="${state.pkg.cmd.generate.interfaces.traits}" />
-        </exec>        
+        <if>
+            <available file="${config.pkg.source.dir}/traits/" />
+            <then>        
+                <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
+                    <arg line="${state.pkg.cmd.generate.interfaces.traits}" />
+                </exec>   
+            </then>             
+        </if>               
+             
     </target>    
     
     <!-- ===========================================
