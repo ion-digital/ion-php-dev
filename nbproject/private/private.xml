@@ -8,5 +8,6 @@
         <group name="PHP"/>
         <group name="PHP"/>
         <group name="ION"/>
+        <group name="Clients"/>
     </open-files>
 </project-private>

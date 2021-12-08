@@ -12,7 +12,7 @@ namespace ion\Dev\Vcs\Providers;
  * @author Justus.Meyer
  */
 
-use \ion\Dev\Vcs\IVcsProvider;
+use \ion\Dev\Vcs\VcsProviderInterface;
 use \ion\Dev\Vcs\VcsProvider;
 use \Exception;
 
