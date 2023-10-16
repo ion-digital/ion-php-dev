@@ -7,14 +7,13 @@
         "composer",
         "development tools"
     ],
-    "homepage": "https://bitbucket.org/ion-digital-projects/dev/",
+    "homepage": "https://github.com/ion-digital/ion-php-dev",
     "license": "LGPL-3.0-or-later",
     "authors": [
         {
             "name": "Justus Meyer",
             "role": "developer",
-            "homepage": "https://justusmeyer.com",
-            "email": "justus@justusmeyer.com"
+            "homepage": "https://justusmeyer.com"
         },
         {
             "name": "ION Digital",
@@ -22,17 +21,14 @@
             "homepage": "https://ion.digital"
         }        
     ],
-    "support": {
-        "issues": "https://bitbucket.org/ion-digital-projects/dev/issues"
-    },
     "require": {
         "php": ">=7.2",
         "ext-curl": "*",
         "composer-plugin-api": "^2.0",
-        "phpunit/phpunit": "^6.2",
+        "phpunit/phpunit": "^10.4",
         "phing/phing": "2.*",
-        "nikic/php-parser": "^3.1",
-        "ion/php-trans-porter": "^0.0",
+        "nikic/php-parser": "^4.15",
+        "ion/php-trans-porter": "^0.1",
         "symfony/framework-bundle": "^4.1.4",
         "symfony/console": "^4.1.5",
         "kint-php/kint": "^3.3"
