@@ -22,7 +22,7 @@
             </else>
         </if>
         
-        <property file="${state.ant.dirs.include}/package.properties" />        
+        <!-- <property file="${state.ant.dirs.include}/package.properties" />         -->
         <property file="${state.ant.dirs.include}/config.properties" />
                         
         <if>
