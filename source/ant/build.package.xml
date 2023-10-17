@@ -76,7 +76,7 @@
                                                   
         <phingcall target="macros" />
         <phingcall target="interfaces" />
-        <phingcall target="builds" />    
+        <!-- <phingcall target="builds" />     -->
                                                                                    
         <phingcall target="tests" />    
         <phingcall target="prepare-package" />
@@ -124,9 +124,4 @@
         <!-- allow this target to be run on the staging / release branches for this session -->
         <property name="state.ant.allow-release" value="1" override="true" />
     </target>    
-    
-    
-    
-    
-    
 </project>

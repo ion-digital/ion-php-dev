@@ -27,7 +27,7 @@ trait VersionTrait {
             
             case 'version': {
                 
-                $path = $workingDir . DIRECTORY_SEPARATOR . Package::ION_PACKAGE_VERSION_FILENAME;
+                $path = $workingDir . DIRECTORY_SEPARATOR . SemVer::ION_PACKAGE_VERSION_FILENAME;
 
                 //TODO: Add a JSON output function to \ion\SemVerInterface $jsonObj = new \stdClass();
 
@@ -121,7 +121,7 @@ trait VersionTrait {
             }
             case 'version': {
                 
-                $path = $workingDir . DIRECTORY_SEPARATOR . Package::ION_PACKAGE_VERSION_FILENAME;
+                $path = $workingDir . DIRECTORY_SEPARATOR . SemVer::ION_PACKAGE_VERSION_FILENAME;
                 
                 if(!file_exists($path)&& $option !== 'auto') {
                     

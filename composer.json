@@ -8,7 +8,7 @@
         "development tools"
     ],
     "homepage": "https://github.com/ion-digital/ion-php-dev",
-    "license": "LGPL-3.0-or-later",
+    "license": "proprietary",
     "authors": [
         {
             "name": "Justus Meyer",
@@ -24,6 +24,7 @@
     "require": {
         "php": ">=8.2",
         "ext-curl": "*",
+        "ion/versioning": "^1.0.0",
         "composer-plugin-api": "^2.0",
         "phpunit/phpunit": "^10.4",
         "phing/phing": "3.*",

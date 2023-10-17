@@ -4,28 +4,28 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f771da0e5742608fbbe853ba94737ec3",
+    "content-hash": "16f55ea2a4e77c3ec6dd7e8c125883e7",
     "packages": [
         {
             "name": "ion/php-trans-porter",
-            "version": "v0.1.1",
+            "version": "v0.1.3+main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ion-digital/ion-php-trans-porter.git",
-                "reference": "7a930238aaffc15cdf71b7a4634ed2275f1baa47"
+                "reference": "31121833f5bb17f0eebb308d19a5c4110d25e55f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ion-digital/ion-php-trans-porter/zipball/7a930238aaffc15cdf71b7a4634ed2275f1baa47",
-                "reference": "7a930238aaffc15cdf71b7a4634ed2275f1baa47",
+                "url": "https://api.github.com/repos/ion-digital/ion-php-trans-porter/zipball/31121833f5bb17f0eebb308d19a5c4110d25e55f",
+                "reference": "31121833f5bb17f0eebb308d19a5c4110d25e55f",
                 "shasum": ""
             },
             "require": {
                 "nikic/php-parser": "^4.17",
-                "php": "^8.2"
+                "php": "^5.6|^7.0|^8.0"
             },
             "require-dev": {
-                "phing/phing": "2.*",
+                "phing/phing": "3.*",
                 "phpunit/phpunit": "^10.4"
             },
             "suggest": {
@@ -44,7 +44,7 @@
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "LGPL-3.0"
+                "proprietary"
             ],
             "authors": [
                 {
@@ -53,7 +53,7 @@
                     "role": "developer"
                 }
             ],
-            "description": "A PHP command-line utility and class library to convert source code between PHP 5.6/7.0/7.1/7.2.",
+            "description": "A PHP command-line utility and class library to convert source code between PHP 5.6 / 7.0 / 7.1 / 7.2.",
             "homepage": "https://github.com/ion-digital/ion-php-trans-porter",
             "keywords": [
                 "PHP 5.6",
@@ -65,16 +65,65 @@
                 "php 7.2",
                 "php converter",
                 "php trans porter",
-                "php transpoter",
+                "php transporter",
                 "source converter",
                 "trans porter",
                 "transporter"
             ],
             "support": {
                 "issues": "https://github.com/ion-digital/ion-php-trans-porter/issues",
-                "source": "https://github.com/ion-digital/ion-php-trans-porter/tree/v0.1.1"
+                "source": "https://github.com/ion-digital/ion-php-trans-porter/tree/v0.1.3+main"
             },
-            "time": "2023-10-13T01:45:42+00:00"
+            "time": "2023-10-17T09:54:50+00:00"
+        },
+        {
+            "name": "ion/versioning",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ion-digital/ion-php-versioning.git",
+                "reference": "2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ion-digital/ion-php-versioning/zipball/2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758",
+                "reference": "2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "php": ">=8.2",
+                "phpunit/phpunit": "^10.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "autoload.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Justus Meyer",
+                    "homepage": "https://justusmeyer.com",
+                    "role": "developer"
+                }
+            ],
+            "description": "A small library that functions as the base to all ION packages, intended to handle basic package versioning functionality.",
+            "homepage": "https://github.com/ion-digital/ion-php-versioning",
+            "keywords": [
+                "php"
+            ],
+            "support": {
+                "issues": "https://github.com/ion-digital/ion-php-versioning/issues",
+                "source": "https://github.com/ion-digital/ion-php-versioning/tree/v1.0.0"
+            },
+            "time": "2023-10-16T12:28:42+00:00"
         },
         {
             "name": "kint-php/kint",
