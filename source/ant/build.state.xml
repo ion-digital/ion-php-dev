@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="ion/dev-package-state" default="info" phingVersion="2.16.3">    
-    
-    
-    
+
     <!-- ===========================================
         Target: init
     ============================================ -->     
-    
     
     <target name="init">
         
@@ -420,6 +417,7 @@
         
         <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
         <property name="state.pkg.devops.git.ignore.filename" value="${config.pkg.devops.git.ignore.filename}" override="true" />
+        <property name="state.pkg.devops.target.directory" value="${config.pkg.devops.target.directory}" override="true" />
         <property name="state.pkg.devops.target.filename" value="${config.pkg.devops.target.filename}" override="true" />
         
                 

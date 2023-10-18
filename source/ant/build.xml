@@ -126,8 +126,7 @@
         Target: builds
     ============================================ -->     
     
-    <target name="builds" depends="init, clean-builds, clean-cache, macros, interfaces">
-                     
+    <target name="builds" depends="init, clean-builds, clean-cache, macros, interfaces">                     
         <if>
             <or>
                 <equals arg1="${state.pkg.builds.dir}" arg2=""/>

@@ -26,6 +26,7 @@ class MethodParameterModel extends NodeModel {
     private $default;
     private $variadic;
     private $defaultType;
+    private $byReference;
     
     public function __construct(
             
@@ -117,7 +118,7 @@ class MethodParameterModel extends NodeModel {
         return ($this->getDefaultType() === static::DEFAULT_TYPE_NULL);
     }        
     
-    public function setByReference(string $byReference = null): self {
+    public function setByReference(bool $byReference = null): self {
         
         $this->byReference = $byReference;
         return $this;

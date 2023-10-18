@@ -199,7 +199,32 @@ class NodeVisitor extends NodeVisitorAbstract {
             
             foreach($node->getParams() as $nodeParam) {
                 
-                $param = new MethodParameterModel($nodeParam->name);
+                $name = null;   
+
+                if(!$nodeParam instanceof Param) {
+
+                    if($name == null) {
+
+                        if(!isset($nodeParam->name)) {
+
+                            throw new Exception("Could not determine parameter name.");
+                        }
+
+                        $name = $nodeParam->name;
+                    }
+                    
+                    if($name == null) {
+
+                        throw new Exception("Could not determine parameter name (exhausted backwards compatible methods).");
+                    }
+                }
+
+                if(isset($nodeParam->var)) {
+
+                    $name = $nodeParam->var->name;
+                }                
+
+                $param = new MethodParameterModel($name);
                 
                 if(!empty($nodeParam->type)) {
                     
@@ -363,7 +388,7 @@ class NodeVisitor extends NodeVisitorAbstract {
 //                        var_dump($returnType);                        
 //                    }                    
                     
-                } else if($returnType instanceof Name || $type instanceof FullyQualified) {
+                } else if($returnType instanceof Name || $returnType instanceof FullyQualified) {
                     
                     $tmp = NameModel::getFromParts($returnType->parts, true);
 
