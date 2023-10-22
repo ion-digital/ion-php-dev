@@ -24,7 +24,7 @@
     "require": {
         "php": ">=8.2",
         "ext-curl": "*",
-        "ion/versioning": "^1.0.0",
+        "ion/packaging": "*",
         "composer-plugin-api": "^2.0",
         "phpunit/phpunit": "^10.4",
         "phing/phing": "3.*",
@@ -46,5 +46,12 @@
         "class": "ion\\Dev\\Composer\\DevPlugin"
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+
+        {
+            "type": "vcs",
+            "url": "https://github.com/ion-digital/ion-php-packaging.git"
+        }        
+    ]    
 }

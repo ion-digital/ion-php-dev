@@ -4,8 +4,98 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "16f55ea2a4e77c3ec6dd7e8c125883e7",
+    "content-hash": "d7e5472cde3c31f2279764b51e428d80",
     "packages": [
+        {
+            "name": "ion/packaging",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ion-digital/ion-php-packaging.git",
+                "reference": "521aea7e2bc7a595ac94486619101c83cb1c6265"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ion-digital/ion-php-packaging/zipball/521aea7e2bc7a595ac94486619101c83cb1c6265",
+                "reference": "521aea7e2bc7a595ac94486619101c83cb1c6265",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "ion/packaging-tools": "dev-main"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "autoload.php"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "ion\\": [
+                        "source/classes/ion/",
+                        "source/interfaces/ion/",
+                        "source/traits/ion/",
+                        "tests/unit/ion/"
+                    ]
+                }
+            },
+            "scripts": {
+                "tests": [
+                    "./vendor/bin/phpunit ./tests/unit"
+                ],
+                "builds": [
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 5.6 --input ./source/classes/ --output ./builds/5.6/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.0 --input ./source/classes/ --output ./builds/7.0/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.1 --input ./source/classes/ --output ./builds/7.1/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.2 --input ./source/classes/ --output ./builds/7.2/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.3 --input ./source/classes/ --output ./builds/7.3/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.4 --input ./source/classes/ --output ./builds/7/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.0 --input ./source/classes/ --output ./builds/8.0/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.1 --input ./source/classes/ --output ./builds/8.1/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.2 --input ./source/classes/ --output ./builds/8/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 5.6 --input ./source/interfaces/ --output ./builds/5.6/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.0 --input ./source/interfaces/ --output ./builds/7.0/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.1 --input ./source/interfaces/ --output ./builds/7.1/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.2 --input ./source/interfaces/ --output ./builds/7.2/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.3 --input ./source/interfaces/ --output ./builds/7.3/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 7.4 --input ./source/interfaces/ --output ./builds/7/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.0 --input ./source/interfaces/ --output ./builds/8.0/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.1 --input ./source/interfaces/ --output ./builds/8.1/",
+                    "./vendor/bin/php-trans-porter --source-version 8.2 --target-version 8.2 --input ./source/interfaces/ --output ./builds/8/"
+                ],
+                "release": [
+                    "git checkout -b release/main",
+                    "git add .",
+                    "git commit -m \"Release\"",
+                    "composer run-script builds",
+                    "composer run-script tests"
+                ]
+            },
+            "license": [
+                "LGPL-3.0"
+            ],
+            "authors": [
+                {
+                    "name": "Justus Meyer",
+                    "role": "developer",
+                    "homepage": "https://ion.digital"
+                }
+            ],
+            "description": "A small library that functions as the base to all ION packages, intended to handle basic package and versioning functionality.",
+            "homepage": "https://github.com/ion-digital/ion-php-packaging",
+            "keywords": [
+                "PHP"
+            ],
+            "support": {
+                "source": "https://github.com/ion-digital/ion-php-packaging/tree/main",
+                "issues": "https://github.com/ion-digital/ion-php-packaging/issues"
+            },
+            "time": "2023-10-20T10:30:47+00:00"
+        },
         {
             "name": "ion/php-trans-porter",
             "version": "v0.1.3+main",
@@ -75,55 +165,6 @@
                 "source": "https://github.com/ion-digital/ion-php-trans-porter/tree/v0.1.3+main"
             },
             "time": "2023-10-17T09:54:50+00:00"
-        },
-        {
-            "name": "ion/versioning",
-            "version": "v1.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/ion-digital/ion-php-versioning.git",
-                "reference": "2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/ion-digital/ion-php-versioning/zipball/2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758",
-                "reference": "2ca8f2d76b238a4e34ab0dbbcf2d97abcf925758",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6"
-            },
-            "require-dev": {
-                "php": ">=8.2",
-                "phpunit/phpunit": "^10.4"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "autoload.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Justus Meyer",
-                    "homepage": "https://justusmeyer.com",
-                    "role": "developer"
-                }
-            ],
-            "description": "A small library that functions as the base to all ION packages, intended to handle basic package versioning functionality.",
-            "homepage": "https://github.com/ion-digital/ion-php-versioning",
-            "keywords": [
-                "php"
-            ],
-            "support": {
-                "issues": "https://github.com/ion-digital/ion-php-versioning/issues",
-                "source": "https://github.com/ion-digital/ion-php-versioning/tree/v1.0.0"
-            },
-            "time": "2023-10-16T12:28:42+00:00"
         },
         {
             "name": "kint-php/kint",

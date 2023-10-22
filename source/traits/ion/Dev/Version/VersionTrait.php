@@ -17,7 +17,7 @@ use \ion\SemVerInterface;
 use \ion\SemVer;
 use \Exception;
 
-trait VersionTrait {
+trait VersionTrait {    
 
     protected function saveVersion(SemVerInterface $version, string $optOrCmd, bool $print = true): int {
         
