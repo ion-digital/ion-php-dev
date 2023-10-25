@@ -158,8 +158,8 @@ class MethodParameterModel extends NodeModel {
         if($this->hasType()) {
 
             $php .= "{$this->getType()} ";
-        }     
-        
+        }
+
         if($this->isByReference()) {
             
             $php .= "&";

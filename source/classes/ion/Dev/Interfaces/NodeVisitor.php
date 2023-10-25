@@ -22,6 +22,7 @@ use PhpParser\Comment;
 use PhpParser\Comment\Doc;
 use PhpParser\Node\NullableType;
 use PhpParser\Node\Param;
+use PhpParser\Node\Identifier;
 use PhpParser\Node\Expr\ConstFetch;
 use PhpParser\Node\Expr\Array_;
 use PhpParser\Node\Expr\ArrayItem;
@@ -225,7 +226,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                 }                
 
                 $param = new MethodParameterModel($name);
-                
+
                 if(!empty($nodeParam->type)) {
                     
                     $type = $nodeParam->type;
@@ -242,7 +243,12 @@ class NodeVisitor extends NodeVisitorAbstract {
 
                         $param->setType(new TypeModel(new NameModel(null, $type), $nullable));
 
-                    } else if($type instanceof Name || $type instanceof FullyQualified) {
+                    } 
+                    else if($type instanceof Identifier) {
+
+                        $param->setType(new TypeModel(new NameModel(null, $type->name), $nullable));  
+                    }
+                    else if($type instanceof Name || $type instanceof FullyQualified) {
                         
                         $tmp = NameModel::getFromParts($type->parts, true);
                         
@@ -250,10 +256,13 @@ class NodeVisitor extends NodeVisitorAbstract {
                             
                             $tmp->setAbsolute(true);
                         }
-                        
+                      
                         $param->setType(new TypeModel($tmp, $nullable));                        
                         $this->model->addReference($tmp, false);
                     }
+
+                    // echo "$node->name -> $name -> " . gettype($type) . "\n";
+                    // var_dump($type);
                 }
                 
                 if($nodeParam->byRef) {
@@ -388,7 +397,12 @@ class NodeVisitor extends NodeVisitorAbstract {
 //                        var_dump($returnType);                        
 //                    }                    
                     
-                } else if($returnType instanceof Name || $returnType instanceof FullyQualified) {
+                } 
+                else if ($returnType instanceof Identifier) {
+                    
+                    $method->setReturnType(new TypeModel(new NameModel(null, $returnType->name), $nullable));
+                }
+                else if($returnType instanceof Name || $returnType instanceof FullyQualified) {
                     
                     $tmp = NameModel::getFromParts($returnType->parts, true);
 
