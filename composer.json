@@ -34,12 +34,20 @@
     },
     "autoload": {
         "psr-4": {
-            "ion\\": [ "source/classes/ion/", "source/interfaces/ion/", "source/traits/ion/" ]
+            "ion\\": [ 
+                
+                "source/classes/ion/", 
+                "source/interfaces/ion/", 
+                "source/traits/ion/" 
+            ]
         }    
     },
     "autoload-dev": {
         "psr-4": {
-            "ion\\": ["tests/unit/ion/"]
+            "ion\\": [
+                
+                "tests/unit/ion/"
+            ]
         }    
     },    
     "extra": {
