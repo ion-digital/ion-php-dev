@@ -141,10 +141,20 @@
 
         <echo msg="Updating the version tag for the current GIT branch '${state.vcs.branches.release.name}'." />
         
-        <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
-            <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.release.name}" />
-        </exec>  
-        
+        <if>
+            <equals arg1="${state.vcs.branches.current.name.segment}" arg2="${state.vcs.branches.master.name}" />
+            <then>
+                <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+                    <arg line="${state.pkg.cmd.version.set}" />
+                </exec>
+            </then>
+            <else>
+                <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="false">
+                    <arg line="${state.pkg.cmd.version.set}${state.vcs.branches.release.name}" />
+                </exec>
+            </else>
+        </if>    
+
 <!--        <fail msg="DEBUG:[${state.vcs.cmd} ${state.vcs.cmd.tag.set} v${tmp}]" />-->
         
         <exec executable="${state.vcs.cmd}" dir="." checkreturn="true" passthru="true">

@@ -68,11 +68,16 @@
 
         <echo msg="Applying .gitignore ('${config.pkg.devops.git.ignore.filename}' -> '.gitignore')" />
         <copy file="${config.pkg.devops.git.ignore.filename}" tofile=".gitignore" overwrite="true" haltonerror="false" />        
-                
-        <echo msg="Applying CI/CD configuration ('${state.pkg.devops.current.filename}' -> '${state.pkg.devops.target.directory}/${state.pkg.devops.target.filename}')." />
-        <mkdir dir="${state.pkg.devops.target.directory}" />
-        <copy file="${state.pkg.devops.current.filename}" tofile="${state.pkg.devops.target.directory}/${state.pkg.devops.target.filename}" overwrite="true" haltonerror="false" />
         
+        <echo msg="Applying CI configuration ('${state.pkg.devops.ci.current.filename}' -> '${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}')." />
+        <mkdir dir="${state.pkg.devops.ci.target.directory}" />
+        <copy file="${state.pkg.devops.ci.current.filename}" tofile="${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}" overwrite="false" haltonerror="false" />
+        
+        <echo msg="Applying CD configuration ('${state.pkg.devops.cd.current.filename}' -> '${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}')." />
+        <mkdir dir="${state.pkg.devops.cd.target.directory}" />
+        <copy file="${state.pkg.devops.cd.current.filename}" tofile="${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}" overwrite="false" haltonerror="false" />
+
+
 <!--        <phingcall target="prepare-package" />-->
                                                   
         <phingcall target="macros" />

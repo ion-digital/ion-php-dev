@@ -1,0 +1,34 @@
+name: Trigger a Satis rebuild
+
+on: 
+  push:
+    branches: ["release/main"]
+
+  workflow_dispatch:  
+
+jobs:
+
+  tests:
+
+    uses: .github/workflows/ci.yml
+
+  satis:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      
+    - name: satis    
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.TOKEN }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+            owner: 'ion-digital',
+            repo: 'ion-php-packages',
+            workflow_id: 'release.yml',
+            ref: 'main'
+          })
+
+
+

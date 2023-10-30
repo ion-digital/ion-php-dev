@@ -64,7 +64,8 @@ class NameModel {
         "void",
         "object",
         "self",
-        "static"
+        "static",
+        "mixed"
     ];            
     
     public static function getFromParts(array $parts, bool $hasName = true, bool $absolute = false): self {

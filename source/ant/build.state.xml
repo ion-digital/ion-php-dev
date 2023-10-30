@@ -413,15 +413,20 @@
     
         <property name="state.pkg.source.macros.exists" value="false" override="true" />
         <available property="state.pkg.source.macros.exists" value="true" file="${state.pkg.source.macros.dir}" />
+
         <!-- devops -->
-        
-        <property name="state.pkg.devops.glob" value="${config.pkg.devops.glob}" override="true" />
         <property name="state.pkg.devops.git.ignore.filename" value="${config.pkg.devops.git.ignore.filename}" override="true" />
-        <property name="state.pkg.devops.target.directory" value="${config.pkg.devops.target.directory}" override="true" />
-        <property name="state.pkg.devops.target.filename" value="${config.pkg.devops.target.filename}" override="true" />
+
+        <property name="state.pkg.devops.ci.glob" value="${config.pkg.devops.ci.glob}" override="true" />
+        <property name="state.pkg.devops.ci.target.directory" value="${config.pkg.devops.ci.target.directory}" override="true" />
+        <property name="state.pkg.devops.ci.target.filename" value="${config.pkg.devops.ci.target.filename}" override="true" />
         
+        <property name="state.pkg.devops.cd.glob" value="${config.pkg.devops.cd.glob}" override="true" />
+        <property name="state.pkg.devops.cd.target.directory" value="${config.pkg.devops.cd.target.directory}" override="true" />
+        <property name="state.pkg.devops.cd.target.filename" value="${config.pkg.devops.cd.target.filename}" override="true" />
                 
-        <property name="tmp.pkg.devops.current.filename" value="${state.pkg.devops.glob}" override="true">
+        <!-- devops: CI -->     
+        <property name="tmp.pkg.devops.ci.current.filename" value="${state.pkg.devops.ci.glob}" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="\*+" replace="${state.vcs.branches.current.name.dashed}" ignoreCase="true" />
@@ -430,20 +435,17 @@
         </property>
         <if>
             <not>
-                <available file="${tmp.pkg.devops.current.filename}" />
+                <available file="${tmp.pkg.devops.ci.current.filename}" />
             </not>
             <then>
-                <property name="state.pkg.devops.current.filename" value="${config.pkg.devops.development.filename}" override="true" />
+                <property name="state.pkg.devops.ci.current.filename" value="${config.pkg.devops.ci.development.filename}" override="true" />
             </then>
             <else>
-                <property name="state.pkg.devops.current.filename" value="${tmp.pkg.devops.current.filename}" override="true" />
+                <property name="state.pkg.devops.ci.current.filename" value="${tmp.pkg.devops.ci.current.filename}" override="true" />
             </else>
         </if>    
 
-
- 
-
-        <property name="tmp.pkg.devops.staging.filename" value="${state.pkg.devops.glob}" override="true">
+        <property name="tmp.pkg.devops.ci.staging.filename" value="${state.pkg.devops.ci.glob}" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="\*+" replace="${state.vcs.branches.staging.name.dashed}" ignoreCase="true" />
@@ -452,18 +454,18 @@
         </property>
         <if>
             <not>
-                <available file="${tmp.pkg.devops.staging.filename}" />
+                <available file="${tmp.pkg.devops.ci.staging.filename}" />
             </not>
             <then>
-                <property name="state.pkg.devops.staging.filename" value="${config.pkg.devops.staging.filename}" override="true" />
+                <property name="state.pkg.devops.ci.staging.filename" value="${config.pkg.devops.ci.staging.filename}" override="true" />
             </then>
             <else>
-                <property name="state.pkg.devops.staging.filename" value="${tmp.pkg.devops.staging.filename}" override="true" />
+                <property name="state.pkg.devops.ci.staging.filename" value="${tmp.pkg.devops.ci.staging.filename}" override="true" />
             </else>
         </if>    
 
 
-        <property name="tmp.pkg.devops.release.filename" value="${state.pkg.devops.glob}" override="true">
+        <property name="tmp.pkg.devops.ci.release.filename" value="${state.pkg.devops.ci.glob}" override="true">
             <filterchain>
                 <replaceregexp>
                     <regexp pattern="\*+" replace="${state.vcs.branches.release.name.dashed}" ignoreCase="true" />
@@ -472,17 +474,74 @@
         </property>
         <if>
             <not>
-                <available file="${tmp.pkg.devops.release.filename}" />
+                <available file="${tmp.pkg.devops.ci.release.filename}" />
             </not>
             <then>
-                <property name="state.pkg.devops.release.filename" value="${config.pkg.devops.release.filename}" override="true" />
+                <property name="state.pkg.devops.ci.release.filename" value="${config.pkg.devops.ci.release.filename}" override="true" />
             </then>
             <else>
-                <property name="state.pkg.devops.release.filename" value="${tmp.pkg.devops.release.filename}" override="true" />
+                <property name="state.pkg.devops.ci.release.filename" value="${tmp.pkg.devops.ci.release.filename}" override="true" />
             </else>
         </if> 
         
-                                         
+        <!-- devops: CI -->     
+        <property name="tmp.pkg.devops.cd.current.filename" value="${state.pkg.devops.cd.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.current.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.cd.current.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.cd.current.filename" value="${config.pkg.devops.cd.development.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.cd.current.filename" value="${tmp.pkg.devops.cd.current.filename}" override="true" />
+            </else>
+        </if>    
+
+        <property name="tmp.pkg.devops.cd.staging.filename" value="${state.pkg.devops.cd.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.staging.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.cd.staging.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.cd.staging.filename" value="${config.pkg.devops.cd.staging.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.cd.staging.filename" value="${tmp.pkg.devops.cd.staging.filename}" override="true" />
+            </else>
+        </if>    
+
+
+        <property name="tmp.pkg.devops.cd.release.filename" value="${state.pkg.devops.cd.glob}" override="true">
+            <filterchain>
+                <replaceregexp>
+                    <regexp pattern="\*+" replace="${state.vcs.branches.release.name.dashed}" ignoreCase="true" />
+                </replaceregexp>            
+            </filterchain>            
+        </property>
+        <if>
+            <not>
+                <available file="${tmp.pkg.devops.cd.release.filename}" />
+            </not>
+            <then>
+                <property name="state.pkg.devops.cd.release.filename" value="${config.pkg.devops.cd.release.filename}" override="true" />
+            </then>
+            <else>
+                <property name="state.pkg.devops.cd.release.filename" value="${tmp.pkg.devops.cd.release.filename}" override="true" />
+            </else>
+        </if>                                          
     </target>        
     
     <!-- ===========================================
@@ -547,13 +606,21 @@
         <echo msg=" state.pkg.builds.source.version  :  ${state.pkg.builds.source.version} " />
         <echo msg=" state.pkg.builds.source.version.major  :  ${state.pkg.builds.source.version.major} " />
         <echo msg=" state.pkg.builds.targets.versions  :  ${state.pkg.builds.targets.versions} " />
-        
-        <echo msg=" state.pkg.devops.glob  :  ${state.pkg.devops.glob} " />
-        <echo msg=" state.pkg.devops.current.filename  :  ${state.pkg.devops.current.filename} " />
-        <echo msg=" state.pkg.devops.staging.filename  :  ${state.pkg.devops.staging.filename} " />
-        <echo msg=" state.pkg.devops.release.filename  :  ${state.pkg.devops.release.filename} " />
-        <echo msg=" state.pkg.devops.target.filename  :  ${state.pkg.devops.target.filename} " />
+                
         <echo msg=" state.pkg.devops.git.ignore.filename  :  ${state.pkg.devops.git.ignore.filename} " />        
+
+        <echo msg=" state.pkg.devops.ci.glob  :  ${state.pkg.devops.ci.glob} " />
+        <echo msg=" state.pkg.devops.ci.current.filename  :  ${state.pkg.devops.ci.current.filename} " />
+        <echo msg=" state.pkg.devops.ci.staging.filename  :  ${state.pkg.devops.ci.staging.filename} " />
+        <echo msg=" state.pkg.devops.ci.release.filename  :  ${state.pkg.devops.ci.release.filename} " />
+        <echo msg=" state.pkg.devops.ci.target.filename  :  ${state.pkg.devops.ci.target.filename} " />
+        
+        <echo msg=" state.pkg.devops.cd.glob  :  ${state.pkg.devops.cd.glob} " />
+        <echo msg=" state.pkg.devops.cd.current.filename  :  ${state.pkg.devops.cd.current.filename} " />
+        <echo msg=" state.pkg.devops.cd.staging.filename  :  ${state.pkg.devops.cd.staging.filename} " />
+        <echo msg=" state.pkg.devops.cd.release.filename  :  ${state.pkg.devops.cd.release.filename} " />
+        <echo msg=" state.pkg.devops.cd.target.filename  :  ${state.pkg.devops.cd.target.filename} " />        
+
         
         <echo msg=" state.vcs.commit.message  :  ${state.vcs.commit.message} " />
         <echo msg=" state.vcs.cmd  :  ${state.vcs.cmd} " />

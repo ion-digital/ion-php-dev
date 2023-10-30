@@ -19,6 +19,7 @@ class TypeModel {
     public const TYPE_ARRAY = "array";
     public const TYPE_SCALAR = "scalar";
     public const TYPE_CLASS = "class";    
+    public const TYPE_MIXED = "mixed";    
     
     private $name;
     private $nullable;

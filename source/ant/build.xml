@@ -11,14 +11,13 @@
         </else>
     </if>
     
-    <property name="state.ant.version" value="0.2.2" />
+    <property name="state.ant.version" value="0.3.0" />
         
     <import file="${state.ant.dir.include}/build.state.xml" />
     <import file="${state.ant.dir.include}/build.package.xml" />    
     <import file="${state.ant.dir.include}/build.staging.xml" />
     <import file="${state.ant.dir.include}/build.release.xml" />
     <import file="${state.ant.dir.include}/build.archive.xml" />
-    
     
    <!-- ===========================================
         Target: clean
@@ -158,7 +157,7 @@
         
     </target>
     
-    <target name="build-version">
+    <target name="build-version" depends="init">
 
         <fail message="No build source version specified.">
             <condition>
@@ -254,7 +253,7 @@
         </exec>                                               
     </target>       
 
-    <target name="build-current">
+    <target name="build-current" depends="init">
         
         <fail message="No build source version specified.">
             <condition>
@@ -372,7 +371,7 @@
 <!--        <echo msg="${state.pkg.cmd} ${state.pkg.cmd.generate.interfaces}" />-->
         
         <if>
-            <available file="${config.pkg.source.dir}/classes/" />
+            <available file="${state.pkg.source.dir}/classes/" />
             <then>        
                 <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
                     <arg line="${state.pkg.cmd.generate.interfaces.classes}" />
@@ -381,7 +380,7 @@
         </if>      
         
         <if>
-            <available file="${config.pkg.source.dir}/traits/" />
+            <available file="${state.pkg.source.dir}/traits/" />
             <then>        
                 <exec executable="${state.pkg.cmd}" outputProperty="tmp" dir="." checkreturn="true" passthru="true">
                     <arg line="${state.pkg.cmd.generate.interfaces.traits}" />

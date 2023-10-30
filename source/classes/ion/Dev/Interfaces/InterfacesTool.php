@@ -320,18 +320,51 @@ class InterfacesTool extends Tool {
             
             $output->writeln("No interface variations generated for file '{$path}.'");
             return;
-        }        
+        }     
+        
+        $baseInputDir = realpath($baseInputDir . DIRECTORY_SEPARATOR);
+
+        if(empty($baseInputDir)) {
+
+            throw new Exception("Base input directory does not exist.");
+        }
+
+        $baseInputDir = $baseInputDir . DIRECTORY_SEPARATOR;
+
+        $inputDir = realpath($inputDir . DIRECTORY_SEPARATOR);
+
+        if(empty($inputDir)) {
+
+            throw new Exception("Input directory does not exist.");
+        }
+
+        $inputDir = $inputDir . DIRECTORY_SEPARATOR;
+
+        $baseInputDir = str_replace('/', DIRECTORY_SEPARATOR, $baseInputDir);
+        $inputDir = str_replace('/', DIRECTORY_SEPARATOR, $inputDir);        
         
         foreach($variations as $cnt => $interfaceName) {       
             
             //echo "\n\n--X {$interfaceName}\n\n";
             
-            $outputPath = str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}" 
-                        . str_replace($baseInputDir, "", $inputDir))
+            $outputDir = str_replace('/', DIRECTORY_SEPARATOR, $outputDir);
+
+
+            $outputPath = $outputDir
+                        . str_replace($baseInputDir, "", $inputDir)
                         . "{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php";
                         
+//var_dump($outputDir);
+//echo "==============================================\n";
+// var_dump($baseInputDir);
+// var_dump($inputDir);
+// var_dump(str_replace($baseInputDir, "", $inputDir));
+//var_dump($outputPath);
 
-//            exit;
+//var_dump(str_replace('/', DIRECTORY_SEPARATOR, "{$outputDir}") . str_replace($baseInputDir, "", $inputDir));
+//var_dump(str_replace($baseInputDir, "", $inputDir));
+//var_dump("{$interfaceName->getModifiedName($prefixesToStrip, $suffixesToStrip, $prefixesToIgnore, $suffixesToIgnore)->getName()}.php");
+//            return;
                         
             if($action === 'generate') { 
                 
@@ -398,7 +431,7 @@ class InterfacesTool extends Tool {
                 
                 $inputPath = $inputDir . "{$interfaceName->getName()}.php";                
                 
-                echo "FIXME: $inputPath\n";
+                //echo "FIXME: $inputPath\n";
                 
                 $output->write("Cleaning '" . pathinfo($inputPath, PATHINFO_BASENAME) . "' ... ");                                        
 

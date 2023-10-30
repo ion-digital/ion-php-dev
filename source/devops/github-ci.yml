@@ -1,0 +1,35 @@
+name: Run unit tests
+
+on: 
+  push:
+    branches: ["main", "staging/main"]
+
+  workflow_dispatch:
+
+  workflow_call:
+    
+jobs:
+
+  tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: auth
+      uses: php-actions/composer@v6
+      with:
+        php_version: "8.2"
+        php_extensions: zip xsl
+        version: 2.x                    
+        command: config --no-interaction --auth github-oauth.github.com ${{ secrets.TOKEN }}
+
+    - name: tests
+      uses: php-actions/phpunit@v3
+      with:
+        bootstrap: vendor/autoload.php
+        args: --coverage-text tests/unit
+
+
+
