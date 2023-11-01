@@ -17,19 +17,34 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: auth
+    - name: Cache Composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: /tmp/composer-cache
+        key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
+
+    - name: Create auth.json
       uses: php-actions/composer@v6
       with:
         php_version: "8.2"
-        php_extensions: zip xsl
+        php_extensions: zip xsl xdebug mbstring
         version: 2.x                    
         command: config --no-interaction --auth github-oauth.github.com ${{ secrets.TOKEN }}
 
-    - name: tests
-      uses: php-actions/phpunit@v3
+    - name: Install dependencies
+      uses: php-actions/composer@v6
       with:
+        php_version: "8.2"
+        php_extensions: zip xsl xdebug mbstring
+        version: 2.x                    
+        command: install
+
+    - name: Run unit tests
+      uses: php-actions/phpunit@v3
+      env:
+        XDEBUG_MODE: 'coverage'
+      with:
+        php_version: "8.2"
+        php_extensions: zip xsl xdebug mbstring
         bootstrap: vendor/autoload.php
-        args: --coverage-text tests/unit
-
-
-
+        args: tests/unit

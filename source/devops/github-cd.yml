@@ -1,4 +1,4 @@
-name: Trigger a Satis rebuild
+name: Trigger a Satis deployment
 
 on: 
   push:
@@ -8,27 +8,28 @@ on:
 
 jobs:
 
-  tests:
-
-    uses: .github/workflows/ci.yml
-
   satis:
 
     runs-on: ubuntu-latest
 
     steps:
-      
-    - name: satis    
+    - name: Trigger Satis deployment
       uses: actions/github-script@v6
+      env:
+        SATIS_REPO_OWNER: ${{ vars.SATIS_REPO_OWNER }}
+        SATIS_REPO_NAME: ${{ vars.SATIS_REPO_NAME }}
+        SATIS_BUILD_WORKFLOW: ${{ vars.SATIS_BUILD_WORKFLOW }}
+        SATIS_BUILD_BRANCH: ${{ vars.SATIS_BUILD_BRANCH }}          
       with:
         github-token: ${{ secrets.TOKEN }}
         script: |
+          const { SATIS_REPO_OWNER, SATIS_REPO_NAME, SATIS_BUILD_WORKFLOW, SATIS_BUILD_BRANCH } = process.env
+
           await github.rest.actions.createWorkflowDispatch({
-            owner: 'ion-digital',
-            repo: 'ion-php-packages',
-            workflow_id: 'release.yml',
-            ref: 'main'
+            owner: `${SATIS_REPO_OWNER}`,
+            repo: `${SATIS_REPO_NAME}`,
+            workflow_id: `${SATIS_BUILD_WORKFLOW}`,
+            ref: `${SATIS_BUILD_BRANCH}`
           })
 
-
-
+          
