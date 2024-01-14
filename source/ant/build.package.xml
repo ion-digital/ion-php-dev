@@ -69,14 +69,29 @@
         <echo msg="Applying .gitignore ('${config.pkg.devops.git.ignore.filename}' -> '.gitignore')" />
         <copy file="${config.pkg.devops.git.ignore.filename}" tofile=".gitignore" overwrite="true" haltonerror="false" />        
         
-        <echo msg="Applying CI configuration ('${state.pkg.devops.ci.current.filename}' -> '${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}')." />
+        <!-- <echo msg="Applying CI configuration ('${state.pkg.devops.ci.current.filename}' -> '${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}')." />
         <mkdir dir="${state.pkg.devops.ci.target.directory}" />
-        <copy file="${state.pkg.devops.ci.current.filename}" tofile="${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}" overwrite="false" haltonerror="false" />
+        <copy file="${state.pkg.devops.ci.current.filename}" tofile="${state.pkg.devops.ci.target.directory}/${state.pkg.devops.ci.target.filename}" overwrite="false" haltonerror="false" /> -->
         
-        <echo msg="Applying CD configuration ('${state.pkg.devops.cd.current.filename}' -> '${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}')." />
+        <!-- <echo msg="Applying CD configuration ('${state.pkg.devops.cd.current.filename}' -> '${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}')." />
         <mkdir dir="${state.pkg.devops.cd.target.directory}" />
-        <copy file="${state.pkg.devops.cd.current.filename}" tofile="${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}" overwrite="false" haltonerror="false" />
+        <copy file="${state.pkg.devops.cd.current.filename}" tofile="${state.pkg.devops.cd.target.directory}/${state.pkg.devops.cd.target.filename}" overwrite="false" haltonerror="false" /> -->
 
+        <echo msg="Applying CI configuration" />
+        <mkdir dir="${state.pkg.devops.ci.target.directory}" />
+        <copy todir="${state.pkg.devops.ci.target.directory}" haltonerror="false" includeemptydirs="false">
+            <fileset defaultexcludes="true" expandsymboliclinks="true" dir="${state.pkg.devops.ci.glob.directory}/">        
+                <include name="${state.pkg.devops.ci.glob}" />  
+            </fileset>
+        </copy>      
+
+        <echo msg="Applying CD configuration" />
+        <mkdir dir="${state.pkg.devops.cd.target.directory}" />
+        <copy todir="${state.pkg.devops.cd.target.directory}" haltonerror="false" includeemptydirs="false">
+            <fileset defaultexcludes="true" expandsymboliclinks="true" dir="${state.pkg.devops.cd.glob.directory}/">        
+                <include name="${state.pkg.devops.cd.glob}" />  
+            </fileset>
+        </copy>     
 
 <!--        <phingcall target="prepare-package" />-->
                                                   

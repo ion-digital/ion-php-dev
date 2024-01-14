@@ -418,10 +418,12 @@
         <property name="state.pkg.devops.git.ignore.filename" value="${config.pkg.devops.git.ignore.filename}" override="true" />
 
         <property name="state.pkg.devops.ci.glob" value="${config.pkg.devops.ci.glob}" override="true" />
+        <property name="state.pkg.devops.ci.glob.directory" value="${config.pkg.devops.ci.glob.directory}" override="true" />
         <property name="state.pkg.devops.ci.target.directory" value="${config.pkg.devops.ci.target.directory}" override="true" />
         <property name="state.pkg.devops.ci.target.filename" value="${config.pkg.devops.ci.target.filename}" override="true" />
         
         <property name="state.pkg.devops.cd.glob" value="${config.pkg.devops.cd.glob}" override="true" />
+        <property name="state.pkg.devops.cd.glob.directory" value="${config.pkg.devops.cd.glob.directory}" override="true" />
         <property name="state.pkg.devops.cd.target.directory" value="${config.pkg.devops.cd.target.directory}" override="true" />
         <property name="state.pkg.devops.cd.target.filename" value="${config.pkg.devops.cd.target.filename}" override="true" />
                 
