@@ -79,7 +79,7 @@
 
         <echo msg="Applying CI configuration" />
         <mkdir dir="${state.pkg.devops.ci.target.directory}" />
-        <copy todir="${state.pkg.devops.ci.target.directory}" haltonerror="false" includeemptydirs="false">
+        <copy todir="${state.pkg.devops.ci.target.directory}" haltonerror="false" includeemptydirs="false" overwrite="false">
             <fileset defaultexcludes="true" expandsymboliclinks="true" dir="${state.pkg.devops.ci.glob.directory}/">        
                 <include name="${state.pkg.devops.ci.glob}" />  
             </fileset>
@@ -87,7 +87,7 @@
 
         <echo msg="Applying CD configuration" />
         <mkdir dir="${state.pkg.devops.cd.target.directory}" />
-        <copy todir="${state.pkg.devops.cd.target.directory}" haltonerror="false" includeemptydirs="false">
+        <copy todir="${state.pkg.devops.cd.target.directory}" haltonerror="false" includeemptydirs="false" overwrite="false">
             <fileset defaultexcludes="true" expandsymboliclinks="true" dir="${state.pkg.devops.cd.glob.directory}/">        
                 <include name="${state.pkg.devops.cd.glob}" />  
             </fileset>
