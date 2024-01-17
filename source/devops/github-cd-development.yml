@@ -2,9 +2,12 @@ name: Trigger a development branch deployment
 
 on: 
   push:
-    branches-ignore: ["staging/**", "release/**"]
+    branches-ignore: ["staging/**", "release/**", "feature/**", "bugfix/**", "hotfix/**"]
 
-  workflow_dispatch:  
+  workflow_dispatch:
+
+env:
+  COMPOSER_TOKEN: ${{ secrets.TOKEN }}
 
 jobs:
 
@@ -22,6 +25,7 @@ jobs:
         key: ${{ runner.os }}-${{ hashFiles('**/composer.lock') }}
 
     - name: Create auth.json
+      if: ${{ env.COMPOSER_TOKEN != null && env.COMPOSER_TOKEN != '' }} 
       uses: php-actions/composer@v6
       with:
         php_version: "8.2"
@@ -49,5 +53,7 @@ jobs:
         local_path: './*'
         remote_path: '${{ vars.SFTP_HOME }}/${{ vars.SFTP_REMOTE_PATH }}'
         sftp_only: true
+        delete_remote_files: true
+        ssh_private_key:
         
           
