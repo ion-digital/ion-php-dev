@@ -22,7 +22,7 @@ class MethodParameterModel extends NodeModel {
     public const DEFAULT_TYPE_CLASS = "class";
     
     private $name;
-    private $type;
+    private $types;
     private $default;
     private $variadic;
     private $defaultType;
@@ -42,8 +42,10 @@ class MethodParameterModel extends NodeModel {
         
         parent::__construct($doc);
         
+        $this->types = [];
+
         $this->setName($name);
-        $this->setType($type);        
+        $this->addType($type);        
         $this->setDefault($default, $defaultType);
         $this->setByReference($byReference);
         $this->setVariadic($variadic);
@@ -62,18 +64,41 @@ class MethodParameterModel extends NodeModel {
     
     public function setType(TypeModel $type = null): self {
         
-        $this->type = $type;
+        if($type === null) {
+
+            $this->types = [];
+            return $this;
+        }
+
+        $this->types = [ $type ];
         return $this;
     }
     
     public function getType(): ?TypeModel {
         
-        return $this->type;
+        if(count($this->getTypes()) === 0)
+            return null;
+
+        return $this->getTypes()[0];
     }    
+
+    public function getTypes(): array {
+        
+        return $this->types;
+    }       
     
     public function hasType(): bool {
         
         return ($this->getType() !== null);
+    }
+
+    public function addType(TypeModel $type = null): self {
+        
+        if($type === null)
+            return $this;
+
+        $this->types[] = $type;
+        return $this;
     }
     
     public function setDefault(string $default = null, string $defaultType = null): self {
@@ -150,6 +175,11 @@ class MethodParameterModel extends NodeModel {
         
         return ($this->getVariadic() === true);
     }      
+
+    public function isUnion(): bool {
+
+        return count($this->getTypes()) > 1;
+    }
     
     public function toString(): string {
         
@@ -157,7 +187,15 @@ class MethodParameterModel extends NodeModel {
         
         if($this->hasType()) {
 
-            $php .= "{$this->getType()} ";
+            // if($this->isUnion()) {
+
+            //     $php .= implode("|", $this->getTypes()) . " ";
+
+            // } else {
+
+            //     $php .= "{$this->getType()} ";
+            // }
+            $php .= implode("|", $this->getTypes()) . " ";
         }
 
         if($this->isByReference()) {

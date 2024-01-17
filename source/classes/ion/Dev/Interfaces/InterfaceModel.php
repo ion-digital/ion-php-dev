@@ -519,18 +519,24 @@ class InterfaceModel extends NodeModel {
             
             foreach($this->getMethods() as $key => $method) {
 
+                // It doesn't make sense to include static methods in interfaces
+                
+                if($method->isStatic())
+                    continue;
+
                 $methods .= "{$method->toString()}\n\n";
                 
                 foreach($method->getParameters() as $pName => $parameter) {
                     
-                    $type = $parameter->getType();                                 
+                    foreach($parameter->getTypes() as $type) {
                     
-                    if($type === null || ($type !== null && $type->getName()->isPhpType())) {
-                        
-                        continue;
-                    }
+                        if($type === null || ($type !== null && $type->getName()->isPhpType())) {
+                            
+                            continue;
+                        }
 
-                    $this->addReference($type->getName(), true);
+                        $this->addReference($type->getName(), true);
+                    }
                 }
                 
                 if($method->hasReturnType() && !$method->getReturnType()->getName()->isPhpType()) {

@@ -21,6 +21,7 @@ use PhpParser\Node\Name\Relative;
 use PhpParser\Comment;
 use PhpParser\Comment\Doc;
 use PhpParser\Node\NullableType;
+use PhpParser\Node\UnionType;
 use PhpParser\Node\Param;
 use PhpParser\Node\Identifier;
 use PhpParser\Node\Expr\ConstFetch;
@@ -229,40 +230,7 @@ class NodeVisitor extends NodeVisitorAbstract {
 
                 if(!empty($nodeParam->type)) {
                     
-                    $type = $nodeParam->type;
-                    $nullable = false;
-                    
-                    if($type instanceof NullableType) {
-
-                        $nullable = true;
-
-                        $type = $type->type;
-                    }
-
-                    if(is_string($type)) {
-
-                        $param->setType(new TypeModel(new NameModel(null, $type), $nullable));
-
-                    } 
-                    else if($type instanceof Identifier) {
-
-                        $param->setType(new TypeModel(new NameModel(null, $type->name), $nullable));  
-                    }
-                    else if($type instanceof Name || $type instanceof FullyQualified) {
-                        
-                        $tmp = NameModel::getFromParts($type->parts, true);
-                        
-                        if($type instanceof FullyQualified) {
-                            
-                            $tmp->setAbsolute(true);
-                        }
-                      
-                        $param->setType(new TypeModel($tmp, $nullable));                        
-                        $this->model->addReference($tmp, false);
-                    }
-
-                    // echo "$node->name -> $name -> " . gettype($type) . "\n";
-                    // var_dump($type);
+                    $this->processType($param, $nodeParam->type);
                 }
                 
                 if($nodeParam->byRef) {
@@ -335,10 +303,7 @@ class NodeVisitor extends NodeVisitorAbstract {
                             $tmp[] = $tmpItem;
                         }
                         
-//                        var_dump("[ " . implode(", ", $tmp) . " ]");
-                        
                         $param->setDefault(implode(", ", $tmp), MethodParameterModel::DEFAULT_TYPE_ARRAY);
-//                        $param->setDefault("[ " . implode(", ", $nodeParam->default->items) . " ]", MethodParameterModel::DEFAULT_TYPE_ARRAY);
                     }
 
                     else if($nodeParam->default instanceof Scalar) {
@@ -433,6 +398,47 @@ class NodeVisitor extends NodeVisitorAbstract {
             return null;
         }
 
+        return null;
+    }
+
+    private function processType(MethodParameterModel $param, $type) {
         
+        $nullable = false;
+        
+        if($type instanceof NullableType) {
+
+            $nullable = true;
+
+            $type = $type->type;
+        }
+
+        if(is_string($type)) {
+
+            $param->addType(new TypeModel(new NameModel(null, $type), $nullable));
+
+        } 
+        else if($type instanceof Identifier) {
+
+            $param->addType(new TypeModel(new NameModel(null, $type->name), $nullable));  
+        }
+        else if($type instanceof Name || $type instanceof FullyQualified) {
+            
+            $tmp = NameModel::getFromParts($type->parts, true);
+            
+            if($type instanceof FullyQualified) {
+                
+                $tmp->setAbsolute(true);
+            }
+          
+            $param->addType(new TypeModel($tmp, $nullable));                        
+            $this->model->addReference($tmp, false);
+        }
+        else if($type instanceof UnionType) {
+
+            foreach($type->types as $unionTypePart) {
+
+                $this->processType($param, $unionTypePart);
+            }
+        }
     }
 }

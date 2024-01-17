@@ -40,7 +40,8 @@ class NameModel {
         'Stringable',
         'DateTime',
         'DateInterval',
-        'DateTimeImmutable'
+        'DateTimeImmutable',
+        'Stringable'
     ];
     
     private const PHP_INTERFACES = [
