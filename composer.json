@@ -1,6 +1,6 @@
 {
     "name": "ion/dev",
-    "type": "composer-plugin",
+    "type": "library",
     "description": "Development and package deployment support tools, built as a Composer plugin.",
     "keywords": [
         "ION",
@@ -50,9 +50,6 @@
             ]
         }    
     },    
-    "extra": {
-        "class": "ion\\Dev\\Composer\\DevPlugin"
-    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "repositories": [
