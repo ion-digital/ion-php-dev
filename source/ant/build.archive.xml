@@ -7,7 +7,7 @@
     
     <target name="clean-archives" depends="init, validate-archive-support">
    
-        <delete dir="${state.pkg.archives.dir}" includeemptydirs="true" verbose="false" failonerror="false" />            
+        <delete dir="${state.pkg.archives.dir}" includeemptydirs="true" quiet="true" failonerror="false" />            
         
     </target>
        
@@ -100,7 +100,7 @@
                     </fileset>
                 </copy>        
 
-                <foreach list="${state.pkg.additional.dirs}" param="tmp.additional-directory" target="archive-additional-directory" />             
+                <foreach list="${state.pkg.additional.dirs}" param="tmp.additional-directory" target="archive-additional-directory" inheritall="true" />
 
                 <echo msg="Updating dependencies in ${state.pkg.archives.dir.package}" />              
                 <exec executable="composer" dir="${state.pkg.archives.dir.package}">
