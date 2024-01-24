@@ -102,8 +102,12 @@
 
                 <foreach list="${state.pkg.additional.dirs}" param="tmp.additional-directory" target="archive-additional-directory" />             
 
-                <echo msg="Updating dependencies in ${state.pkg.archives.dir.package}" />
-                <exec command="composer update --no-dev --no-interaction" dir="${state.pkg.archives.dir.package}" />
+                <echo msg="Updating dependencies in ${state.pkg.archives.dir.package}" />              
+                <exec executable="composer" dir="${state.pkg.archives.dir.package}">
+                    <arg value="update"/>
+                    <arg value="--no-dev"/>
+                    <arg value="--no-interaction"/>
+                </exec>
 
                 <delete>
                     <fileset dir="${state.pkg.archives.dir.package}">
