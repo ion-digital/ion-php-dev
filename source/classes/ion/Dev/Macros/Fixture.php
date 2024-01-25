@@ -1043,7 +1043,7 @@ class Fixture {
         $commonDir = join(DIRECTORY_SEPARATOR, $diffDirArray);
         
 
-        $outputPath = static::$baseDir . str_replace(static::$inputDir, '', $this->output);
+        $outputPath = static::$baseDir . str_replace(static::$inputDir, "", $this->output ?? "");
         
 //        if($this->getName() === 'ThemeVector') {
 //           
@@ -1053,7 +1053,7 @@ class Fixture {
 //            die($outputPath);
 //        }
         
-        if(strpos($this->output, $commonDir) !== 0) {
+        if(strpos($this->output ?? "", $commonDir) !== 0) {
             
             $result[] = "Skipped (macro is not within a common input/base path: {$commonDir}).";
             return $result;            
