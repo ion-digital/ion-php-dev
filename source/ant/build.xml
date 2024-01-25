@@ -87,14 +87,24 @@
     
     <target name="macros" depends="init">        
         <if>
-            <equals arg1="${state.pkg.source.macros.exists}" arg2="1"/>
+            <equals arg1="${state.pkg.source.macros.exists}" arg2="true"/>
             <then>
         
                 <echo msg="Validating macros." />
-                <exec command="composer macros validate ${state.pkg.source.macros.dir}macros.xml" checkreturn="true" passthru="true" />
+
+                <exec executable="composer" dir="." checkreturn="true" passthru="true">
+                    <arg value="macros"/>
+                    <arg value="validate"/>
+                    <arg value="${state.pkg.source.macros.dir}macros.xml"/>
+                </exec>
 
                 <echo msg="Generating macros." />
-                <exec command="composer macros generate ${state.pkg.source.macros.dir}macros.xml" checkreturn="true" passthru="true" />  
+
+                <exec executable="composer" dir="." checkreturn="true" passthru="true">
+                    <arg value="macros"/>
+                    <arg value="generate"/>
+                    <arg value="${state.pkg.source.macros.dir}macros.xml"/>
+                </exec>
 
                 <echo msg="Copying macros from source to root." />
                 <mkdir dir="${state.pkg.macros.dir}" />

@@ -644,6 +644,7 @@ class Fixture {
     }
     
     private $tags;
+    private $method;
     private $tagFilters;
     private $name;
     private $inherits;
